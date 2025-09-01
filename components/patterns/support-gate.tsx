@@ -1,41 +1,34 @@
-// components/patterns/support-gate.tsx
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
 import { PreviewAudio } from "@/components/patterns/preview-audio";
 
 interface SupportGateProps {
-  children: ReactNode;       // Full content (full song / lyric game / merch)
-  ctaHref?: string;          // Where the “Contribute to unlock” button points
-  title?: string;            // Title above the preview
-  note?: string;             // Small note under the preview
+  children: ReactNode;               // Full unlocked content
+  ctaHref?: string;                  // Link to your contribution page (to be added later)
+  title?: string;
+  note?: string;
 }
 
 export function SupportGate({
   children,
-  ctaHref = "/support",      // we’ll wire this during the contribution step
+  ctaHref = "/support",
   title = "30-second Preview",
-  note = "Contribute to unlock the full song, lyric game, and exclusive merch."
+  note = "Contribute to unlock the full song, lyric game, and exclusive merch.",
 }: SupportGateProps) {
   const [isSupporter, setIsSupporter] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // supporter cookie will be set after successful contribution later
     const has = typeof document !== "undefined" && document.cookie.includes("supporter=1");
     setIsSupporter(has);
   }, []);
 
   if (isSupporter === null) {
-    // avoid layout flash; lightweight skeleton
     return <div className="w-full max-w-xl mx-auto p-4 text-sm text-gray-500">Loading...</div>;
   }
 
-  if (isSupporter) {
-    // ✅ Unlocked: render the full content
-    return <>{children}</>;
-  }
+  if (isSupporter) return <>{children}</>;
 
-  // 🔒 Locked: show preview + CTA
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col items-center gap-6 px-4">
       <PreviewAudio title={title} />
