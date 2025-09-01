@@ -1,67 +1,68 @@
-// app/api/checkout/success/route.ts
-export const runtime = 'nodejs'
+// app/api/checkout/route.ts
+export const runtime = 'nodejs';
 
-import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
+
+function dollarsToCents(d: number) {
+  return Math.round(d * 100);
+}
 
 export async function GET(req: Request) {
-  const url = new URL(req.url)
-  const sessionId = url.searchParams.get('session_id')
-
-  if (!sessionId) {
-    return NextResponse.redirect(new URL('/home', url), { status: 302 })
-  }
+  const url = new URL(req.url);
+  const priceId = url.searchParams.get('price_id') || undefined;
+  const amountStr = url.searchParams.get('amount') || undefined; // dollars (string)
+  const email = url.searchParams.get('email') || undefined;      // optional prefill
+  const productName = url.searchParams.get('label') || 'Support Contribution';
+  const successReturn = url.searchParams.get('return_to') || '/api/checkout/success';
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['line_items.data.price.product', 'customer'],
-    })
+    let sessionUrl: string | null = null;
 
-    if (session.payment_status !== 'paid') {
-      // Not paid, send back normally
-      return NextResponse.redirect(new URL('/home', url), { status: 302 })
+    // Case A: preset price (recommended for fixed buttons)
+    if (priceId) {
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${url.origin}${successReturn}?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${url.origin}/buy`,
+        customer_email: email,
+        metadata: { source: 'buy-page', kind: 'preset' },
+      });
+      sessionUrl = session.url!;
+    } else {
+      // Case B: custom amount (no price object needed)
+      const amountDollars = amountStr ? Number(amountStr) : NaN;
+      const valid = Number.isFinite(amountDollars) && amountDollars >= 1 && amountDollars <= 100000;
+      if (!valid) return new NextResponse('Invalid amount', { status: 400 });
+
+      const unitAmount = dollarsToCents(amountDollars);
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              unit_amount: unitAmount,
+              product_data: {
+                name: productName,
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${url.origin}${successReturn}?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${url.origin}/buy`,
+        customer_email: email,
+        metadata: { source: 'buy-page', kind: 'custom', amount_dollars: String(amountDollars) },
+      });
+      sessionUrl = session.url!;
     }
 
-    // Pull useful fields
-    const email =
-      (session.customer_details?.email ||
-        (typeof session.customer === 'object' ? session.customer.email : undefined) ||
-        '')?.toLowerCase()
-
-    const amount = (session.amount_total ?? 0) / 100
-    const currency = session.currency?.toUpperCase() ?? 'USD'
-    const priceId = session.line_items?.data?.[0]?.price?.id ?? null
-
-    // Record contribution (best-effort; ignore failures)
-    if (email) {
-      await supabaseAdmin.from('contributions').insert([
-        {
-          email,
-          amount,
-          currency,
-          stripe_session_id: session.id,
-          price_id: priceId,
-        },
-      ])
-      // Also ensure email is in the emails table (idempotent)
-      await supabaseAdmin.from('emails').upsert([{ email, source: 'checkout' }], {
-        onConflict: 'email',
-      })
-    }
-
-    // ✅ Set supporter cookie and send back to /home
-    const res = NextResponse.redirect(new URL('/home', url), { status: 302 })
-    res.cookies.set('supporter', '1', {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365,
-      httpOnly: false,
-      sameSite: 'lax',
-      secure: true,
-    })
-    return res
+    return NextResponse.redirect(sessionUrl, { status: 303 });
   } catch (e) {
-    console.error(e)
-    return NextResponse.redirect(new URL('/home', req.url), { status: 302 })
+    console.error(e);
+    return new NextResponse('Failed to create checkout session', { status: 500 });
   }
 }
