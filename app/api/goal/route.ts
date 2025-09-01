@@ -30,11 +30,11 @@ export async function GET(req: Request) {
   }
 
   // Sum only USD; extend if you plan multi-currency
-  const totalCents = Math.round(
-    (data || [])
-      .filter(r => (r.currency || 'USD').toUpperCase() === 'USD')
-      .reduce((sum, r) => sum + Number(r.amount || 0) * 100, 0)
-  );
+  onst totalCents = Math.round(
+  (data || [])
+    .filter(r => (r.currency || 'USD').toUpperCase() === 'USD')
+    .reduce((sum, r) => sum + Number(r.amount || 0), 0) * 100
+);
 
   const remainingCents = Math.max(0, goalCents - totalCents);
   const percent = Math.min(100, Math.round((totalCents / goalCents) * 100));
