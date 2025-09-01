@@ -35,15 +35,22 @@ export async function GET(req: Request) {
     }
 
     // ✅ On the list: set cookie and send to /home
-    const res = NextResponse.redirect(new URL("/home", url), { status: 302 });
-    res.cookies.set("gate", "1", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false, // client-side read okay for this lightweight gate
-      sameSite: "lax",
-      secure: true,
-    });
-    return res;
+const res = NextResponse.redirect(new URL("/home", url), { status: 302 });
+res.cookies.set("gate", "1", {
+  path: "/",
+  maxAge: 60 * 60 * 24 * 365,
+  httpOnly: false,
+  sameSite: "lax",
+  secure: true,
+});
+res.cookies.set("gate_email", raw, {
+  path: "/",
+  maxAge: 60 * 60 * 24 * 365,
+  httpOnly: false,
+  sameSite: "lax",
+  secure: true,
+});
+return res;
   } catch (e) {
     console.error(e);
     // Fallback → send to gate
