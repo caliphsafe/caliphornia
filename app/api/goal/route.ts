@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   }
 
   // Sum only USD; extend if you plan multi-currency
-  onst totalCents = Math.round(
+  const totalCents = Math.round(
   (data || [])
     .filter(r => (r.currency || 'USD').toUpperCase() === 'USD')
     .reduce((sum, r) => sum + Number(r.amount || 0), 0) * 100
