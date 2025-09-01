@@ -35,6 +35,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
+  // NEW: helper — supporters can play full track
+  const supporter =
+    typeof document !== "undefined" && document.cookie.includes("supporter=1")
+
   useEffect(() => {
     console.log("[v0] Player state changed:", {
       currentSong: currentSong?.title || null,
@@ -44,13 +48,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     })
   }, [currentSong, isPlaying, isPlayerVisible, isFullScreenOpen])
 
+  // UPDATED: tick logic with preview cap for non-supporters
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout | undefined
     if (isPlaying && currentSong) {
       interval = setInterval(() => {
         setCurrentTime((prev) => {
+          const limit = supporter ? duration || 210 : 30 // 30s cap for non-supporters
           const newTime = prev + 1
-          if (newTime >= 210) {
+          if (newTime >= limit) {
             setIsPlaying(false)
             return 0
           }
@@ -58,8 +64,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         })
       }, 1000)
     }
-    return () => clearInterval(interval)
-  }, [isPlaying, currentSong])
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isPlaying, currentSong, supporter, duration])
 
   useEffect(() => {
     if (typeof document === "undefined") return
@@ -85,6 +93,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setCurrentSong(song)
     setIsPlaying(true)
     setIsPlayerVisible(true)
+    // Keep your existing default duration (e.g., 210s)
     setDuration(210)
     setCurrentTime(0)
   }
@@ -102,7 +111,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   }
 
   const seekTo = (time: number) => {
-    setCurrentTime(time)
+    // Prevent seeking beyond preview for non-supporters
+    const maxTime = supporter ? (duration || 210) : 30
+    const clamped = Math.max(0, Math.min(time, maxTime - 1))
+    setCurrentTime(clamped)
   }
 
   const openFullScreen = () => {
