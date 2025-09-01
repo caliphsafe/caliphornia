@@ -47,11 +47,13 @@ export function EmailForm({ className }: EmailFormProps) {
       const data = await res.json()
 
       if (res.ok && data?.ok) {
-        // ✅ set cookie for 1 year
-        document.cookie = "gate=1; Path=/; Max-Age=31536000"
-        router.push("/home")
-        return
-      } else {
+  // ✅ set cookies for 1 year
+  document.cookie = "gate=1; Path=/; Max-Age=31536000"
+  document.cookie = `gate_email=${encodeURIComponent(email.toLowerCase().trim())}; Path=/; Max-Age=31536000`
+  router.push("/home")
+  return
+}
+ else {
         setStatus("error")
         setMessage("Something went wrong. Please try again.")
       }
