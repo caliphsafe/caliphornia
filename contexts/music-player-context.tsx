@@ -38,6 +38,29 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listenersReadyRef = useRef(false)
 
+  // NEW: suppression & metadata helpers to avoid AbortError loops on Safari/Chrome
+  const suppressPauseUntilRef = useRef<number>(0)
+  const metadataReadyRef = useRef<Promise<void> | null>(null)
+  function waitForMetadata(el: HTMLAudioElement, timeoutMs = 1500) {
+    if (el.readyState >= 1) return Promise.resolve()
+    return new Promise<void>((resolve) => {
+      let done = false
+      const onLoaded = () => {
+        if (done) return
+        done = true
+        el.removeEventListener("loadedmetadata", onLoaded)
+        resolve()
+      }
+      el.addEventListener("loadedmetadata", onLoaded)
+      setTimeout(() => {
+        if (done) return
+        done = true
+        el.removeEventListener("loadedmetadata", onLoaded)
+        resolve()
+      }, timeoutMs)
+    })
+  }
+
   // Paid users unlock full track
   const isSupporter =
     typeof document !== "undefined" && document.cookie.includes("supporter=1")
@@ -95,6 +118,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       const onTimeUpdate = () => {
         setCurrentTime(el.currentTime)
         if (!isSupporter) {
+          // NEW: brief suppression after starting so we don't immediately pause
+          if (Date.now() < suppressPauseUntilRef.current) return
+
           if (el.currentTime < PREVIEW_START) {
             el.currentTime = PREVIEW_START
             return
@@ -155,7 +181,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // Rebuild <source> so the browser re-evaluates MIME/type fresh each time
+    // 1) Pause before source swap to avoid aborting an in-flight play()
+    try { el.pause() } catch {}
+    setIsPlaying(false)
+
+    // 2) Rebuild <source> so the browser re-evaluates MIME/type fresh each time
     while (el.firstChild) el.removeChild(el.firstChild)
     const source = document.createElement("source")
     source.src = src
@@ -171,6 +201,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       })
     } catch {}
 
+    // 3) Wait for metadata so currentTime sticks (esp. Safari)
+    metadataReadyRef.current = waitForMetadata(el)
+    await metadataReadyRef.current
+
+    // 4) Position for supporter vs preview window
     if (isSupporter) {
       el.currentTime = 0
       setCurrentTime(0)
@@ -179,11 +214,26 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       setCurrentTime(PREVIEW_START)
     }
 
+    // 5) Briefly suppress our preview-pause logic after start
+    suppressPauseUntilRef.current = Date.now() + 500
+
+    // 6) Try to play; handle AbortError gracefully
     try {
       await el.play()
       setIsPlaying(true)
-    } catch (e) {
-      console.warn("Audio play() blocked:", e)
+    } catch (e: any) {
+      if (e?.name === "AbortError") {
+        console.warn("play() aborted (benign after source swap). Retrying…")
+        try {
+          await el.play()
+          setIsPlaying(true)
+          return
+        } catch (e2) {
+          console.warn("Audio play() still blocked:", e2)
+        }
+      } else {
+        console.warn("Audio play() blocked:", e)
+      }
       setIsPlaying(false)
     }
   }
@@ -203,11 +253,24 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         el.currentTime = PREVIEW_START
         setCurrentTime(PREVIEW_START)
       }
+      // Suppress preview pause for 500ms on (re)start
+      suppressPauseUntilRef.current = Date.now() + 500
       try {
         await el.play()
         setIsPlaying(true)
-      } catch (e) {
-        console.warn("Audio play() blocked:", e)
+      } catch (e: any) {
+        if (e?.name === "AbortError") {
+          console.warn("play() aborted (benign). Retrying once…")
+          try {
+            await el.play()
+            setIsPlaying(true)
+            return
+          } catch (e2) {
+            console.warn("Audio play() still blocked:", e2)
+          }
+        } else {
+          console.warn("Audio play() blocked:", e)
+        }
         setIsPlaying(false)
       }
     } else {
