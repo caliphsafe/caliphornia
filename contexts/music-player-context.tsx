@@ -50,7 +50,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
 
   const resolveSrc = (song?: Song | null) =>
-    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || ""
+    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || "https://rwgfxnlsbhbpbngdoaqw.supabase.co/storage/v1/object/public/public-audio/caliph_polygamy_master.mp3"
 
   // Ensure we have an <audio> and listeners attached (create on demand)
   function ensureAudio() {
