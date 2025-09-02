@@ -1,9 +1,17 @@
-// app/api/checkout/success/route.ts
 export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+
+function safeDecode(v: string | null): string | null {
+  if (!v) return null
+  try {
+    return decodeURIComponent(v)
+  } catch {
+    return v
+  }
+}
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
@@ -41,10 +49,25 @@ export async function GET(req: Request) {
       await supabaseAdmin.from('emails').upsert([{ email, source: 'checkout' }], { onConflict: 'email' })
     }
 
-    // 🔹 NEW: log purchase in activity feed (best effort; amount_total is in cents)
+    // 🔹 Also log purchase in activity feed with decoded location (best effort)
     try {
+      const hdr = new Headers(req.headers)
+      const rawCity    = hdr.get('x-vercel-ip-city')
+      const rawRegion  = hdr.get('x-vercel-ip-country-region') || hdr.get('x-vercel-ip-region')
+      const rawCountry = hdr.get('x-vercel-ip-country')
+
+      const city    = safeDecode(rawCity)
+      const region  = safeDecode(rawRegion)
+      const country = safeDecode(rawCountry)
+
       await supabaseAdmin.from('activity').insert([
-        { type: 'purchase', amount_cents: session.amount_total ?? null },
+        {
+          type: 'purchase',
+          amount_cents: session.amount_total ?? null,
+          city,
+          region,
+          country,
+        },
       ])
     } catch (err) {
       console.warn('[activity] purchase insert failed (non-fatal):', err)
@@ -66,4 +89,3 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/buy', req.url), { status: 302 })
   }
 }
-
