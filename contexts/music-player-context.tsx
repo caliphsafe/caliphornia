@@ -38,6 +38,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listenersReadyRef = useRef(false)
 
+  // Paid users unlock full track
   const isSupporter =
     typeof document !== "undefined" && document.cookie.includes("supporter=1")
 
@@ -48,18 +49,18 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     Number(process.env.NEXT_PUBLIC_PREVIEW_DURATION_SECONDS ?? "30") || 30
   const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
 
+  // Track source: per-song override, then env var, then TEMP fallback (remove fallback when done debugging)
   const resolveSrc = (song?: Song | null) =>
     song?.audioUrl ||
     process.env.NEXT_PUBLIC_TRACK_URL ||
     "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // TEMP fallback while debugging
 
-  // A sensible default song so toggle works even if nothing was selected yet
+  // Default song so toggle works even if no track has been selected yet
   const DEFAULT_SONG: Song = {
     id: "default",
     title: "Preview",
     artist: "Caliph",
     albumCover: "/placeholder.svg",
-    // audioUrl can be omitted → resolveSrc will use env or fallback
   }
 
   function ensureAudio() {
@@ -68,13 +69,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (!audioRef.current) {
       const el = document.createElement("audio")
       el.preload = "metadata"
-      el.crossOrigin = "anonymous"
+      // IMPORTANT: do NOT set crossOrigin here; many hosts don't send CORS headers for audio
       el.playsInline = true
       el.controls = false
-      el.style.display = "none" // keep it hidden but in DOM (Safari friendly)
+      el.style.display = "none"
       document.body.appendChild(el)
       audioRef.current = el
-      // small log to confirm attachment
       console.log("[audio] created & appended")
     }
 
@@ -125,6 +125,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
             err?.code === 4 ? "MEDIA_ERR_SRC_NOT_SUPPORTED" :
             "UNKNOWN",
           currentSrc: el.currentSrc,
+          readyState: el.readyState,    // 0..4
+          networkState: el.networkState // 0..3
         })
       }
 
@@ -153,12 +155,21 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    if (el.src !== src) {
-      el.src = src
-      try {
-        el.load()
-      } catch {}
-    }
+    // Rebuild <source> so the browser re-evaluates MIME/type fresh each time
+    while (el.firstChild) el.removeChild(el.firstChild)
+    const source = document.createElement("source")
+    source.src = src
+    source.type = "audio/mpeg" // hint for the browser
+    el.appendChild(source)
+
+    try {
+      el.load()
+      console.log("[audio] after load()", {
+        currentSrc: el.currentSrc,
+        readyState: el.readyState,    // 0..4
+        networkState: el.networkState // 0..3
+      })
+    } catch {}
 
     if (isSupporter) {
       el.currentTime = 0
