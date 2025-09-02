@@ -74,9 +74,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
   // Track source: per-song override, then env var, then TEMP fallback (remove fallback when done debugging)
   const resolveSrc = (song?: Song | null) =>
-    song?.audioUrl ||
-    process.env.NEXT_PUBLIC_TRACK_URL ||
-    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // TEMP fallback while debugging
+  song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
+
 
   // Default song so toggle works even if no track has been selected yet
   const DEFAULT_SONG: Song = {
