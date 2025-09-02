@@ -9,10 +9,10 @@ export function HomeAlbumDisplay() {
   const router = useRouter()
 
   const optionsSong = {
-    id: "options-caliph",
-    title: "Options",
+    id: "polygamy-caliph",
+    title: "Polygamy",
     artist: "Caliph",
-    albumCover: "/options-album-cover.png",
+    albumCover: "/polygamy-cover.png",
   }
 
   const handleBuyClick = () => {
