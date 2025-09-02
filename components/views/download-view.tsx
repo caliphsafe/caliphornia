@@ -4,8 +4,18 @@ import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
+import { PlayButton } from "@/components/patterns/play-button" // ⬅️ added import
 
 export function DownloadView() {
+  // Define the full song metadata for the player
+  const fullSong = {
+    id: "options-caliph",
+    title: "Options",
+    artist: "Caliph",
+    albumCover: "/options-album-cover.png",
+    // no audioUrl -> will use NEXT_PUBLIC_TRACK_URL
+  }
+
   return (
     <div className="min-h-screen px-6 py-8" style={{ backgroundColor: "#f3f2ee" }}>
       {/* Header */}
@@ -26,8 +36,13 @@ export function DownloadView() {
       </div>
 
       {/* Album Cover */}
-      <div className="mb-8">
+      <div className="mb-6">
         <AlbumCover />
+      </div>
+
+      {/* Play Full Song Button */}
+      <div className="text-center mb-10">
+        <PlayButton song={fullSong} />
       </div>
 
       {/* Download Button */}
