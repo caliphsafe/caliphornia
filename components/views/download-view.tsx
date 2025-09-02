@@ -4,17 +4,16 @@ import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
-import { useMusicPlayer } from "@/contexts/music-player-context"
+import { PlayButton } from "@/components/patterns/play-button" // ⬅️ added import
 
 export function DownloadView() {
-  const { playSong } = useMusicPlayer()
-
+  // Define the full song metadata for the player
   const fullSong = {
     id: "options-caliph",
     title: "Options",
     artist: "Caliph",
     albumCover: "/options-album-cover.png",
-    // no audioUrl → uses NEXT_PUBLIC_TRACK_URL
+    // no audioUrl -> will use NEXT_PUBLIC_TRACK_URL
   }
 
   return (
@@ -33,7 +32,7 @@ export function DownloadView() {
 
       {/* Options Title */}
       <div className="text-center mb-8">
-        <h1 className="font-bold text-black text-[32px] md:text-[48px]">OPTIONS</h1>
+        <h1 className="font-bold text-black text-[32px] md:text-[48px]">POLYGAMY</h1>
       </div>
 
       {/* Album Cover */}
@@ -41,16 +40,9 @@ export function DownloadView() {
         <AlbumCover />
       </div>
 
-      {/* Custom Play Full Song Button */}
-      <div className="text-center mb-10">
-        <Button
-          variant="secondary"
-          size="large"
-          onClick={() => playSong(fullSong)}
-          className="px-8 py-4 text-lg font-semibold"
-        >
-          ▶ Play Full Song
-        </Button>
+      {/* Play Full Song Button */}
+      <div className="text-center mb-8">
+        <PlayButton song={fullSong} />
       </div>
 
       {/* Download Button */}
