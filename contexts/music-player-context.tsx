@@ -38,7 +38,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listenersReadyRef = useRef(false)
 
-  // Supporter cookie
   const isSupporter =
     typeof document !== "undefined" && document.cookie.includes("supporter=1")
 
@@ -50,17 +49,33 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
 
   const resolveSrc = (song?: Song | null) =>
-    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || ""
+    song?.audioUrl ||
+    process.env.NEXT_PUBLIC_TRACK_URL ||
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // TEMP fallback while debugging
 
-  // Ensure we have an <audio> and listeners attached (create on demand)
+  // A sensible default song so toggle works even if nothing was selected yet
+  const DEFAULT_SONG: Song = {
+    id: "default",
+    title: "Preview",
+    artist: "Caliph",
+    albumCover: "/placeholder.svg",
+    // audioUrl can be omitted → resolveSrc will use env or fallback
+  }
+
   function ensureAudio() {
     if (typeof window === "undefined") return null
 
     if (!audioRef.current) {
-      const el = new Audio()
+      const el = document.createElement("audio")
       el.preload = "metadata"
       el.crossOrigin = "anonymous"
+      el.playsInline = true
+      el.controls = false
+      el.style.display = "none" // keep it hidden but in DOM (Safari friendly)
+      document.body.appendChild(el)
       audioRef.current = el
+      // small log to confirm attachment
+      console.log("[audio] created & appended")
     }
 
     if (audioRef.current && !listenersReadyRef.current) {
@@ -99,9 +114,24 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         setCurrentTime(0)
       }
 
+      const onError = () => {
+        const err = el.error
+        console.error("[audio] error", {
+          code: err?.code,
+          message:
+            err?.code === 1 ? "MEDIA_ERR_ABORTED" :
+            err?.code === 2 ? "MEDIA_ERR_NETWORK" :
+            err?.code === 3 ? "MEDIA_ERR_DECODE" :
+            err?.code === 4 ? "MEDIA_ERR_SRC_NOT_SUPPORTED" :
+            "UNKNOWN",
+          currentSrc: el.currentSrc,
+        })
+      }
+
       el.addEventListener("loadedmetadata", onLoadedMetadata)
       el.addEventListener("timeupdate", onTimeUpdate)
       el.addEventListener("ended", onEnded)
+      el.addEventListener("error", onError)
 
       listenersReadyRef.current = true
     }
@@ -109,29 +139,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return audioRef.current
   }
 
-  // Debug (optional)
-  useEffect(() => {
-    console.log("[player] state:", {
-      song: currentSong?.title || null,
-      isPlaying,
-      isPlayerVisible,
-      t: Math.round(currentTime),
-      d: Math.round(duration),
-      supporter: isSupporter,
-      preview: { start: PREVIEW_START, end: PREVIEW_END },
-    })
-  }, [currentSong, isPlaying, isPlayerVisible, currentTime, duration, isSupporter])
-
   const playSong = async (song: Song) => {
     const el = ensureAudio()
-    // set UI state regardless, so buttons update immediately
     setCurrentSong(song)
     setIsPlayerVisible(true)
 
     const src = resolveSrc(song)
-    // 👇 NEW debug log 
     console.log("[player] using src:", src)
-    if (!src || !el) {
+
+    if (!el || !src) {
       console.warn("No track URL set. Define NEXT_PUBLIC_TRACK_URL or song.audioUrl.")
       setIsPlaying(false)
       return
@@ -140,12 +156,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (el.src !== src) {
       el.src = src
       try {
-        // el.load() is sync in most browsers; safe to call
         el.load()
       } catch {}
     }
 
-    // Start position
     if (isSupporter) {
       el.currentTime = 0
       setCurrentTime(0)
@@ -155,7 +169,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      await el.play() // requires user gesture; your click provides it
+      await el.play()
       setIsPlaying(true)
     } catch (e) {
       console.warn("Audio play() blocked:", e)
@@ -166,6 +180,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const togglePlayPause = async () => {
     const el = ensureAudio()
     if (!el) return
+
+    // If nothing loaded yet, start the default track on first toggle
+    if (!currentSong) {
+      await playSong(DEFAULT_SONG)
+      return
+    }
 
     if (el.paused) {
       if (!isSupporter && (el.currentTime < PREVIEW_START || el.currentTime >= PREVIEW_END)) {
@@ -235,7 +255,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {/* hidden <audio> is created and managed programmatically */}
+      {/* audio element is appended to <body> for Safari compatibility */}
     </MusicPlayerContext.Provider>
   )
 }
