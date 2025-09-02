@@ -35,14 +35,14 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
-  // Real <audio> element lives here
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const listenersReadyRef = useRef(false)
 
   // Supporter cookie
   const isSupporter =
     typeof document !== "undefined" && document.cookie.includes("supporter=1")
 
-  // 🔹 Preview window controls (env-configurable)
+  // Preview window (env-configurable)
   const PREVIEW_START =
     Number(process.env.NEXT_PUBLIC_PREVIEW_START_SECONDS ?? "0") || 0
   const PREVIEW_LEN =
@@ -52,88 +52,84 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const resolveSrc = (song?: Song | null) =>
     song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || ""
 
-  // Create the audio element once
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (audioRef.current) return
+  // Ensure we have an <audio> and listeners attached (create on demand)
+  function ensureAudio() {
+    if (typeof window === "undefined") return null
 
-    const el = new Audio()
-    el.preload = "metadata"
-    el.crossOrigin = "anonymous"
-    audioRef.current = el
-
-    const onLoadedMetadata = () => {
-      setDuration(Number.isFinite(el.duration) ? el.duration : 0)
-      // If non-supporter, jump to preview start as soon as metadata is ready
-      if (!isSupporter) {
-        try {
-          // Clamp to valid range
-          const start = Math.min(PREVIEW_START, Math.max(0, el.duration - 0.5))
-          el.currentTime = start
-          setCurrentTime(start)
-        } catch {}
-      }
+    if (!audioRef.current) {
+      const el = new Audio()
+      el.preload = "metadata"
+      el.crossOrigin = "anonymous"
+      audioRef.current = el
     }
 
-    const onTimeUpdate = () => {
-      // Keep state in sync
-      setCurrentTime(el.currentTime)
+    if (audioRef.current && !listenersReadyRef.current) {
+      const el = audioRef.current
 
-      if (!isSupporter) {
-        // Enforce window: [PREVIEW_START, PREVIEW_END)
-        if (el.currentTime < PREVIEW_START) {
-          el.currentTime = PREVIEW_START
-          return
-        }
-        if (el.currentTime >= PREVIEW_END) {
-          el.pause()
-          el.currentTime = PREVIEW_START
-          setIsPlaying(false)
-          setCurrentTime(PREVIEW_START)
-          return
+      const onLoadedMetadata = () => {
+        setDuration(Number.isFinite(el.duration) ? el.duration : 0)
+        if (!isSupporter) {
+          try {
+            const start = Math.min(PREVIEW_START, Math.max(0, (el.duration || 0) - 0.5))
+            el.currentTime = start
+            setCurrentTime(start)
+          } catch {}
         }
       }
+
+      const onTimeUpdate = () => {
+        setCurrentTime(el.currentTime)
+        if (!isSupporter) {
+          if (el.currentTime < PREVIEW_START) {
+            el.currentTime = PREVIEW_START
+            return
+          }
+          if (el.currentTime >= PREVIEW_END) {
+            el.pause()
+            el.currentTime = PREVIEW_START
+            setIsPlaying(false)
+            setCurrentTime(PREVIEW_START)
+            return
+          }
+        }
+      }
+
+      const onEnded = () => {
+        setIsPlaying(false)
+        setCurrentTime(0)
+      }
+
+      el.addEventListener("loadedmetadata", onLoadedMetadata)
+      el.addEventListener("timeupdate", onTimeUpdate)
+      el.addEventListener("ended", onEnded)
+
+      listenersReadyRef.current = true
     }
 
-    const onEnded = () => {
-      setIsPlaying(false)
-      setCurrentTime(0)
-    }
+    return audioRef.current
+  }
 
-    el.addEventListener("loadedmetadata", onLoadedMetadata)
-    el.addEventListener("timeupdate", onTimeUpdate)
-    el.addEventListener("ended", onEnded)
-
-    return () => {
-      el.pause()
-      el.removeEventListener("loadedmetadata", onLoadedMetadata)
-      el.removeEventListener("timeupdate", onTimeUpdate)
-      el.removeEventListener("ended", onEnded)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* mount once */])
-
+  // Debug (optional)
   useEffect(() => {
-    console.log("[v0] Player state:", {
-      currentSong: currentSong?.title || null,
+    console.log("[player] state:", {
+      song: currentSong?.title || null,
       isPlaying,
       isPlayerVisible,
-      currentTime: Math.round(currentTime),
-      duration: Math.round(duration),
+      t: Math.round(currentTime),
+      d: Math.round(duration),
       supporter: isSupporter,
       preview: { start: PREVIEW_START, end: PREVIEW_END },
     })
   }, [currentSong, isPlaying, isPlayerVisible, currentTime, duration, isSupporter])
 
   const playSong = async (song: Song) => {
-    const el = audioRef.current
-    if (!el) return
-
+    const el = ensureAudio()
+    // set UI state regardless, so buttons update immediately
     setCurrentSong(song)
     setIsPlayerVisible(true)
 
     const src = resolveSrc(song)
-    if (!src) {
+    if (!src || !el) {
       console.warn("No track URL set. Define NEXT_PUBLIC_TRACK_URL or song.audioUrl.")
       setIsPlaying(false)
       return
@@ -142,26 +138,22 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (el.src !== src) {
       el.src = src
       try {
-        await el.load?.()
+        // el.load() is sync in most browsers; safe to call
+        el.load()
       } catch {}
     }
 
-    // Set start position
+    // Start position
     if (isSupporter) {
       el.currentTime = 0
       setCurrentTime(0)
     } else {
-      // Jump to preview window start
-      const start = PREVIEW_START
-      try {
-        // If metadata not loaded yet, this will “stick” after loadedmetadata
-        el.currentTime = start
-      } catch {}
-      setCurrentTime(start)
+      el.currentTime = PREVIEW_START
+      setCurrentTime(PREVIEW_START)
     }
 
     try {
-      await el.play()
+      await el.play() // requires user gesture; your click provides it
       setIsPlaying(true)
     } catch (e) {
       console.warn("Audio play() blocked:", e)
@@ -170,11 +162,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   }
 
   const togglePlayPause = async () => {
-    const el = audioRef.current
+    const el = ensureAudio()
     if (!el) return
 
     if (el.paused) {
-      // If non-supporter and cursor is outside preview window, reset to start
       if (!isSupporter && (el.currentTime < PREVIEW_START || el.currentTime >= PREVIEW_END)) {
         el.currentTime = PREVIEW_START
         setCurrentTime(PREVIEW_START)
@@ -205,18 +196,16 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   }
 
   const seekTo = (time: number) => {
-    const el = audioRef.current
+    const el = ensureAudio()
     if (!el) return
 
     if (!isSupporter) {
-      // Clamp seeks inside preview window, leave a tiny headroom before end
       const clamped = Math.max(PREVIEW_START, Math.min(time, PREVIEW_END - 0.25))
       el.currentTime = clamped
       setCurrentTime(clamped)
       return
     }
 
-    // Supporters can seek anywhere
     const max = Number.isFinite(el.duration) ? el.duration : time
     const clamped = Math.max(0, Math.min(time, max))
     el.currentTime = clamped
@@ -244,7 +233,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {/* Hidden audio lives in memory via audioRef */}
+      {/* hidden <audio> is created and managed programmatically */}
     </MusicPlayerContext.Provider>
   )
 }
