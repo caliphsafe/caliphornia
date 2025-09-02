@@ -35,8 +35,8 @@ export function HomeAlbumDisplay() {
           <div className="border-4 border-[#B8A082]">
             <div className="bg-black overflow-hidden relative w-[280px] h-[280px] md:w-[480px] md:h-[480px]">
               <Image
-                src="/options-album-cover.png"
-                alt="Options album cover"
+                src="/polygamy-cover.png"
+                alt="Polygamy album cover"
                 width={480}
                 height={480}
                 className="w-full h-full object-cover relative z-10"
@@ -49,7 +49,7 @@ export function HomeAlbumDisplay() {
       {/* Song Info with Play Button */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-black mb-1">OPTIONS</h1>
+          <h1 className="text-4xl font-bold text-black mb-1">POLYGAMY</h1>
           <p className="text-xl" style={{ color: "#9f8b79" }}>
             CALIPH
           </p>
