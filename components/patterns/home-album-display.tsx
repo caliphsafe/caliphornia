@@ -59,7 +59,7 @@ export function HomeAlbumDisplay() {
 
       {/* Buy Button */}
       <Button variant="primary" size="large" className="w-full" onClick={handleBuyClick}>
-        BUY 'OPTIONS'
+        BUY 'POLYGAMY'
       </Button>
     </div>
   )
