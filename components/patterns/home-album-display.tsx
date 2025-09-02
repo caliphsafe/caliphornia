@@ -13,7 +13,6 @@ export function HomeAlbumDisplay() {
     title: "Options",
     artist: "Caliph",
     albumCover: "/options-album-cover.png",
-    audioUrl: "/audio/options.mp3", // placeholder for future audio file
   }
 
   const handleBuyClick = () => {
