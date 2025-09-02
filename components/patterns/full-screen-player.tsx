@@ -69,7 +69,7 @@ export function FullScreenPlayer() {
                 className="px-4 py-2 md:px-6 md:py-3 text-white font-semibold hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ backgroundColor: "#302822" }}
               >
-                BUY
+                UNLOCK
               </button>
             </div>
 
