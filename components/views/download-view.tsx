@@ -9,7 +9,7 @@ import { PlayButton } from "@/components/patterns/play-button"
 export function DownloadView() {
   const fullSong = {
     id: "polygamy-caliph",
-    title: "Polygamy",
+    title: "Polygamy (Prod. By Caliph)",
     artist: "Caliph",
     albumCover: "/polygamy-cover.png",
   }
