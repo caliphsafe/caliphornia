@@ -236,23 +236,19 @@ export function BuyView() {
           <div className="space-y-4 text-left">
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Exclusive access to the full track on all streaming platforms</p>
+              <p className="text-[#4a3f35]">Support the artist directly and contribute to unlocking it for streaming</p>
+            </div>           
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35]">Complete access to listen to and download full 'Polygamy' song</p>
             </div>
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">High-quality audio download (320kbps MP3 + FLAC)</p>
+              <p className="text-[#4a3f35]">Play Lyric Genius game experience with perks if you win</p>
             </div>
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Digital album artwork and liner notes</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Early access to future releases and exclusive content</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Support the artist directly</p>
+              <p className="text-[#4a3f35]">Exclusive access to super-fan merch store</p>
             </div>
           </div>
         </div>
