@@ -10,7 +10,7 @@ export function ArtistMessage({ className }: ArtistMessageProps) {
           <img src="/caliph-profile.png" alt="Caliph profile" className="w-full h-full object-cover" />
         </div>
         <p className="text-black text-sm md:text-[24px] font-medium text-left flex-1">
-          Listen to my new unreleased song, contribute to unlocking it to streaming and enjoy the full song, exclusive merch and a unique game experience. 👀
+          Listen to my new unreleased song, contribute to unlocking it to streaming and enjoy the full song and more... 👀
         </p>
       </div>
     </div>
