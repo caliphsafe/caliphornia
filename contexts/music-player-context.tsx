@@ -129,7 +129,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setIsPlayerVisible(true)
 
     const src = resolveSrc(song)
-    // 👇 NEW debug log
+    // 👇 NEW debug log 
     console.log("[player] using src:", src)
     if (!src || !el) {
       console.warn("No track URL set. Define NEXT_PUBLIC_TRACK_URL or song.audioUrl.")
