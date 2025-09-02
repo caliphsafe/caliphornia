@@ -10,7 +10,7 @@ export function HomeAlbumDisplay() {
 
   const optionsSong = {
     id: "polygamy-caliph",
-    title: "Polygamy",
+    title: "Polygamy (Prod. By Caliph)",
     artist: "Caliph",
     albumCover: "/polygamy-cover.png",
   }
