@@ -31,7 +31,7 @@ export async function GET(req: Request) {
         '')?.toLowerCase()
     const amount = (session.amount_total ?? 0) / 100
     const currency = session.currency?.toUpperCase() ?? 'USD'
-    const priceId = session.line_items?.data?.[0]?.price?.id ?? null
+    const priceId = (session as any).line_items?.data?.[0]?.price?.id ?? null
 
     // Record contribution (best effort)
     if (email) {
@@ -39,6 +39,15 @@ export async function GET(req: Request) {
         { email, amount, currency, stripe_session_id: session.id, price_id: priceId },
       ])
       await supabaseAdmin.from('emails').upsert([{ email, source: 'checkout' }], { onConflict: 'email' })
+    }
+
+    // 🔹 NEW: log purchase in activity feed (best effort; amount_total is in cents)
+    try {
+      await supabaseAdmin.from('activity').insert([
+        { type: 'purchase', amount_cents: session.amount_total ?? null },
+      ])
+    } catch (err) {
+      console.warn('[activity] purchase insert failed (non-fatal):', err)
     }
 
     // Set unlock cookie + send to /download
@@ -57,3 +66,4 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/buy', req.url), { status: 302 })
   }
 }
+
