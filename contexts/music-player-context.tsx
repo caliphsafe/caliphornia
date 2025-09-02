@@ -72,10 +72,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     Number(process.env.NEXT_PUBLIC_PREVIEW_DURATION_SECONDS ?? "30") || 30
   const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
 
-  // Track source: per-song override, then env var, then TEMP fallback (remove fallback when done debugging)
+  // Track source: per-song override, then env var
   const resolveSrc = (song?: Song | null) =>
-  song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
-
+    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
 
   // Default song so toggle works even if no track has been selected yet
   const DEFAULT_SONG: Song = {
@@ -166,7 +165,28 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return audioRef.current
   }
 
-  // ⬇️ UPDATED: robust start flow with metadata wait + retries
+  // 🔹 NEW: log a supporter "play" once per page session, immediately on start
+  const hasLoggedSupporterPlayRef = useRef(false)
+  function logSupporterPlayOnce() {
+    if (hasLoggedSupporterPlayRef.current) return
+    hasLoggedSupporterPlayRef.current = true
+
+    try {
+      // sendBeacon with a tiny JSON body tends to be more reliable across browsers
+      const blob = new Blob([JSON.stringify({ t: Date.now() })], { type: "application/json" })
+      if (navigator.sendBeacon && navigator.sendBeacon("/api/activity/play", blob)) {
+        console.log("[activity] supporter play logged via beacon")
+        return
+      }
+    } catch {}
+
+    // Fallback if sendBeacon not available
+    try {
+      fetch("/api/activity/play", { method: "POST", keepalive: true }).catch(() => {})
+    } catch {}
+  }
+
+  // ⬇️ UPDATED: robust start flow with metadata wait + retries + immediate supporter log
   const playSong = async (song: Song) => {
     const el = ensureAudio()
     setCurrentSong(song)
@@ -219,12 +239,16 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     // 5) Briefly suppress our preview-pause logic after start
     suppressPauseUntilRef.current = Date.now() + 700
 
-    // Helper to try playing and update state
+    // Helper to try playing and update state (logs supporter play on success)
     const tryPlay = async (label: string) => {
       try {
         await el.play()
         console.log(`[audio] play() OK (${label})`)
         setIsPlaying(true)
+
+        // 🔸 log immediately for supporters (once per session)
+        if (isSupporter) logSupporterPlayOnce()
+
         return true
       } catch (e: any) {
         console.warn(`[audio] play() failed (${label}):`, e?.name || e, {
