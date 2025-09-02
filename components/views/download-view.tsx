@@ -4,16 +4,14 @@ import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
-import { PlayButton } from "@/components/patterns/play-button" // ⬅️ added import
+import { PlayButton } from "@/components/patterns/play-button"
 
 export function DownloadView() {
-  // Define the full song metadata for the player
   const fullSong = {
     id: "options-caliph",
     title: "Options",
     artist: "Caliph",
     albumCover: "/options-album-cover.png",
-    // no audioUrl -> will use NEXT_PUBLIC_TRACK_URL
   }
 
   return (
@@ -32,16 +30,22 @@ export function DownloadView() {
 
       {/* Options Title */}
       <div className="text-center mb-8">
-        <h1 className="font-bold text-black text-[32px] md:text-[48px]">POLYGAMY</h1>
+        <h1 className="font-bold text-black text-[32px] md:text-[48px]">OPTIONS</h1>
       </div>
 
       {/* Album Cover */}
-      <div className="mb-6">
+      <div className="mb-8">
         <AlbumCover />
       </div>
 
-      {/* Play Full Song Button */}
-      <div className="text-center mb-8">
+      {/* Song Info with Play Button (mirrors Home page layout) */}
+      <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
+        <div>
+          <h1 className="text-4xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
+          <p className="text-xl" style={{ color: "#9f8b79" }}>
+            {fullSong.artist.toUpperCase()}
+          </p>
+        </div>
         <PlayButton song={fullSong} />
       </div>
 
