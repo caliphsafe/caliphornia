@@ -17,8 +17,8 @@ export function AlbumCover({ className }: AlbumCoverProps) {
         <div className="border-4 border-[#B8A082]">
           <div className="bg-black overflow-hidden relative w-[280px] h-[280px] md:w-[480px] md:h-[480px]">
             <img
-              src="/options-album-cover.png"
-              alt="Options album cover"
+              src="/polygamy-cover.png"
+              alt="Polygamy Album Cover"
               className="w-full h-full object-cover relative z-10"
             />
           </div>
