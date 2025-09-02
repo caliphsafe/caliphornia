@@ -118,7 +118,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       const onTimeUpdate = () => {
         setCurrentTime(el.currentTime)
         if (!isSupporter) {
-          // NEW: brief suppression after starting so we don't immediately pause
+          // brief suppression after starting so we don't immediately pause
           if (Date.now() < suppressPauseUntilRef.current) return
 
           if (el.currentTime < PREVIEW_START) {
@@ -167,6 +167,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return audioRef.current
   }
 
+  // ⬇️ UPDATED: robust start flow with metadata wait + retries
   const playSong = async (song: Song) => {
     const el = ensureAudio()
     setCurrentSong(song)
@@ -189,15 +190,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     while (el.firstChild) el.removeChild(el.firstChild)
     const source = document.createElement("source")
     source.src = src
-    source.type = "audio/mpeg" // hint for the browser
+    source.type = "audio/mpeg"
     el.appendChild(source)
 
     try {
       el.load()
       console.log("[audio] after load()", {
         currentSrc: el.currentSrc,
-        readyState: el.readyState,    // 0..4
-        networkState: el.networkState // 0..3
+        readyState: el.readyState,
+        networkState: el.networkState
       })
     } catch {}
 
@@ -205,37 +206,66 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     metadataReadyRef.current = waitForMetadata(el)
     await metadataReadyRef.current
 
+    // Clamp preview start to valid range
+    const metaDuration = Number.isFinite(el.duration) ? el.duration : 0
+    const start =
+      !isSupporter
+        ? Math.min(Math.max(0, PREVIEW_START), Math.max(0, metaDuration - 0.5))
+        : 0
+
     // 4) Position for supporter vs preview window
-    if (isSupporter) {
-      el.currentTime = 0
-      setCurrentTime(0)
-    } else {
-      el.currentTime = PREVIEW_START
-      setCurrentTime(PREVIEW_START)
-    }
+    el.currentTime = start
+    setCurrentTime(start)
 
     // 5) Briefly suppress our preview-pause logic after start
-    suppressPauseUntilRef.current = Date.now() + 500
+    suppressPauseUntilRef.current = Date.now() + 700
 
-    // 6) Try to play; handle AbortError gracefully
-    try {
-      await el.play()
-      setIsPlaying(true)
-    } catch (e: any) {
-      if (e?.name === "AbortError") {
-        console.warn("play() aborted (benign after source swap). Retrying…")
-        try {
-          await el.play()
-          setIsPlaying(true)
-          return
-        } catch (e2) {
-          console.warn("Audio play() still blocked:", e2)
-        }
-      } else {
-        console.warn("Audio play() blocked:", e)
+    // Helper to try playing and update state
+    const tryPlay = async (label: string) => {
+      try {
+        await el.play()
+        console.log(`[audio] play() OK (${label})`)
+        setIsPlaying(true)
+        return true
+      } catch (e: any) {
+        console.warn(`[audio] play() failed (${label}):`, e?.name || e, {
+          readyState: el.readyState,
+          networkState: el.networkState,
+          currentTime: el.currentTime,
+          currentSrc: el.currentSrc,
+        })
+        setIsPlaying(false)
+        return false
       }
-      setIsPlaying(false)
     }
+
+    // 6) First attempt (user gesture path)
+    if (await tryPlay("initial")) return
+
+    // 7) If still paused, wait for 'canplay' and try again
+    await new Promise<void>((resolve) => {
+      let done = false
+      const onCanPlay = async () => {
+        if (done) return
+        done = true
+        el.removeEventListener("canplay", onCanPlay)
+        el.removeEventListener("canplaythrough", onCanPlay)
+        await tryPlay("canplay")
+        resolve()
+      }
+      el.addEventListener("canplay", onCanPlay, { once: true })
+      el.addEventListener("canplaythrough", onCanPlay, { once: true })
+
+      // 8) Final tiny fallback retry after 300ms if events never fire
+      setTimeout(async () => {
+        if (done) return
+        done = true
+        el.removeEventListener("canplay", onCanPlay)
+        el.removeEventListener("canplaythrough", onCanPlay)
+        await tryPlay("timeout-300ms")
+        resolve()
+      }, 300)
+    })
   }
 
   const togglePlayPause = async () => {
