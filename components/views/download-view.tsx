@@ -30,7 +30,7 @@ export function DownloadView() {
 
       {/* Options Title */}
       <div className="text-center mb-8">
-        <h1 className="font-bold text-black text-[32px] md:text-[48px]">OPTIONS</h1>
+        <h1 className="font-bold text-black text-[32px] md:text-[48px]">POLYGAMY</h1>
       </div>
 
       {/* Album Cover */}
