@@ -2,12 +2,25 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 
+function safeDecode(v: string | null): string | null {
+  if (!v) return null
+  try {
+    return decodeURIComponent(v)
+  } catch {
+    return v
+  }
+}
+
 export async function POST(req: Request) {
-  // Use Vercel-provided geolocation headers if available
+  // Use Vercel-provided geolocation headers (may be URL-encoded in some environments)
   const hdr = new Headers(req.headers)
-  const city = hdr.get("x-vercel-ip-city") || null
-  const region = hdr.get("x-vercel-ip-country-region") || hdr.get("x-vercel-ip-region") || null
-  const country = hdr.get("x-vercel-ip-country") || null
+  const rawCity   = hdr.get("x-vercel-ip-city")
+  const rawRegion = hdr.get("x-vercel-ip-country-region") || hdr.get("x-vercel-ip-region")
+  const rawCountry= hdr.get("x-vercel-ip-country")
+
+  const city    = safeDecode(rawCity)
+  const region  = safeDecode(rawRegion)
+  const country = safeDecode(rawCountry)
 
   const { error } = await supabaseAdmin.from("activity").insert({
     type: "play",
