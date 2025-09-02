@@ -50,7 +50,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
 
   const resolveSrc = (song?: Song | null) =>
-    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL || ""
 
   // Ensure we have an <audio> and listeners attached (create on demand)
   function ensureAudio() {
