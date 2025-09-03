@@ -8,6 +8,7 @@ import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
+import { ActivityFeed } from "@/components/patterns/activity-feed" // ⬅️ added
 
 type Goal = {
   ok: boolean
@@ -109,8 +110,7 @@ export function BuyView() {
       setCustomAmountError("Minimum amount is $5")
       return
     }
-    // Redirect to our checkout API (custom-amount mode). If you use Price IDs per option instead,
-    // you can wire each preset button directly to /api/checkout?price_id=PRICE_... instead of using this.
+    // Redirect to our checkout API (custom-amount mode).
     window.location.href = `/api/checkout?amount=${encodeURIComponent(amt)}&label=${encodeURIComponent(
       "Caliphornia Support"
     )}`
@@ -228,6 +228,11 @@ export function BuyView() {
         >
           CHECKOUT
         </Button>
+      </div>
+
+      {/* ⬇️ Activity (added under checkout button) */}
+      <div className="max-w-[640px] mx-auto mt-10">
+        <ActivityFeed />
       </div>
 
       <Sheet isOpen={isSheetOpen} onClose={handleCloseSheet}>
