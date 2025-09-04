@@ -180,46 +180,46 @@ export function BuyView() {
         <ActivityFeed />
       </div>
 
-      {/* What Do You Get — keep border/shadow on the Sheet, not on inner content */}
-<Sheet
-  isOpen={isSheetOpen}
-  onClose={handleCloseSheet}
-  panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE]"
->
-  <div className="text-center px-5 pt-3 pb-5">
-    <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-5">What Do You Get?</h2>
+      {/* What Do You Get — border/shadow applied to the Sheet's panel, not inner content */}
+      <Sheet
+        isOpen={isSheetOpen}
+        onClose={handleCloseSheet}
+        panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE]"
+      >
+        <div className="text-center px-5 pt-3 pb-5">
+          <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-5">What Do You Get?</h2>
 
-    <div className="space-y-3 md:space-y-4 text-left">
-      <div className="flex items-start gap-3">
-        <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          <span className="font-semibold">Fund the drop.</span> Every purchase moves <span className="italic">'Polygamy'</span> closer to streaming.
-        </p>
-      </div>
+          <div className="space-y-3 md:space-y-4 text-left">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                <span className="font-semibold">Fund the drop.</span> Every purchase moves <span className="italic">'Polygamy'</span> closer to streaming.
+              </p>
+            </div>
 
-      <div className="flex items-start gap-3">
-        <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          <span className="font-semibold">Instant access.</span> Hear the full track and <span className="font-medium">download it</span>—own it forever.
-        </p>
-      </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                <span className="font-semibold">Instant access.</span> Hear the full track and <span className="font-medium">download it</span>—own it forever.
+              </p>
+            </div>
 
-      <div className="flex items-start gap-3">
-        <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          <span className="font-semibold">Play & win.</span> Compete in the <span className="font-medium">Lyric Genius</span> game for perks and bragging rights.
-        </p>
-      </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                <span className="font-semibold">Play & win.</span> Compete in the <span className="font-medium">Lyric Genius</span> game for perks and bragging rights.
+              </p>
+            </div>
 
-      <div className="flex items-start gap-3">
-        <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          <span className="font-semibold">First dibs merch.</span> Exclusive super-fan store with limited drops.
-        </p>
-      </div>
-    </div>
-  </div>
-</Sheet>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                <span className="font-semibold">First dibs merch.</span> Exclusive super-fan store with limited drops.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Sheet>
     </div>
   )
 }
