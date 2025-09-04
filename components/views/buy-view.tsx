@@ -23,9 +23,7 @@ export function BuyView() {
   const [customAmountError, setCustomAmountError] = useState("")
   const { isPlayerVisible, currentSong } = useMusicPlayer()
 
-  // Tighter, still sensible
   const presetAmounts = [5, 10, 25, 50]
-
   const [goal, setGoal] = useState<Goal | null>(null)
 
   const handleAmountSelect = (amount: number) => {
@@ -37,32 +35,20 @@ export function BuyView() {
   const handleCustomAmountChange = (value: string) => {
     setCustomAmount(value)
     setSelectedAmount(null)
-
     const numValue = Number.parseFloat(value)
-    if (value && numValue < 5) {
-      setCustomAmountError("Minimum amount is $5")
-    } else {
-      setCustomAmountError("")
-    }
+    if (value && numValue < 5) setCustomAmountError("Minimum amount is $5")
+    else setCustomAmountError("")
   }
 
-  const getFinalAmount = () => {
-    if (customAmount) return Number.parseFloat(customAmount) || 0
-    return selectedAmount || 0
-  }
+  const getFinalAmount = () => (customAmount ? Number.parseFloat(customAmount) || 0 : selectedAmount || 0)
 
   const handleWhatDoIGetClick = () => setIsSheetOpen(true)
   const handleCloseSheet = () => setIsSheetOpen(false)
 
   useEffect(() => {
-    if (isSheetOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
-    return () => {
-      document.body.style.overflow = "unset"
-    }
+    if (isSheetOpen) document.body.style.overflow = "hidden"
+    else document.body.style.overflow = "unset"
+    return () => { document.body.style.overflow = "unset" }
   }, [isSheetOpen])
 
   const isPlayerActive = isPlayerVisible && currentSong !== null
@@ -75,16 +61,11 @@ export function BuyView() {
         const res = await fetch("/api/goal", { cache: "no-store" })
         const data = await res.json()
         if (!canceled && data?.ok) setGoal(data)
-      } catch {
-        // ignore; keep previous value
-      }
+      } catch {}
     }
     load()
     const id = setInterval(load, 15000)
-    return () => {
-      canceled = true
-      clearInterval(id)
-    }
+    return () => { canceled = true; clearInterval(id) }
   }, [])
 
   const dollars = (cents: number) => Math.round(cents / 100).toString()
@@ -113,7 +94,6 @@ export function BuyView() {
       {/* Album */}
       <div className="relative mb-4 md:mb-8">
         <AlbumCover />
-
         {/* What Do I Get Button Overlay */}
         <div className="absolute bottom-4 md:bottom-10 left-1/2 transform -translate-x-1/2 z-20">
           <button
@@ -170,7 +150,6 @@ export function BuyView() {
             type="number"
             value={customAmount}
             onChange={(e) => handleCustomAmountChange(e.target.value)}
-            placeholder=""
             min="5"
             step="1"
             className={`w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 text-lg md:text-xl font-bold border-2 bg-[#f3f2ee] focus:outline-none focus:ring-2 focus:ring-[#867260] ${
@@ -201,33 +180,37 @@ export function BuyView() {
         <ActivityFeed />
       </div>
 
+      {/* What Do You Get — styled like the music player sheet */}
       <Sheet isOpen={isSheetOpen} onClose={handleCloseSheet}>
-        <div className="text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
-          <div className="space-y-3 md:space-y-4 text-left">
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Support the artist directly and contribute to unlocking it for streaming
-              </p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Complete access to listen to and download full 'Polygamy' song
-              </p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Play Lyric Genius game experience with perks if you win
-              </p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Exclusive access to super-fan merch store
-              </p>
+        {/* Match the player's bordered, shadowed panel */}
+        <div className="bg-[#F3F2EE] rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] overflow-hidden">
+          <div className="text-center px-5 pt-3 pb-5">
+            <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
+            <div className="space-y-3 md:space-y-4 text-left">
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+                <p className="text-[#4a3f35] text-sm md:text-base">
+                  Support the artist directly and contribute to unlocking it for streaming
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+                <p className="text-[#4a3f35] text-sm md:text-base">
+                  Complete access to listen to and download full 'Polygamy' song
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+                <p className="text-[#4a3f35] text-sm md:text-base">
+                  Play Lyric Genius game experience with perks if you win
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+                <p className="text-[#4a3f35] text-sm md:text-base">
+                  Exclusive access to super-fan merch store
+                </p>
+              </div>
             </div>
           </div>
         </div>
