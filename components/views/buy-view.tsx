@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { ChevronLeftIcon } from "@heroicons/react/24/solid"
 import { Button } from "@/components/primitives/button"
 import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
@@ -19,7 +17,6 @@ type Goal = {
 }
 
 export function BuyView() {
-  const router = useRouter()
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -105,18 +102,9 @@ export function BuyView() {
 
   return (
     <div className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`} style={{ backgroundColor: "#f3f2ee" }}>
-      {/* Header with Back Button and Logo */}
-      <div className="flex items-center justify-between mb-0">
-        <button
-          onClick={() => router.push("/home")}
-          className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer"
-        >
-          <ChevronLeftIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-        </button>
-        <div className="flex-1">
-          <Header />
-        </div>
-        <div className="w-10 md:w-12" />
+      {/* Header (centered, no back button) */}
+      <div className="flex items-center justify-center mb-0">
+        <Header />
       </div>
 
       {/* Accessible title only (no visual heading) */}
