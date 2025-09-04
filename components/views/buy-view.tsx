@@ -8,7 +8,7 @@ import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
-import { ActivityFeed } from "@/components/patterns/activity-feed" // ⬅️ added
+import { ActivityFeed } from "@/components/patterns/activity-feed"
 
 type Goal = {
   ok: boolean
@@ -26,10 +26,9 @@ export function BuyView() {
   const [customAmountError, setCustomAmountError] = useState("")
   const { isPlayerVisible, currentSong } = useMusicPlayer()
 
-  // 🔹 CHANGED: last option from 100 → 50
+  // Tighter, still sensible
   const presetAmounts = [5, 10, 25, 50]
 
-  // 🔹 NEW: goal/progress state
   const [goal, setGoal] = useState<Goal | null>(null)
 
   const handleAmountSelect = (amount: number) => {
@@ -55,15 +54,9 @@ export function BuyView() {
     return selectedAmount || 0
   }
 
-  const handleWhatDoIGetClick = () => {
-    setIsSheetOpen(true)
-  }
+  const handleWhatDoIGetClick = () => setIsSheetOpen(true)
+  const handleCloseSheet = () => setIsSheetOpen(false)
 
-  const handleCloseSheet = () => {
-    setIsSheetOpen(false)
-  }
-
-  // Keep body scroll behavior for sheet as-is
   useEffect(() => {
     if (isSheetOpen) {
       document.body.style.overflow = "hidden"
@@ -76,9 +69,8 @@ export function BuyView() {
   }, [isSheetOpen])
 
   const isPlayerActive = isPlayerVisible && currentSong !== null
-  const containerPaddingBottom = isPlayerActive ? "pb-32" : "pb-8"
+  const containerPaddingBottom = isPlayerActive ? "pb-28 md:pb-32" : "pb-6 md:pb-8"
 
-  // 🔹 NEW: load goal progress (and refresh periodically)
   useEffect(() => {
     let canceled = false
     async function load() {
@@ -91,96 +83,92 @@ export function BuyView() {
       }
     }
     load()
-    const id = setInterval(load, 15000) // refresh every 15s
+    const id = setInterval(load, 15000)
     return () => {
       canceled = true
       clearInterval(id)
     }
   }, [])
 
-  const dollars = (cents: number) => {
-    // Show whole dollars (matches your current style); change to toFixed(2) if you ever need cents.
-    return Math.round(cents / 100).toString()
-  }
+  const dollars = (cents: number) => Math.round(cents / 100).toString()
 
-  // 🔹 NEW: checkout handler that preserves your UX
   const handleCheckout = () => {
     const amt = getFinalAmount()
     if (!Number.isFinite(amt) || amt < 5) {
       setCustomAmountError("Minimum amount is $5")
       return
     }
-    // Redirect to our checkout API (custom-amount mode).
     window.location.href = `/api/checkout?amount=${encodeURIComponent(amt)}&label=${encodeURIComponent(
       "Caliphornia Support"
     )}`
   }
 
   return (
-    <div className={`min-h-screen px-6 py-8 ${containerPaddingBottom}`} style={{ backgroundColor: "#f3f2ee" }}>
+    <div className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`} style={{ backgroundColor: "#f3f2ee" }}>
       {/* Header with Back Button and Logo */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4 md:mb-8">
         <button
           onClick={() => router.push("/home")}
-          className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer"
+          className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <ChevronLeftIcon className="w-6 h-6 text-white" />
+          <ChevronLeftIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
         </button>
         <div className="flex-1">
           <Header />
         </div>
-        <div className="w-12" />
+        <div className="w-10 md:w-12" />
       </div>
 
       {/* You're Buying Text */}
-      <div className="text-center mb-2">
-        <p className="text-lg font-medium" style={{ color: "#9f8b79" }}>
+      <div className="text-center mb-1">
+        <p className="text-sm md:text-lg font-medium" style={{ color: "#9f8b79" }}>
           YOU'RE BUYING
         </p>
       </div>
 
       {/* Polygamy Title */}
-      <div className="text-center mb-5 md:mb-8">
-        <h1 className="font-bold text-black text-[32px] md:text-[48px] mb-5 md:mb-8">POLYGAMY</h1>
+      <div className="text-center mb-3 md:mb-8">
+        <h1 className="font-bold text-black text-[26px] md:text-[48px] leading-tight md:leading-none">
+          POLYGAMY
+        </h1>
       </div>
 
-      <div className="relative mb-8">
+      <div className="relative mb-5 md:mb-8">
         <AlbumCover />
 
         {/* What Do I Get Button Overlay */}
-        <div className="absolute bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="absolute bottom-4 md:bottom-10 left-1/2 transform -translate-x-1/2 z-20">
           <button
             onClick={handleWhatDoIGetClick}
-            className="flex w-fit px-6 py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
+            className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
           >
             WHAT DO I GET?
           </button>
         </div>
       </div>
 
-      {/* Price / Progress Display (wired to /api/goal) */}
-      <div className="text-center mb-8">
-        <div className="p-4 max-w-[640px] mx-auto" style={{ background: "rgba(212, 211, 196, 0.70)" }}>
-          <div className="text-5xl font-bold text-black mb-4">
-            {/* If goal not loaded yet, show the previous static look briefly */}
+      {/* Price / Progress Display */}
+      <div className="text-center mb-6 md:mb-8">
+        <div className="px-4 py-3 md:p-4 max-w-[640px] mx-auto" style={{ background: "rgba(212, 211, 196, 0.70)" }}>
+          <div className="text-4xl md:text-5xl font-bold text-black mb-2 md:mb-4 leading-none">
             {goal ? `$${dollars(goal.remaining_cents)}` : "$99"}
           </div>
-          <p className="text-sm font-medium" style={{ color: "#867260" }}>
+          <p className="text-xs md:text-sm font-medium" style={{ color: "#867260" }}>
             REMAINING TO UNLOCK ON STREAMING
           </p>
         </div>
       </div>
 
-      {/* Preset Amount Buttons (100 → 50) */}
-      <div className="grid grid-cols-4 gap-3 mb-8 max-w-[640px] mx-auto">
+      {/* Preset Amount Buttons */}
+      <div className="grid grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
         {presetAmounts.map((amount) => (
           <button
             key={amount}
             onClick={() => handleAmountSelect(amount)}
-            className={`py-4 text-xl font-bold border-2 transition-colors cursor-pointer ${
+            className={`py-3 md:py-4 text-lg md:text-xl font-bold border-2 transition-colors cursor-pointer ${
               selectedAmount === amount
                 ? "bg-[#867260] text-white border-[#867260]"
-                : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg-[#bbb8a0]"
+                : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg[#bbb8a0]"
             }`}
           >
             ${amount}
@@ -189,13 +177,13 @@ export function BuyView() {
       </div>
 
       {/* Custom Amount Section */}
-      <div className="mb-8 max-w-[640px] mx-auto">
-        <label className="block text-sm font-medium mb-3" style={{ color: "#867260" }}>
+      <div className="mb-6 md:mb-8 max-w-[640px] mx-auto">
+        <label className="block text-xs md:text-sm font-medium mb-2 md:mb-3" style={{ color: "#867260" }}>
           CUSTOM AMOUNT
         </label>
         <div className="relative">
           <span
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl font-bold"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-xl md:text-2xl font-bold"
             style={{ color: "#4a3f35" }}
           >
             $
@@ -207,21 +195,21 @@ export function BuyView() {
             placeholder=""
             min="5"
             step="1"
-            className={`w-full pl-12 pr-4 py-4 text-xl font-bold border-2 bg-[#f3f2ee] focus:outline-none focus:ring-2 focus:ring-[#867260] ${
+            className={`w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 text-lg md:text-xl font-bold border-2 bg-[#f3f2ee] focus:outline-none focus:ring-2 focus:ring-[#867260] ${
               customAmountError ? "border-red-500" : "border-[#4a3f35]"
             }`}
             style={{ color: "#4a3f35" }}
           />
         </div>
-        {customAmountError && <p className="text-red-500 text-sm mt-2">{customAmountError}</p>}
+        {customAmountError && <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>}
       </div>
 
-      {/* Checkout Button (now links to /api/checkout with selected/custom amount) */}
+      {/* Checkout Button */}
       <div className="max-w-[640px] mx-auto">
         <Button
           variant="primary"
           size="large"
-          className="w-full text-xl font-bold py-4"
+          className="w-full text-lg md:text-xl font-bold py-3 md:py-4"
           style={{ backgroundColor: "#4a3f35", color: "white" }}
           disabled={getFinalAmount() === 0 || (customAmount && Number.parseFloat(customAmount) < 5)}
           onClick={handleCheckout}
@@ -230,30 +218,38 @@ export function BuyView() {
         </Button>
       </div>
 
-      {/* ⬇️ Activity (added under checkout button) */}
-      <div className="max-w-[640px] mx-auto mt-10">
+      {/* Activity Feed */}
+      <div className="max-w-[640px] mx-auto mt-6 md:mt-10">
         <ActivityFeed />
       </div>
 
       <Sheet isOpen={isSheetOpen} onClose={handleCloseSheet}>
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-black mb-6">What Do You Get?</h2>
-          <div className="space-y-4 text-left">
+          <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
+          <div className="space-y-3 md:space-y-4 text-left">
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Support the artist directly and contribute to unlocking it for streaming</p>
-            </div>           
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Complete access to listen to and download full 'Polygamy' song</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Support the artist directly and contribute to unlocking it for streaming
+              </p>
             </div>
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Play Lyric Genius game experience with perks if you win</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Complete access to listen to and download full 'Polygamy' song
+              </p>
             </div>
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35]">Exclusive access to super-fan merch store</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Play Lyric Genius game experience with perks if you win
+              </p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-[#9f8b79] rounded-full mt-2 flex-shrink-0" />
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Exclusive access to super-fan merch store
+              </p>
             </div>
           </div>
         </div>
