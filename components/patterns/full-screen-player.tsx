@@ -45,8 +45,8 @@ export function FullScreenPlayer() {
         onClick={closeFullScreen}
       />
 
-      {/* Half-screen bottom sheet */}
-      <div className="absolute bottom-0 left-0 right-0 h-[52vh] md:h-[520px] bg-[#F3F2EE] md:rounded-t-2xl shadow-2xl overflow-hidden">
+      {/* Half-screen bottom sheet with rounded corners, border, shadow */}
+      <div className="absolute bottom-0 left-0 right-0 h-[52vh] md:h-[520px] bg-[#F3F2EE] rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] overflow-hidden">
         {/* Top bar: X button + pill */}
         <div className="relative flex justify-center pt-2 pb-1">
           <button
@@ -68,7 +68,7 @@ export function FullScreenPlayer() {
           {/* Album cover */}
           <div className="flex justify-center">
             <div
-              className="bg-black border-2 border-[#B8A082] overflow-hidden"
+              className="bg-black border-2 border-[#B8A082] rounded-xl overflow-hidden shadow-md"
               style={{
                 width: "min(34vh, 72vw, 288px)",
                 height: "min(34vh, 72vw, 288px)",
@@ -97,7 +97,7 @@ export function FullScreenPlayer() {
             </div>
             <button
               onClick={handleBuyClick}
-              className="px-3 py-1.5 md:px-5 md:py-2 text-white text-sm md:text-base font-semibold hover:opacity-80"
+              className="px-3 py-1.5 md:px-5 md:py-2 text-white text-sm md:text-base font-semibold rounded-lg hover:opacity-80 shadow-sm"
               style={{ backgroundColor: "#302822" }}
             >
               UNLOCK
@@ -110,7 +110,7 @@ export function FullScreenPlayer() {
               {formatTime(currentTime)}
             </span>
             <div
-              className="flex-1 mx-2 h-1 bg-gray-300 cursor-pointer"
+              className="flex-1 mx-2 h-1 bg-gray-300 cursor-pointer rounded-full"
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const clickX = e.clientX - rect.left
@@ -119,7 +119,7 @@ export function FullScreenPlayer() {
               }}
             >
               <div
-                className="h-full transition-all duration-300"
+                className="h-full transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercentage}%`, backgroundColor: "#9f8b79" }}
               />
             </div>
@@ -132,7 +132,7 @@ export function FullScreenPlayer() {
           <div className="flex justify-center">
             <button
               onClick={togglePlayPause}
-              className="p-3 hover:opacity-70 w-14 h-14 flex items-center justify-center"
+              className="p-3 hover:opacity-70 w-14 h-14 flex items-center justify-center rounded-full bg-white border border-[#B8A082] shadow-md"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
