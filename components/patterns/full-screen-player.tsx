@@ -23,9 +23,7 @@ export function FullScreenPlayer() {
     router.push("/buy")
   }
 
-  if (!isFullScreenOpen || !currentSong) {
-    return null
-  }
+  if (!isFullScreenOpen || !currentSong) return null
 
   const formatTime = (value: number | undefined | null) => {
     if (value == null || Number.isNaN(Number(value))) return "0:00"
@@ -47,8 +45,8 @@ export function FullScreenPlayer() {
         onClick={closeFullScreen}
       />
 
-      {/* Full-screen panel */}
-      <div className="absolute bottom-0 left-0 right-0 h-screen md:h-auto bg-[#F3F2EE] md:rounded-t-2xl shadow-2xl">
+      {/* Half-screen bottom sheet */}
+      <div className="absolute bottom-0 left-0 right-0 h-[52vh] md:h-[520px] bg-[#F3F2EE] md:rounded-t-2xl shadow-2xl overflow-hidden">
         {/* Top bar: X button + pill */}
         <div className="relative flex justify-center pt-2 pb-1">
           <button
@@ -65,25 +63,35 @@ export function FullScreenPlayer() {
           />
         </div>
 
-        <div className="flex flex-col h-full md:h-auto px-5 pt-3 pb-4">
+        {/* Content */}
+        <div className="h-[calc(100%-28px)] px-5 pt-2 pb-3 grid grid-rows-[auto_auto_auto_auto] gap-3">
           {/* Album cover */}
-          <div className="flex justify-center mb-4">
-            <div className="aspect-square w-60 md:w-72 bg-black border-2 border-[#B8A082] overflow-hidden">
+          <div className="flex justify-center">
+            <div
+              className="bg-black border-2 border-[#B8A082] overflow-hidden"
+              style={{
+                width: "min(34vh, 72vw, 288px)",
+                height: "min(34vh, 72vw, 288px)",
+                aspectRatio: "1 / 1",
+              }}
+            >
               <Image
                 src={currentSong.albumCover || "/placeholder.svg"}
                 alt={`${currentSong.title} album cover`}
-                width={240}
-                height={240}
+                width={288}
+                height={288}
                 className="w-full h-full object-cover"
               />
             </div>
           </div>
 
           {/* Song Info + Unlock */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-black">{currentSong.title}</h1>
-              <p className="text-sm md:text-base" style={{ color: "#9f8b79" }}>
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold text-black truncate">
+                {currentSong.title}
+              </h1>
+              <p className="text-sm md:text-base truncate" style={{ color: "#9f8b79" }}>
                 {currentSong.artist}
               </p>
             </div>
@@ -97,8 +105,8 @@ export function FullScreenPlayer() {
           </div>
 
           {/* Progress Bar */}
-          <div className="flex items-center mb-4">
-            <span className="text-xs md:text-sm" style={{ color: "#9f8b79" }}>
+          <div className="flex items-center">
+            <span className="text-xs md:text-sm tabular-nums" style={{ color: "#9f8b79" }}>
               {formatTime(currentTime)}
             </span>
             <div
@@ -107,20 +115,15 @@ export function FullScreenPlayer() {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const clickX = e.clientX - rect.left
                 const percentage = clickX / rect.width
-                if (duration > 0) {
-                  seekTo(Math.floor(percentage * duration))
-                }
+                if (duration > 0) seekTo(Math.floor(percentage * duration))
               }}
             >
               <div
                 className="h-full transition-all duration-300"
-                style={{
-                  width: `${progressPercentage}%`,
-                  backgroundColor: "#9f8b79",
-                }}
+                style={{ width: `${progressPercentage}%`, backgroundColor: "#9f8b79" }}
               />
             </div>
-            <span className="text-xs md:text-sm" style={{ color: "#9f8b79" }}>
+            <span className="text-xs md:text-sm tabular-nums" style={{ color: "#9f8b79" }}>
               {formatTime(duration)}
             </span>
           </div>
