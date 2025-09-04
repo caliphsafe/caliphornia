@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useMusicPlayer } from "@/contexts/music-player-context"
-import { PlayIcon, PauseIcon, XMarkIcon } from "@heroicons/react/24/solid"
+import { PlayIcon, PauseIcon } from "@heroicons/react/24/solid"
 
 export function FullScreenPlayer() {
   const router = useRouter()
@@ -45,20 +45,13 @@ export function FullScreenPlayer() {
         onClick={closeFullScreen}
       />
 
-      {/* Half-screen bottom sheet with rounded corners, border, shadow */}
-      <div className="absolute bottom-0 left-0 right-0 h-[52vh] md:h-[520px] bg-[#F3F2EE] rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] overflow-hidden">
-        {/* Top bar: X button + pill */}
-        <div className="relative flex justify-center pt-2 pb-1">
+      {/* Two-thirds bottom sheet with rounded corners, border, shadow */}
+      <div className="absolute bottom-0 left-0 right-0 h-[66vh] md:h-[600px] bg-[#F3F2EE] rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] overflow-hidden">
+        {/* Top pill handle */}
+        <div className="flex justify-center pt-2 pb-1">
           <button
             onClick={closeFullScreen}
-            aria-label="Close player"
-            className="absolute left-3 top-1 z-10 w-8 h-8 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-black"
-          >
-            <XMarkIcon className="w-4 h-4" />
-          </button>
-          <button
-            onClick={closeFullScreen}
-            className="w-8 h-1 bg-[#9f8b79] rounded-full hover:bg-[#867260] cursor-pointer"
+            className="w-10 h-1 bg-[#9f8b79] rounded-full hover:bg-[#867260] cursor-pointer"
             aria-label="Close"
           />
         </div>
@@ -70,16 +63,16 @@ export function FullScreenPlayer() {
             <div
               className="bg-black border-2 border-[#B8A082] rounded-xl overflow-hidden shadow-md"
               style={{
-                width: "min(34vh, 72vw, 288px)",
-                height: "min(34vh, 72vw, 288px)",
+                width: "min(40vh, 72vw, 320px)",
+                height: "min(40vh, 72vw, 320px)",
                 aspectRatio: "1 / 1",
               }}
             >
               <Image
                 src={currentSong.albumCover || "/placeholder.svg"}
                 alt={`${currentSong.title} album cover`}
-                width={288}
-                height={288}
+                width={320}
+                height={320}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -132,13 +125,13 @@ export function FullScreenPlayer() {
           <div className="flex justify-center">
             <button
               onClick={togglePlayPause}
-              className="p-3 hover:opacity-70 w-14 h-14 flex items-center justify-center rounded-full bg-white border border-[#B8A082] shadow-md"
+              className="p-3 hover:opacity-70 w-16 h-16 flex items-center justify-center rounded-full bg-white border border-[#B8A082] shadow-md"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
-                <PauseIcon className="w-8 h-8 text-[#9f8b79]" />
+                <PauseIcon className="w-9 h-9 text-[#9f8b79]" />
               ) : (
-                <PlayIcon className="w-8 h-8 text-[#9f8b79]" />
+                <PlayIcon className="w-9 h-9 text-[#9f8b79]" />
               )}
             </button>
           </div>
