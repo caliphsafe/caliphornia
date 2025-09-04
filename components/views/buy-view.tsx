@@ -119,21 +119,11 @@ export function BuyView() {
         <div className="w-10 md:w-12" />
       </div>
 
-      {/* You're Buying Text */}
-      <div className="text-center mb-1">
-        <p className="text-sm md:text-lg font-medium" style={{ color: "#9f8b79" }}>
-          YOU'RE BUYING
-        </p>
-      </div>
+      {/* Accessible title only (no visual heading) */}
+      <h1 className="sr-only">POLYGAMY</h1>
 
-      {/* Polygamy Title */}
-      <div className="text-center mb-3 md:mb-8">
-        <h1 className="font-bold text-black text-[26px] md:text-[48px] leading-tight md:leading-none">
-          POLYGAMY
-        </h1>
-      </div>
-
-      <div className="relative mb-5 md:mb-8">
+      {/* Album */}
+      <div className="relative mb-4 md:mb-8">
         <AlbumCover />
 
         {/* What Do I Get Button Overlay */}
@@ -148,7 +138,7 @@ export function BuyView() {
       </div>
 
       {/* Price / Progress Display */}
-      <div className="text-center mb-6 md:mb-8">
+      <div className="text-center mb-5 md:mb-8">
         <div className="px-4 py-3 md:p-4 max-w-[640px] mx-auto" style={{ background: "rgba(212, 211, 196, 0.70)" }}>
           <div className="text-4xl md:text-5xl font-bold text-black mb-2 md:mb-4 leading-none">
             {goal ? `$${dollars(goal.remaining_cents)}` : "$99"}
@@ -168,7 +158,7 @@ export function BuyView() {
             className={`py-3 md:py-4 text-lg md:text-xl font-bold border-2 transition-colors cursor-pointer ${
               selectedAmount === amount
                 ? "bg-[#867260] text-white border-[#867260]"
-                : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg[#bbb8a0]"
+                : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg-[#bbb8a0]"
             }`}
           >
             ${amount}
