@@ -49,10 +49,8 @@ export function ActivityFeed() {
     <div className="px-6">
       <h2 className="text-2xl font-bold text-black mb-4">Activity</h2>
 
-      <div
-        className="max-h-80 overflow-y-auto space-y-1"
-        style={{ scrollbarWidth: "thin", scrollbarColor: "#9f8b79 transparent" }}
-      >
+      <div className="space-y-1">
+
         <style jsx>{`
           div::-webkit-scrollbar { width: 8px; height: 8px; }
           div::-webkit-scrollbar-track { background: transparent; border-radius: 0; }
