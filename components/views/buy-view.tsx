@@ -106,7 +106,7 @@ export function BuyView() {
   return (
     <div className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`} style={{ backgroundColor: "#f3f2ee" }}>
       {/* Header with Back Button and Logo */}
-      <div className="flex items-center justify-between mb-4 md:mb-8">
+      <div className="flex items-center justify-between mb-0">
         <button
           onClick={() => router.push("/home")}
           className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer"
