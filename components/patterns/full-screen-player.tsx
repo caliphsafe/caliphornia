@@ -65,26 +65,24 @@ export function FullScreenPlayer() {
           />
         </div>
 
-        <div className="flex flex-col h-full md:h-auto px-5 pt-4 pb-5 space-y-5">
+        <div className="flex flex-col h-full md:h-auto px-5 pt-3 pb-4">
           {/* Album cover */}
-          <div className="flex-1 flex items-center justify-center md:mb-6">
-            <div className="aspect-square w-64 md:w-72 bg-black border-2 border-[#B8A082] overflow-hidden">
+          <div className="flex justify-center mb-4">
+            <div className="aspect-square w-60 md:w-72 bg-black border-2 border-[#B8A082] overflow-hidden">
               <Image
                 src={currentSong.albumCover || "/placeholder.svg"}
                 alt={`${currentSong.title} album cover`}
-                width={288}
-                height={288}
+                width={240}
+                height={240}
                 className="w-full h-full object-cover"
               />
             </div>
           </div>
 
           {/* Song Info + Unlock */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-black mb-1">
-                {currentSong.title}
-              </h1>
+              <h1 className="text-xl md:text-2xl font-bold text-black">{currentSong.title}</h1>
               <p className="text-sm md:text-base" style={{ color: "#9f8b79" }}>
                 {currentSong.artist}
               </p>
@@ -99,12 +97,12 @@ export function FullScreenPlayer() {
           </div>
 
           {/* Progress Bar */}
-          <div className="flex items-center w-full">
+          <div className="flex items-center mb-4">
             <span className="text-xs md:text-sm" style={{ color: "#9f8b79" }}>
               {formatTime(currentTime)}
             </span>
             <div
-              className="flex-1 mx-3 h-1 bg-gray-300 cursor-pointer"
+              className="flex-1 mx-2 h-1 bg-gray-300 cursor-pointer"
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const clickX = e.clientX - rect.left
@@ -131,13 +129,13 @@ export function FullScreenPlayer() {
           <div className="flex justify-center">
             <button
               onClick={togglePlayPause}
-              className="p-3 hover:opacity-70 w-16 h-16 flex items-center justify-center"
+              className="p-3 hover:opacity-70 w-14 h-14 flex items-center justify-center"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
-                <PauseIcon className="w-10 h-10 text-[#9f8b79]" />
+                <PauseIcon className="w-8 h-8 text-[#9f8b79]" />
               ) : (
-                <PlayIcon className="w-10 h-10 text-[#9f8b79]" />
+                <PlayIcon className="w-8 h-8 text-[#9f8b79]" />
               )}
             </button>
           </div>
