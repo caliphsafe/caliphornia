@@ -61,7 +61,7 @@ export function FullScreenPlayer() {
           {/* Album cover */}
           <div className="flex justify-center">
             <div
-              className="bg-black border-2 border-[#B8A082] rounded-xl overflow-hidden shadow-md"
+              className="bg-black border-2 border-[#B8A082] overflow-hidden shadow-md"
               style={{
                 width: "min(40vh, 72vw, 320px)",
                 height: "min(40vh, 72vw, 320px)",
@@ -90,7 +90,7 @@ export function FullScreenPlayer() {
             </div>
             <button
               onClick={handleBuyClick}
-              className="px-3 py-1.5 md:px-5 md:py-2 text-white text-sm md:text-base font-semibold rounded-lg hover:opacity-80 shadow-sm"
+              className="px-3 py-1.5 md:px-5 md:py-2 text-white text-sm md:text-base font-semibold hover:opacity-80 shadow-sm"
               style={{ backgroundColor: "#302822" }}
             >
               UNLOCK
