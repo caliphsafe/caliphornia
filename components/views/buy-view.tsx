@@ -183,45 +183,84 @@ export function BuyView() {
       </div>
 
       {/* What Do You Get — border/shadow applied to the Sheet's panel, not inner content */}
-      <Sheet
-        isOpen={isSheetOpen}
-        onClose={handleCloseSheet}
-        panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE]"
-      >
-        <div className="text-center px-5 pt-3 pb-5">
-          <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-5">What Do You Get?</h2>
+<Sheet
+  isOpen={isSheetOpen}
+  onClose={handleCloseSheet}
+  panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE]"
+>
+  <div className="text-center px-5 pt-3 pb-5">
+    <h2 className="text-xl md:text-2xl font-bold text-black mb-4 md:mb-5">What Do You Get?</h2>
 
-          <div className="space-y-3 md:space-y-4 text-left">
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                <span className="font-semibold">Fund the drop.</span> Every purchase moves <span className="italic">'Polygamy'</span> closer to streaming.
-              </p>
-            </div>
+    {/* Restaurant-style menu */}
+    {(() => {
+      const basePerks = [
+        "Support the artist directly and contribute to unlocking it for streaming",
+        "Complete access to listen to and download full 'Polygamy' song",
+        "Play Lyric Genius game experience with perks if you win",
+        "Exclusive access to super-fan merch store",
+      ] as const
 
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                <span className="font-semibold">Instant access.</span> Hear the full track and <span className="font-medium">download it</span>—own it forever.
-              </p>
-            </div>
+      const tiers = [
+        { price: 5, name: "Apps & Vibes", extra: [] as string[] },
+        { price: 10, name: "Good Eats", extra: ["10% off total merch purchase"] },
+        { price: 25, name: "Signature Dish", extra: ["10% off total merch purchase"] },
+        { price: 50, name: "Chef's Special", extra: ["Caliphornia Cream T-Shirt"] },
+        {
+          price: 100,
+          name: "Signature Dish",
+          extra: [
+            "Exclusive limited edition signed 'Polygamy' single vinyl",
+            "Caliphornia Cream T-Shirt",
+          ],
+        },
+      ]
 
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                <span className="font-semibold">Play & win.</span> Compete in the <span className="font-medium">Lyric Genius</span> game for perks and bragging rights.
-              </p>
-            </div>
+      return (
+        <div className="space-y-4 md:space-y-5 text-left max-w-[640px] mx-auto">
+          {tiers.map((tier) => (
+            <div
+              key={tier.price}
+              className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-4 md:p-5"
+            >
+              <div className="flex items-baseline justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold text-black">{tier.name}</h3>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className="inline-block rounded-full px-3 py-1 text-sm md:text-base font-bold text-white"
+                        style={{ backgroundColor: "#4a3f35" }}>
+                    ${tier.price}
+                  </span>
+                </div>
+              </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                <span className="font-semibold">First dibs merch.</span> Exclusive super-fan store with limited drops.
-              </p>
+              <ul className="space-y-2">
+                {basePerks.map((perk, i) => (
+                  <li key={`base-${tier.price}-${i}`} className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-[#9f8b79] mt-2 flex-shrink-0" />
+                    <p className="text-[#4a3f35] text-sm md:text-base">{perk}</p>
+                  </li>
+                ))}
+
+                {tier.extra.length > 0 && (
+                  <>
+                    <div className="h-px my-2 md:my-3 bg-[#B8A082]/40" />
+                    {tier.extra.map((perk, i) => (
+                      <li key={`extra-${tier.price}-${i}`} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-[#4a3f35] mt-2 flex-shrink-0" />
+                        <p className="text-[#4a3f35] font-medium text-sm md:text-base">{perk}</p>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
             </div>
-          </div>
+          ))}
         </div>
-      </Sheet>
+      )
+    })()}
+  </div>
+</Sheet>
     </div>
   )
 }
