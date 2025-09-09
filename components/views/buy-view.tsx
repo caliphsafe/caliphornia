@@ -23,7 +23,9 @@ export function BuyView() {
   const [customAmountError, setCustomAmountError] = useState("")
   const { isPlayerVisible, currentSong } = useMusicPlayer()
 
-  const presetAmounts = [5, 10, 25, 50]
+  // ⬇️ UPDATED: add $100
+  const presetAmounts = [5, 10, 25, 50, 100]
+
   const [goal, setGoal] = useState<Goal | null>(null)
 
   const handleAmountSelect = (amount: number) => {
@@ -117,13 +119,13 @@ export function BuyView() {
         </div>
       </div>
 
-      {/* Preset Amount Buttons */}
-      <div className="grid grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
+      {/* ⬇️ UPDATED: Preset Amount Buttons to fit 5 across */}
+      <div className="grid grid-cols-5 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
         {presetAmounts.map((amount) => (
           <button
             key={amount}
             onClick={() => handleAmountSelect(amount)}
-            className={`py-3 md:py-4 text-lg md:text-xl font-bold border-2 transition-colors cursor-pointer ${
+            className={`min-w-0 py-3 md:py-4 text-base md:text-xl font-bold border-2 transition-colors cursor-pointer ${
               selectedAmount === amount
                 ? "bg-[#867260] text-white border-[#867260]"
                 : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg-[#bbb8a0]"
