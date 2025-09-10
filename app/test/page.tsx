@@ -1,34 +1,10 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import dynamic from "next/dynamic";
+import { useState } from "react";
 
-const DownloadTestView = dynamic(
-  () => import("@/components/views/download-test"),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        style={{
-          minHeight: "50vh",
-          display: "grid",
-          placeItems: "center",
-          color: "#666",
-        }}
-      >
-        Loading…
-      </div>
-    ),
-  }
-);
-
-// ── your existing EmailGate (unchanged) ──────────────────────────────────────
-function EmailGate() {
+export default function EmailGate() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "exists" | "error"
-  >("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "exists" | "error">("idle");
   const [message, setMessage] = useState<string>("");
 
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
@@ -58,6 +34,7 @@ function EmailGate() {
           setStatus("success");
           setMessage("You're in! Check your email soon for access details.");
         }
+        // TODO (next step): set a cookie or redirect to the next page in your flow.
       } else {
         setStatus("error");
         setMessage("Something went wrong. Please try again.");
@@ -77,8 +54,7 @@ function EmailGate() {
         display: "grid",
         placeItems: "center",
         padding: 24,
-        fontFamily:
-          "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
         background: "linear-gradient(180deg, #0b0b0b, #121212)",
         color: "#fff",
       }}
@@ -118,6 +94,11 @@ function EmailGate() {
                 color: "#fff",
                 outline: "none",
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  // Let form submit handle it
+                }
+              }}
             />
           </label>
 
@@ -148,11 +129,9 @@ function EmailGate() {
               marginTop: 14,
               fontSize: 14,
               color:
-                status === "error"
-                  ? "#ff6b6b"
-                  : status === "success" || status === "exists"
-                  ? "#9be7a1"
-                  : "#ddd",
+                status === "error" ? "#ff6b6b" :
+                status === "success" || status === "exists" ? "#9be7a1" :
+                "#ddd",
             }}
           >
             {message}
@@ -164,20 +143,5 @@ function EmailGate() {
         </p>
       </div>
     </main>
-  );
-}
-
-function TestInner() {
-  const params = useSearchParams();
-  const gate = params.get("gate"); // visit /test?gate=1 to see the email gate
-  if (gate === "1") return <EmailGate />;
-  return <DownloadTestView />;
-}
-
-export default function TestPage() {
-  return (
-    <Suspense fallback={null}>
-      <TestInner />
-    </Suspense>
   );
 }
