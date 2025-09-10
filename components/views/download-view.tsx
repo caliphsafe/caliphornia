@@ -5,6 +5,8 @@ import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
 import { PlayButton } from "@/components/patterns/play-button"
+import Script from "next/script"
+import { useCallback } from "react"
 
 export function DownloadView() {
   const fullSong = {
@@ -13,6 +15,78 @@ export function DownloadView() {
     artist: "Caliph",
     albumCover: "/polygamy-cover.png",
   }
+
+  // Initialize Ecwid and render both products into their containers
+  const initEcwid = useCallback(() => {
+    try {
+      const w = window as any
+      w.ec = w.ec || {}
+      w.ec.storefront = w.ec.storefront || {}
+
+      // Your storefront options (copied from your embed, safe to tweak later)
+      w.ec.storefront.enable_navigation = true
+      w.ec.storefront.product_details_layout = "TWO_COLUMNS_SIDEBAR_ON_THE_RIGHT"
+      w.ec.storefront.product_details_gallery_layout = "IMAGE_SINGLE_THUMBNAILS_HORIZONTAL"
+      w.ec.storefront.product_details_two_columns_with_right_sidebar_show_product_description_on_sidebar = true
+      w.ec.storefront.product_details_two_columns_with_left_sidebar_show_product_description_on_sidebar = false
+      w.ec.storefront.product_details_show_product_name = true
+      w.ec.storefront.product_details_show_breadcrumbs = true
+      w.ec.storefront.product_details_show_product_sku = false
+      w.ec.storefront.product_details_show_product_price = true
+      w.ec.storefront.product_details_show_in_stock_label = true
+      w.ec.storefront.product_details_show_number_of_items_in_stock = true
+      w.ec.storefront.product_details_show_qty = false
+      w.ec.storefront.product_details_show_wholesale_prices = true
+      w.ec.storefront.product_details_show_product_options = true
+      w.ec.storefront.product_details_show_product_description = true
+      w.ec.storefront.product_details_show_share_buttons = true
+      w.ec.storefront.product_details_position_product_name = 100
+      w.ec.storefront.product_details_position_breadcrumbs = 200
+      w.ec.storefront.product_details_position_product_sku = 300
+      w.ec.storefront.product_details_position_product_price = 400
+      w.ec.storefront.product_details_position_buy_button = 600
+      w.ec.storefront.product_details_position_wholesale_prices = 700
+      w.ec.storefront.product_details_position_product_description = 800
+      w.ec.storefront.product_details_position_share_buttons = 900
+      w.ec.storefront.product_details_position_subtitle = 500
+      w.ec.storefront.product_details_show_subtitle = true
+
+      // Render helpers (only once script exposes xProductBrowser)
+      const render = () => {
+        if (typeof w.xProductBrowser !== "function") return false
+
+        // Product 1: Cream T-Shirt
+        w.xProductBrowser(
+          "categoriesPerRow=3",
+          "views=grid(20,3) list(60) table(60)",
+          "categoryView=grid",
+          "searchView=list",
+          'defaultProductId=780973754',
+          'defaultSlug=caliphornia-cream-puff-print-box-t-shirt',
+          "id=ecwid-product-780973754"
+        )
+
+        // Product 2: Brown Bag Hoodie
+        w.xProductBrowser(
+          "categoriesPerRow=3",
+          "views=grid(20,3) list(60) table(60)",
+          "categoryView=grid",
+          "searchView=list",
+          'defaultProductId=780978001',
+          'defaultSlug=caliphornia-brown-bag-relaxed-fit-hoodie',
+          "id=ecwid-product-780978001"
+        )
+        return true
+      }
+
+      // Try immediately; if not ready yet, try again shortly
+      if (!render()) {
+        setTimeout(render, 200)
+      }
+    } catch (e) {
+      console.warn("[Ecwid] init failed:", e)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen px-6 py-8" style={{ backgroundColor: "#f3f2ee" }}>
@@ -85,6 +159,25 @@ export function DownloadView() {
           </button>
         </div>
       </div>
+
+      {/* --- NEW: Embedded Products (under the Lyric Genius link) --- */}
+      <div className="max-w-[960px] mx-auto mt-10 space-y-8">
+        <h3 className="text-xl font-semibold text-black px-2">Featured Merch</h3>
+
+        {/* Product 1 container */}
+        <div id="ecwid-product-780973754" className="bg-white/50 border border-[#B8A082]/60" />
+
+        {/* Product 2 container */}
+        <div id="ecwid-product-780978001" className="bg-white/50 border border-[#B8A082]/60" />
+      </div>
+
+      {/* Load Ecwid script once and init both products */}
+      <Script
+        id="ecwid-script"
+        src="https://app.ecwid.com/script.js?108953252&data_platform=code"
+        strategy="afterInteractive"
+        onLoad={() => initEcwid()}
+      />
     </div>
   )
 }
