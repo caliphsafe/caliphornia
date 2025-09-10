@@ -23,8 +23,8 @@ export function BuyView() {
   const [customAmountError, setCustomAmountError] = useState("")
   const { isPlayerVisible, currentSong } = useMusicPlayer()
 
-  // ⬇️ UPDATED: add $100
-  const presetAmounts = [5, 10, 25, 50, 100]
+  // ⬇️ REVERTED: remove $100, cap at $50
+  const presetAmounts = [5, 10, 25, 50]
 
   const [goal, setGoal] = useState<Goal | null>(null)
 
@@ -119,13 +119,13 @@ export function BuyView() {
         </div>
       </div>
 
-      {/* ⬇️ UPDATED: Preset Amount Buttons to fit 5 across */}
-      <div className="grid grid-cols-5 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
+      {/* ⬇️ REVERTED: 4 preset buttons */}
+      <div className="grid grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
         {presetAmounts.map((amount) => (
           <button
             key={amount}
             onClick={() => handleAmountSelect(amount)}
-            className={`min-w-0 py-3 md:py-4 text-base md:text-xl font-bold border-2 transition-colors cursor-pointer ${
+            className={`py-3 md:py-4 text-lg md:text-xl font-bold border-2 transition-colors cursor-pointer ${
               selectedAmount === amount
                 ? "bg-[#867260] text-white border-[#867260]"
                 : "bg-[#d4d3c4] text-[#4a3f35] border-[#bbb8a0] hover:bg-[#bbb8a0]"
@@ -182,57 +182,54 @@ export function BuyView() {
         <ActivityFeed />
       </div>
 
-      {/* What Do You Get — border/shadow applied to the Sheet's panel, not inner content */}
-<Sheet
-  isOpen={isSheetOpen}
-  onClose={handleCloseSheet}
-  panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] max-w-2xl mx-auto"
->
-  <div className="text-center px-5 pt-3 pb-5">
-    <h2 className="text-xl md:text-2xl font-bold text-black mb-6">What Do You Get?</h2>
+      {/* What Do You Get — panel width limited to ~2/3 on desktop */}
+      <Sheet
+        isOpen={isSheetOpen}
+        onClose={handleCloseSheet}
+        panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] max-w-2xl mx-auto"
+      >
+        <div className="text-center px-5 pt-3 pb-5">
+          <h2 className="text-xl md:text-2xl font-bold text-black mb-6">What Do You Get?</h2>
 
-    <div className="space-y-6 text-left">
-      <div>
-        <p className="font-bold text-lg text-black">$5 · Apps & Vibes</p>
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          Support the artist directly and contribute to unlocking it for streaming. Complete access
-          to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
-          perks if you win. Exclusive access to super-fan merch store.
-        </p>
-      </div>
+          <div className="space-y-6 text-left">
+            <div>
+              <p className="font-bold text-lg text-black">Apps & Vibes····················$50</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Support the artist directly and contribute to unlocking it for streaming. Complete access
+                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
+                perks if you win. Exclusive access to super-fan merch store.
+              </p>
+            </div>
 
-      <div>
-        <p className="font-bold text-lg text-black">$10 · Good Eats</p>
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          Everything from Apps & Vibes, plus 10% off total merch purchase.
-        </p>
-      </div>
+            <div>
+              <p className="font-bold text-lg text-black">Good Eats····················$10</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Support the artist directly and contribute to unlocking it for streaming. Complete access
+                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
+                perks if you win. 10% off exclusive to super-fan merch store.
+              </p>
+            </div>
 
-      <div>
-        <p className="font-bold text-lg text-black">$25 · Signature Dish</p>
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          Everything from Good Eats, plus an additional 10% off total merch purchase.
-        </p>
-      </div>
+            <div>
+              <p className="font-bold text-lg text-black">Signature Dish····················$25</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Support the artist directly and contribute to unlocking it for streaming. Complete access
+                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
+                perks if you win. 20% off exclusive to super-fan merch store.
+              </p>
+            </div>
 
-      <div>
-        <p className="font-bold text-lg text-black">$50 · Chef&apos;s Special</p>
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          Everything from Signature Dish, plus a Caliphornia Cream T-Shirt.
-        </p>
-      </div>
-
-      <div>
-        <p className="font-bold text-lg text-black">$100 · Five-Star Feast</p>
-        <p className="text-[#4a3f35] text-sm md:text-base">
-          Everything from Chef&apos;s Special, plus an exclusive limited edition signed
-          &apos;Polygamy&apos; single vinyl and a Caliphornia Cream T-Shirt.
-        </p>
-      </div>
-    </div>
-  </div>
-</Sheet>
-
+            <div>
+              <p className="font-bold text-lg text-black">Chef&apos;s Special····················$50</p>
+              <p className="text-[#4a3f35] text-sm md:text-base">
+                Support the artist directly and contribute to unlocking it for streaming. Complete access
+                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
+                perks if you win. Free Caliphornia Cream T-Shirt.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Sheet>
     </div>
   )
 }
