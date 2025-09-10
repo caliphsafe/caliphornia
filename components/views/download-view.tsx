@@ -58,18 +58,6 @@ export function DownloadView() {
         <Header />
       </div>
 
-      {/* Download Text */}
-      <div className="text-center mb-2">
-        <p className="text-lg font-medium" style={{ color: "#9f8b79" }}>
-          DOWNLOAD
-        </p>
-      </div>
-
-      {/* Options Title */}
-      <div className="text-center mb-8">
-        <h1 className="font-bold text-black text-[32px] md:text-[48px]">POLYGAMY</h1>
-      </div>
-
       {/* Album Cover */}
       <div className="mb-8">
         <AlbumCover />
@@ -78,7 +66,7 @@ export function DownloadView() {
       {/* Song Info with Play Button (mirrors Home layout) */}
       <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
         <div>
-          <h1 className="text-4xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
+          <h1 className="text-2xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
           <p className="text-xl" style={{ color: "#9f8b79" }}>
             {fullSong.artist.toUpperCase()}
           </p>
