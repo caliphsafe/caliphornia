@@ -8,6 +8,9 @@ import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { ActivityFeed } from "@/components/patterns/activity-feed"
 
+// ⬇️ NEW: dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
+const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
+
 type Goal = {
   ok: boolean
   goal_cents: number
@@ -74,6 +77,15 @@ export function BuyView() {
 
   const handleCheckout = () => {
     const amt = getFinalAmount()
+
+    // ⬇️ NEW: Dev unlock path — if the custom amount EXACTLY equals the secret amount, skip Stripe
+    if (DEV_UNLOCK_AMOUNT > 0 && customAmount && Number(customAmount) === DEV_UNLOCK_AMOUNT) {
+      // Set supporter cookie for 1 year and go to /download
+      document.cookie = "supporter=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
+      window.location.href = "/download"
+      return
+    }
+
     if (!Number.isFinite(amt) || amt < 5) {
       setCustomAmountError("Minimum amount is $5")
       return
@@ -184,87 +196,86 @@ export function BuyView() {
 
       {/* What Do You Get — panel width limited to ~2/3 on desktop */}
       <Sheet
-  isOpen={isSheetOpen}
-  onClose={handleCloseSheet}
-  /* Hard cap: 2/3 of the viewport width on all screens */
-  panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] w-[66vw] max-w-[66vw] mx-auto"
->
-  <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
-    <h2 className="text-lg md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
+        isOpen={isSheetOpen}
+        onClose={handleCloseSheet}
+        /* Hard cap: 2/3 of the viewport width on all screens */
+        panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] w-[66vw] max-w-[66vw] mx-auto"
+      >
+        <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
+          <h2 className="text-lg md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
 
-    {/* 2×2 menu grid */}
-    <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
-      {/* $5 — Supporter */}
-      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
-          <span
-            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-            style={{ backgroundColor: "#4a3f35" }}
-          >
-            $5
-          </span>
+          {/* 2×2 menu grid */}
+          <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
+            {/* $5 — Supporter */}
+            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
+                <span
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  $5
+                </span>
+              </div>
+              <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+                Support the release and help bring 'Polygamy' to streaming. Enjoy full song access, download it, play
+                Lyric Genius, and step into the super-fan merch store.
+              </p>
+            </div>
+
+            {/* $10 — Fan */}
+            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
+                <span
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  $10
+                </span>
+              </div>
+              <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+                Back Polygamy and unlock streaming. Get the full track to listen and download, compete in Lyric Genius, and
+                shop the exclusive merch store with <span className="font-medium">10% off</span> your order.
+              </p>
+            </div>
+
+            {/* $25 — Superfan */}
+            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-sm md:text-base font-semibold text-black">Superfan</h3>
+                <span
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  $25
+                </span>
+              </div>
+              <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+                Push Polygamy closer to streaming. Download and enjoy the full song, test your skills in Lyric Genius, and
+                grab exclusive merch with a <span className="font-medium">20% discount</span>.
+              </p>
+            </div>
+
+            {/* $50 — Legend */}
+            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-sm md:text-base font-semibold text-black">Legend</h3>
+                <span
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  $50
+                </span>
+              </div>
+              <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+                Unlock Polygamy and everything that comes with it: the full track, Lyric Genius, exclusive merch access, plus
+                a <span className="font-medium">free Caliphornia Cream T-Shirt</span>.
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Support the release and help bring 'Polygamy' to streaming. Enjoy full song access, download it, play
-          Lyric Genius, and step into the super-fan merch store.
-        </p>
-      </div>
-
-      {/* $10 — Fan */}
-      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
-          <span
-            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-            style={{ backgroundColor: "#4a3f35" }}
-          >
-            $10
-          </span>
-        </div>
-        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Back Polygamy and unlock streaming. Get the full track to listen and download, compete in Lyric Genius, and
-          shop the exclusive merch store with <span className="font-medium">10% off</span> your order.
-        </p>
-      </div>
-
-      {/* $25 — Superfan */}
-      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Superfan</h3>
-          <span
-            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-            style={{ backgroundColor: "#4a3f35" }}
-          >
-            $25
-          </span>
-        </div>
-        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Push Polygamy closer to streaming. Download and enjoy the full song, test your skills in Lyric Genius, and
-          grab exclusive merch with a <span className="font-medium">20% discount</span>.
-        </p>
-      </div>
-
-      {/* $50 — Legend */}
-      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Legend</h3>
-          <span
-            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-            style={{ backgroundColor: "#4a3f35" }}
-          >
-            $50
-          </span>
-        </div>
-        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Unlock Polygamy and everything that comes with it: the full track, Lyric Genius, exclusive merch access, plus
-          a <span className="font-medium">free Caliphornia Cream T-Shirt</span>.
-        </p>
-      </div>
-    </div>
-  </div>
-</Sheet>
-
+      </Sheet>
     </div>
   )
 }
