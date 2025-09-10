@@ -4,27 +4,22 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-/**
- * Safely load the test download view:
- * - Works whether the file exports `export default ...`
- *   or `export function DownloadView() {...}`
- * - Falls back to a no-op component if neither exists (avoids React 306)
- */
 const DownloadTestView = dynamic(
-  async () => {
-    const mod = await import("@/components/views/download-test");
-    const Comp =
-      // prefer default export
-      (mod as any).default ??
-      // or named export DownloadView
-      (mod as any).DownloadView ??
-      // final safety: render nothing (prevents "element type is invalid")
-      (() => null);
-    return Comp;
-  },
+  () => import("@/components/views/download-test"),
   {
     ssr: false,
-    loading: () => null,
+    loading: () => (
+      <div
+        style={{
+          minHeight: "50vh",
+          display: "grid",
+          placeItems: "center",
+          color: "#666",
+        }}
+      >
+        Loading…
+      </div>
+    ),
   }
 );
 
@@ -172,8 +167,6 @@ function EmailGate() {
   );
 }
 
-// Only this tiny inner piece touches search params.
-// Wrap it in Suspense to satisfy Next 15 CSR bailout rules.
 function TestInner() {
   const params = useSearchParams();
   const gate = params.get("gate"); // visit /test?gate=1 to see the email gate
