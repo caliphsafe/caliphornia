@@ -4,16 +4,36 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-// ✅ Load your no-paywall download test view only on the client
+/**
+ * Safely load the test download view:
+ * - Works whether the file exports `export default ...`
+ *   or `export function DownloadView() {...}`
+ * - Falls back to a no-op component if neither exists (avoids React 306)
+ */
 const DownloadTestView = dynamic(
-  () => import("@/components/views/download-test").then((m) => m.DownloadView),
-  { ssr: false, loading: () => null }
+  async () => {
+    const mod = await import("@/components/views/download-test");
+    const Comp =
+      // prefer default export
+      (mod as any).default ??
+      // or named export DownloadView
+      (mod as any).DownloadView ??
+      // final safety: render nothing (prevents "element type is invalid")
+      (() => null);
+    return Comp;
+  },
+  {
+    ssr: false,
+    loading: () => null,
+  }
 );
 
-// --- your existing email gate (unchanged) ---
+// ── your existing EmailGate (unchanged) ──────────────────────────────────────
 function EmailGate() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "exists" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "exists" | "error"
+  >("idle");
   const [message, setMessage] = useState<string>("");
 
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
@@ -152,16 +172,15 @@ function EmailGate() {
   );
 }
 
-// --- Only this tiny inner piece uses search params ---
+// Only this tiny inner piece touches search params.
+// Wrap it in Suspense to satisfy Next 15 CSR bailout rules.
 function TestInner() {
   const params = useSearchParams();
-  const gate = params.get("gate"); // if you ever want ?gate=1 to show the gate
-  // Show your no-paywall download test view by default:
+  const gate = params.get("gate"); // visit /test?gate=1 to see the email gate
   if (gate === "1") return <EmailGate />;
   return <DownloadTestView />;
 }
 
-// --- Page export with Suspense boundary (required by Next) ---
 export default function TestPage() {
   return (
     <Suspense fallback={null}>
