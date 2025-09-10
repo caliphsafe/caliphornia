@@ -10,6 +10,7 @@ import { PlayButton } from "@/components/patterns/play-button"
 
 export function DownloadView() {
   const [isShopOpen, setIsShopOpen] = useState(false)
+  const [isGameOpen, setIsGameOpen] = useState(false)
   const [ecwidLoadedOnce, setEcwidLoadedOnce] = useState(false)
 
   const fullSong = {
@@ -31,7 +32,7 @@ export function DownloadView() {
     }
   }, [])
 
-  // If the panel opens and the script is already present (e.g., back/forward nav), render immediately
+  // If the shop panel opens and the script is already present (e.g., back/forward nav), render immediately
   useEffect(() => {
     if (isShopOpen && (window as any)?.xProduct) {
       renderSingleProducts()
@@ -44,6 +45,10 @@ export function DownloadView() {
     if (next && !ecwidLoadedOnce) {
       setEcwidLoadedOnce(true) // triggers Script load
     }
+  }
+
+  const handleToggleGame = () => {
+    setIsGameOpen((v) => !v)
   }
 
   return (
@@ -98,14 +103,38 @@ export function DownloadView() {
         <h2 className="text-2xl font-bold text-black mb-6">Bonuses</h2>
 
         <div className="space-y-4">
-          {/* LIPH GENIUS Link */}
-          <button className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2">
+          {/* LYRIC GENIUS Link → toggles dropdown with embedded game */}
+          <button
+            onClick={handleToggleGame}
+            className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2"
+            aria-expanded={isGameOpen}
+            aria-controls="lyric-genius-panel"
+          >
             <div className="flex items-center space-x-4">
               <span className="text-2xl">🧩</span>
-              <span className="text-lg font-medium text-black">Play LIPH GENIUS ®</span>
+              <span className="text-lg font-medium text-black">Play LYRIC GENIUS</span>
             </div>
-            <ArrowUpRightIcon className="w-6 h-6 text-black" />
+            <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isGameOpen ? "rotate-45" : ""}`} />
           </button>
+
+          {/* Dropdown panel for LYRIC GENIUS (iframe) */}
+          <div
+            id="lyric-genius-panel"
+            className={`overflow-hidden transition-all duration-500 ease-out ${
+              isGameOpen ? "max-h-[3000px] opacity-100 mt-2" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="rounded-md border border-[#B8A082]/60 bg-white/60">
+              <iframe
+                title="Lyric Genius"
+                src="https://lyric-genius-main.vercel.app/"
+                className="w-full h-[70vh] md:h-[75vh] rounded-md"
+                loading="lazy"
+                allow="clipboard-write; autoplay; fullscreen; accelerometer; gyroscope"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
+            </div>
+          </div>
 
           {/* Merch Link → toggles dropdown with 2-column products */}
           <button
