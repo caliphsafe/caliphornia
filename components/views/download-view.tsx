@@ -1,14 +1,17 @@
 "use client"
 
+import { useState, useCallback } from "react"
+import Script from "next/script"
 import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
 import { PlayButton } from "@/components/patterns/play-button"
-import Script from "next/script"
-import { useCallback } from "react"
 
 export function DownloadView() {
+  const [isShopOpen, setIsShopOpen] = useState(false)
+  const [ecwidLoadedOnce, setEcwidLoadedOnce] = useState(false)
+
   const fullSong = {
     id: "polygamy-caliph",
     title: "Polygamy (Prod. By Caliph)",
@@ -23,7 +26,7 @@ export function DownloadView() {
       w.ec = w.ec || {}
       w.ec.storefront = w.ec.storefront || {}
 
-      // Your storefront options (copied from your embed, safe to tweak later)
+      // storefront config (from your embed)
       w.ec.storefront.enable_navigation = true
       w.ec.storefront.product_details_layout = "TWO_COLUMNS_SIDEBAR_ON_THE_RIGHT"
       w.ec.storefront.product_details_gallery_layout = "IMAGE_SINGLE_THUMBNAILS_HORIZONTAL"
@@ -61,8 +64,8 @@ export function DownloadView() {
           "views=grid(20,3) list(60) table(60)",
           "categoryView=grid",
           "searchView=list",
-          'defaultProductId=780973754',
-          'defaultSlug=caliphornia-cream-puff-print-box-t-shirt',
+          "defaultProductId=780973754",
+          "defaultSlug=caliphornia-cream-puff-print-box-t-shirt",
           "id=ecwid-product-780973754"
         )
 
@@ -72,14 +75,13 @@ export function DownloadView() {
           "views=grid(20,3) list(60) table(60)",
           "categoryView=grid",
           "searchView=list",
-          'defaultProductId=780978001',
-          'defaultSlug=caliphornia-brown-bag-relaxed-fit-hoodie',
+          "defaultProductId=780978001",
+          "defaultSlug=caliphornia-brown-bag-relaxed-fit-hoodie",
           "id=ecwid-product-780978001"
         )
         return true
       }
 
-      // Try immediately; if not ready yet, try again shortly
       if (!render()) {
         setTimeout(render, 200)
       }
@@ -87,6 +89,19 @@ export function DownloadView() {
       console.warn("[Ecwid] init failed:", e)
     }
   }, [])
+
+  const handleToggleShop = () => {
+    const next = !isShopOpen
+    setIsShopOpen(next)
+    // Load Ecwid script on first open
+    if (next && !ecwidLoadedOnce) {
+      setEcwidLoadedOnce(true)
+    }
+    // If script is already present (navigated back), try init immediately
+    if (next && (window as any)?.xProductBrowser) {
+      initEcwid()
+    }
+  }
 
   return (
     <div className="min-h-screen px-6 py-8" style={{ backgroundColor: "#f3f2ee" }}>
@@ -139,7 +154,7 @@ export function DownloadView() {
       <div className="max-w-[640px] mx-auto">
         <h2 className="text-2xl font-bold text-black mb-6">Bonuses</h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* LIPH GENIUS Link */}
           <button className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2">
             <div className="flex items-center space-x-4">
@@ -149,35 +164,47 @@ export function DownloadView() {
             <ArrowUpRightIcon className="w-6 h-6 text-black" />
           </button>
 
-          {/* Merch Link */}
-          <button className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2">
+          {/* Merch Link → toggles dropdown panel */}
+          <button
+            onClick={handleToggleShop}
+            className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2"
+            aria-expanded={isShopOpen}
+            aria-controls="shop-panel"
+          >
             <div className="flex items-center space-x-4">
               <span className="text-2xl">🛍️</span>
               <span className="text-lg font-medium text-black">Shop CALIPHORNIA® Merch</span>
             </div>
-            <ArrowUpRightIcon className="w-6 h-6 text-black" />
+            <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isShopOpen ? "rotate-45" : ""}`} />
           </button>
+
+          {/* Dropdown panel (same width as content) */}
+          <div
+            id="shop-panel"
+            className={`overflow-hidden transition-all duration-500 ease-out ${
+              isShopOpen ? "max-h-[2000px] opacity-100 mt-2" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="space-y-6">
+              {/* Product 1 container */}
+              <div id="ecwid-product-780973754" className="bg-white/50 border border-[#B8A082]/60 rounded-md" />
+
+              {/* Product 2 container */}
+              <div id="ecwid-product-780978001" className="bg-white/50 border border-[#B8A082]/60 rounded-md" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* --- NEW: Embedded Products (under the Lyric Genius link) --- */}
-      <div className="max-w-[960px] mx-auto mt-10 space-y-8">
-        <h3 className="text-xl font-semibold text-black px-2">Featured Merch</h3>
-
-        {/* Product 1 container */}
-        <div id="ecwid-product-780973754" className="bg-white/50 border border-[#B8A082]/60" />
-
-        {/* Product 2 container */}
-        <div id="ecwid-product-780978001" className="bg-white/50 border border-[#B8A082]/60" />
-      </div>
-
-      {/* Load Ecwid script once and init both products */}
-      <Script
-        id="ecwid-script"
-        src="https://app.ecwid.com/script.js?108953252&data_platform=code"
-        strategy="afterInteractive"
-        onLoad={() => initEcwid()}
-      />
+      {/* Load Ecwid script only on first open, then init both products */}
+      {ecwidLoadedOnce && (
+        <Script
+          id="ecwid-script"
+          src="https://app.ecwid.com/script.js?108953252&data_platform=code"
+          strategy="afterInteractive"
+          onLoad={() => initEcwid()}
+        />
+      )}
     </div>
   )
 }
