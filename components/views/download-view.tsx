@@ -75,16 +75,17 @@ export function DownloadView() {
       </div>
 
       {/* Download Button */}
-      <div className="mb-12 max-w-[640px] mx-auto">
-        <Button
-          variant="primary"
-          size="large"
-          className="w-full text-xl font-bold py-6"
-          style={{ backgroundColor: "#4a3f35", color: "white" }}
-        >
-          DOWNLOAD .MP3
-        </Button>
-      </div>
+<div className="mb-12 max-w-[640px] mx-auto">
+  <Button
+    variant="primary"
+    size="large"
+    className="w-full text-xl font-bold py-6"
+    style={{ backgroundColor: "#4a3f35", color: "white" }}
+    asChild
+  >
+    <a href="/api/download">DOWNLOAD .MP3</a>
+  </Button>
+</div>
 
       {/* Bonuses Section */}
       <div className="max-w-[640px] mx-auto">
