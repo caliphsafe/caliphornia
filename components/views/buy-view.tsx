@@ -194,10 +194,10 @@ export function BuyView() {
 
     {/* 2×2 menu grid */}
     <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
-      {/* $5 — Apps & Vibes */}
+      {/* $5 — Supporter */}
       <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Apps &amp; Vibes</h3>
+          <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
           <span
             className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
             style={{ backgroundColor: "#4a3f35" }}
@@ -211,10 +211,10 @@ export function BuyView() {
         </p>
       </div>
 
-      {/* $10 — Good Eats */}
+      {/* $10 — Fan */}
       <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Good Eats</h3>
+          <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
           <span
             className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
             style={{ backgroundColor: "#4a3f35" }}
@@ -228,10 +228,10 @@ export function BuyView() {
         </p>
       </div>
 
-      {/* $25 — Signature Dish */}
+      {/* $25 — Superfan */}
       <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Signature Dish</h3>
+          <h3 className="text-sm md:text-base font-semibold text-black">Superfan</h3>
           <span
             className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
             style={{ backgroundColor: "#4a3f35" }}
@@ -245,10 +245,10 @@ export function BuyView() {
         </p>
       </div>
 
-      {/* $50 — Chef's Special */}
+      {/* $50 — Legend */}
       <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-sm md:text-base font-semibold text-black">Chef&apos;s Special</h3>
+          <h3 className="text-sm md:text-base font-semibold text-black">Legend</h3>
           <span
             className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
             style={{ backgroundColor: "#4a3f35" }}
