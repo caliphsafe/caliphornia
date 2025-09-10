@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { DownloadTestView } from "@/components/views/download-test";
 
-export default function EmailGate() {
+// --- Keep your existing email gate EXACTLY as-is ---
+function EmailGate() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "exists" | "error">("idle");
   const [message, setMessage] = useState<string>("");
@@ -144,4 +147,15 @@ export default function EmailGate() {
       </div>
     </main>
   );
+}
+
+// --- New: route wrapper that picks which view to show ---
+export default function TestPage() {
+  const params = useSearchParams();
+  const gate = params.get("gate");
+
+  // Default: show the *download test* (no paywall) at /test
+  // If you want the old email gate here, visit /test?gate=1
+  if (gate === "1") return <EmailGate />;
+  return <DownloadTestView />;
 }
