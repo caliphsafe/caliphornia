@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import Script from "next/script"
 import { Header } from "@/components/patterns/header"
 import { AlbumCover } from "@/components/patterns/album-cover"
@@ -19,87 +19,30 @@ export function DownloadView() {
     albumCover: "/polygamy-cover.png",
   }
 
-  // Initialize Ecwid and render both products into their containers
-  const initEcwid = useCallback(() => {
+  // Render SingleProduct widgets when script is available
+  const renderSingleProducts = useCallback(() => {
     try {
       const w = window as any
-      w.ec = w.ec || {}
-      w.ec.storefront = w.ec.storefront || {}
-
-      // storefront config (from your embed)
-      w.ec.storefront.enable_navigation = true
-      w.ec.storefront.product_details_layout = "TWO_COLUMNS_SIDEBAR_ON_THE_RIGHT"
-      w.ec.storefront.product_details_gallery_layout = "IMAGE_SINGLE_THUMBNAILS_HORIZONTAL"
-      w.ec.storefront.product_details_two_columns_with_right_sidebar_show_product_description_on_sidebar = true
-      w.ec.storefront.product_details_two_columns_with_left_sidebar_show_product_description_on_sidebar = false
-      w.ec.storefront.product_details_show_product_name = true
-      w.ec.storefront.product_details_show_breadcrumbs = true
-      w.ec.storefront.product_details_show_product_sku = false
-      w.ec.storefront.product_details_show_product_price = true
-      w.ec.storefront.product_details_show_in_stock_label = true
-      w.ec.storefront.product_details_show_number_of_items_in_stock = true
-      w.ec.storefront.product_details_show_qty = false
-      w.ec.storefront.product_details_show_wholesale_prices = true
-      w.ec.storefront.product_details_show_product_options = true
-      w.ec.storefront.product_details_show_product_description = true
-      w.ec.storefront.product_details_show_share_buttons = true
-      w.ec.storefront.product_details_position_product_name = 100
-      w.ec.storefront.product_details_position_breadcrumbs = 200
-      w.ec.storefront.product_details_position_product_sku = 300
-      w.ec.storefront.product_details_position_product_price = 400
-      w.ec.storefront.product_details_position_buy_button = 600
-      w.ec.storefront.product_details_position_wholesale_prices = 700
-      w.ec.storefront.product_details_position_product_description = 800
-      w.ec.storefront.product_details_position_share_buttons = 900
-      w.ec.storefront.product_details_position_subtitle = 500
-      w.ec.storefront.product_details_show_subtitle = true
-
-      // Render helpers (only once script exposes xProductBrowser)
-      const render = () => {
-        if (typeof w.xProductBrowser !== "function") return false
-
-        // Product 1: Cream T-Shirt
-        w.xProductBrowser(
-          "categoriesPerRow=3",
-          "views=grid(20,3) list(60) table(60)",
-          "categoryView=grid",
-          "searchView=list",
-          "defaultProductId=780973754",
-          "defaultSlug=caliphornia-cream-puff-print-box-t-shirt",
-          "id=ecwid-product-780973754"
-        )
-
-        // Product 2: Brown Bag Hoodie
-        w.xProductBrowser(
-          "categoriesPerRow=3",
-          "views=grid(20,3) list(60) table(60)",
-          "categoryView=grid",
-          "searchView=list",
-          "defaultProductId=780978001",
-          "defaultSlug=caliphornia-brown-bag-relaxed-fit-hoodie",
-          "id=ecwid-product-780978001"
-        )
-        return true
-      }
-
-      if (!render()) {
-        setTimeout(render, 200)
+      if (typeof w.xProduct === "function") {
+        w.xProduct()
       }
     } catch (e) {
-      console.warn("[Ecwid] init failed:", e)
+      console.warn("[Ecwid] xProduct render failed:", e)
     }
   }, [])
+
+  // If the panel opens and the script is already present (e.g., back/forward nav), render immediately
+  useEffect(() => {
+    if (isShopOpen && (window as any)?.xProduct) {
+      renderSingleProducts()
+    }
+  }, [isShopOpen, renderSingleProducts])
 
   const handleToggleShop = () => {
     const next = !isShopOpen
     setIsShopOpen(next)
-    // Load Ecwid script on first open
     if (next && !ecwidLoadedOnce) {
-      setEcwidLoadedOnce(true)
-    }
-    // If script is already present (navigated back), try init immediately
-    if (next && (window as any)?.xProductBrowser) {
-      initEcwid()
+      setEcwidLoadedOnce(true) // triggers Script load
     }
   }
 
@@ -127,7 +70,7 @@ export function DownloadView() {
         <AlbumCover />
       </div>
 
-      {/* Song Info with Play Button (mirrors Home page layout) */}
+      {/* Song Info with Play Button (mirrors Home layout) */}
       <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
         <div>
           <h1 className="text-4xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
@@ -164,7 +107,7 @@ export function DownloadView() {
             <ArrowUpRightIcon className="w-6 h-6 text-black" />
           </button>
 
-          {/* Merch Link → toggles dropdown panel */}
+          {/* Merch Link → toggles dropdown with 2-column products */}
           <button
             onClick={handleToggleShop}
             className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2"
@@ -182,27 +125,76 @@ export function DownloadView() {
           <div
             id="shop-panel"
             className={`overflow-hidden transition-all duration-500 ease-out ${
-              isShopOpen ? "max-h-[2000px] opacity-100 mt-2" : "max-h-0 opacity-0"
+              isShopOpen ? "max-h-[3000px] opacity-100 mt-2" : "max-h-0 opacity-0"
             }`}
           >
-            <div className="space-y-6">
-              {/* Product 1 container */}
-              <div id="ecwid-product-780973754" className="bg-white/50 border border-[#B8A082]/60 rounded-md" />
+            {/* 2-column layout on md+, stacked on mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Product 1 — SingleProduct v2 */}
+              <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
+                <div
+                  className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780973754"
+                  itemScope
+                  itemType="http://schema.org/Product"
+                  data-single-product-id="780973754"
+                >
+                  <div itemProp="image" />
+                  <div className="ecsp-title" itemProp="name" content="Caliphornia Cream Puff Print Box T-Shirt" />
+                  <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
+                    <div
+                      className="ecsp-productBrowser-price ecsp-price"
+                      itemProp="price"
+                      content="35"
+                      data-spw-price-location="button"
+                    >
+                      <div itemProp="priceCurrency" content="USD" />
+                    </div>
+                  </div>
+                  <div customprop="options" />
+                  <div customprop="qty" />
+                  <div customprop="addtobag" />
+                  <div customprop="vatinprice" />
+                </div>
+              </div>
 
-              {/* Product 2 container */}
-              <div id="ecwid-product-780978001" className="bg-white/50 border border-[#B8A082]/60 rounded-md" />
+              {/* Product 2 — SingleProduct v2 */}
+              <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
+                <div
+                  className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780978001"
+                  itemScope
+                  itemType="http://schema.org/Product"
+                  data-single-product-id="780978001"
+                >
+                  <div itemProp="image" />
+                  <div className="ecsp-title" itemProp="name" content="Caliphornia Brown Bag Relaxed Fit Hoodie" />
+                  <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
+                    <div
+                      className="ecsp-productBrowser-price ecsp-price"
+                      itemProp="price"
+                      content="70"
+                      data-spw-price-location="button"
+                    >
+                      <div itemProp="priceCurrency" content="USD" />
+                    </div>
+                  </div>
+                  <div customprop="options" />
+                  <div customprop="qty" />
+                  <div customprop="addtobag" />
+                  <div customprop="vatinprice" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Load Ecwid script only on first open, then init both products */}
+      {/* Load Ecwid SingleProduct script once on first open and render widgets */}
       {ecwidLoadedOnce && (
         <Script
-          id="ecwid-script"
-          src="https://app.ecwid.com/script.js?108953252&data_platform=code"
+          id="ecwid-singleproduct"
+          src="https://app.ecwid.com/script.js?108953252&data_platform=singleproduct_v2"
           strategy="afterInteractive"
-          onLoad={() => initEcwid()}
+          onLoad={() => renderSingleProducts()}
         />
       )}
     </div>
