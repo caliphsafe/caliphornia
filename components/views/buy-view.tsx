@@ -206,8 +206,8 @@ export function BuyView() {
           </span>
         </div>
         <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Support the release and unlock streaming. Get full listening + download of “Polygamy,” access
-          to the Lyric Genius game, and entry to the super-fan merch store.
+          Support the release and unlock 'Polygamy' to streaming. Get full listening + download of 'Polygamy', 
+          play the Lyric Genius game and gain access to the super-fan merch store.
         </p>
       </div>
 
@@ -223,7 +223,9 @@ export function BuyView() {
           </span>
         </div>
         <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Everything in <span className="font-medium">Apps &amp; Vibes</span>, plus <span className="font-medium">10% off</span> your total merch purchase.
+          Unlock 'Polygamy' to streaming services! Enjoy full listening and download access to song, play 
+          the Lyric Genius game and enter the exclusive super-fan merch store with <span className="font-medium">10% off</span> 
+          your total purchase.
         </p>
       </div>
 
@@ -239,7 +241,8 @@ export function BuyView() {
           </span>
         </div>
         <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Everything in <span className="font-medium">Good Eats</span>, plus <span className="font-medium">10% off</span> your total merch purchase.
+          Unlock Polygamy on streaming! listen to and download full song, play Lyric Genius game, shop exclusive merch with 
+          <span className="font-medium">20% off</span> your total merch purchase.
         </p>
       </div>
 
@@ -255,7 +258,8 @@ export function BuyView() {
           </span>
         </div>
         <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
-          Everything in <span className="font-medium">Signature Dish</span>, plus a <span className="font-medium">Caliphornia Cream T-Shirt</span>.
+          Unlock 'Polygamy': listen and download song, play Lyric Genius game, shop exclusive merch, and get a free 
+          <span className="font-medium">Caliphornia Cream T-Shirt</span>.
         </p>
       </div>
     </div>
