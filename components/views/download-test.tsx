@@ -8,7 +8,7 @@ import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
 import { PlayButton } from "@/components/patterns/play-button"
 
-export function DownloadView() {
+export function DownloadTestView() {
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isGameOpen, setIsGameOpen] = useState(false)
   const [ecwidLoadedOnce, setEcwidLoadedOnce] = useState(false)
@@ -20,19 +20,15 @@ export function DownloadView() {
     albumCover: "/polygamy-cover.png",
   }
 
-  // Render SingleProduct widgets when script is available
   const renderSingleProducts = useCallback(() => {
     try {
       const w = window as any
-      if (typeof w.xProduct === "function") {
-        w.xProduct()
-      }
+      if (typeof w.xProduct === "function") w.xProduct()
     } catch (e) {
       console.warn("[Ecwid] xProduct render failed:", e)
     }
   }, [])
 
-  // If the shop panel opens and the script is already present (e.g., back/forward nav), render immediately
   useEffect(() => {
     if (isShopOpen && (window as any)?.xProduct) {
       renderSingleProducts()
@@ -42,51 +38,37 @@ export function DownloadView() {
   const handleToggleShop = () => {
     const next = !isShopOpen
     setIsShopOpen(next)
-    if (next && !ecwidLoadedOnce) {
-      setEcwidLoadedOnce(true) // triggers Script load
-    }
+    if (next && !ecwidLoadedOnce) setEcwidLoadedOnce(true)
   }
 
-  const handleToggleGame = () => {
-    setIsGameOpen((v) => !v)
-  }
+  const handleToggleGame = () => setIsGameOpen((v) => !v)
 
   return (
     <div className="min-h-screen px-6 py-8" style={{ backgroundColor: "#f3f2ee" }}>
-      {/* Header */}
       <div className="text-center mb-8">
         <Header />
       </div>
 
-      {/* Download Text */}
       <div className="text-center mb-2">
-        <p className="text-lg font-medium" style={{ color: "#9f8b79" }}>
-          DOWNLOAD
-        </p>
+        <p className="text-lg font-medium" style={{ color: "#9f8b79" }}>DOWNLOAD</p>
       </div>
 
-      {/* Options Title */}
       <div className="text-center mb-8">
         <h1 className="font-bold text-black text-[32px] md:text-[48px]">POLYGAMY</h1>
       </div>
 
-      {/* Album Cover */}
       <div className="mb-8">
         <AlbumCover />
       </div>
 
-      {/* Song Info with Play Button (mirrors Home layout) */}
       <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
         <div>
           <h1 className="text-4xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
-          <p className="text-xl" style={{ color: "#9f8b79" }}>
-            {fullSong.artist.toUpperCase()}
-          </p>
+          <p className="text-xl" style={{ color: "#9f8b79" }}>{fullSong.artist.toUpperCase()}</p>
         </div>
         <PlayButton song={fullSong} />
       </div>
 
-      {/* Download Button */}
       <div className="mb-12 max-w-[640px] mx-auto">
         <Button
           variant="primary"
@@ -98,15 +80,14 @@ export function DownloadView() {
         </Button>
       </div>
 
-      {/* Bonuses Section */}
       <div className="max-w-[640px] mx-auto">
         <h2 className="text-2xl font-bold text-black mb-6">Bonuses</h2>
 
         <div className="space-y-4">
-          {/* LYRIC GENIUS Link → toggles dropdown with embedded game */}
+          {/* LYRIC GENIUS */}
           <button
             onClick={handleToggleGame}
-            className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2"
+            className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg黑/5 transition-colors duration-200 px-2"
             aria-expanded={isGameOpen}
             aria-controls="lyric-genius-panel"
           >
@@ -117,7 +98,6 @@ export function DownloadView() {
             <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isGameOpen ? "rotate-45" : ""}`} />
           </button>
 
-          {/* Dropdown panel for LYRIC GENIUS (iframe) */}
           <div
             id="lyric-genius-panel"
             className={`overflow-hidden transition-all duration-500 ease-out ${
@@ -136,7 +116,7 @@ export function DownloadView() {
             </div>
           </div>
 
-          {/* Merch Link → toggles dropdown with 2-column products */}
+          {/* MERCH */}
           <button
             onClick={handleToggleShop}
             className="flex items-center justify-between py-4 w-full cursor-pointer hover:bg-black/5 transition-colors duration-200 px-2"
@@ -150,16 +130,13 @@ export function DownloadView() {
             <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isShopOpen ? "rotate-45" : ""}`} />
           </button>
 
-          {/* Dropdown panel (same width as content) */}
           <div
             id="shop-panel"
             className={`overflow-hidden transition-all duration-500 ease-out ${
               isShopOpen ? "max-h-[3000px] opacity-100 mt-2" : "max-h-0 opacity-0"
             }`}
           >
-            {/* 2-column layout on md+, stacked on mobile */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Product 1 — SingleProduct v2 */}
               <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
                 <div
                   className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780973754"
@@ -170,12 +147,7 @@ export function DownloadView() {
                   <div itemProp="image" />
                   <div className="ecsp-title" itemProp="name" content="Caliphornia Cream Puff Print Box T-Shirt" />
                   <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
-                    <div
-                      className="ecsp-productBrowser-price ecsp-price"
-                      itemProp="price"
-                      content="35"
-                      data-spw-price-location="button"
-                    >
+                    <div className="ecsp-productBrowser-price ecsp-price" itemProp="price" content="35" data-spw-price-location="button">
                       <div itemProp="priceCurrency" content="USD" />
                     </div>
                   </div>
@@ -186,7 +158,6 @@ export function DownloadView() {
                 </div>
               </div>
 
-              {/* Product 2 — SingleProduct v2 */}
               <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
                 <div
                   className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780978001"
@@ -197,12 +168,7 @@ export function DownloadView() {
                   <div itemProp="image" />
                   <div className="ecsp-title" itemProp="name" content="Caliphornia Brown Bag Relaxed Fit Hoodie" />
                   <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
-                    <div
-                      className="ecsp-productBrowser-price ecsp-price"
-                      itemProp="price"
-                      content="70"
-                      data-spw-price-location="button"
-                    >
+                    <div className="ecsp-productBrowser-price ecsp-price" itemProp="price" content="70" data-spw-price-location="button">
                       <div itemProp="priceCurrency" content="USD" />
                     </div>
                   </div>
@@ -217,7 +183,6 @@ export function DownloadView() {
         </div>
       </div>
 
-      {/* Load Ecwid SingleProduct script once on first open and render widgets */}
       {ecwidLoadedOnce && (
         <Script
           id="ecwid-singleproduct"
