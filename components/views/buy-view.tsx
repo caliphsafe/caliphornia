@@ -184,52 +184,84 @@ export function BuyView() {
 
       {/* What Do You Get — panel width limited to ~2/3 on desktop */}
       <Sheet
-        isOpen={isSheetOpen}
-        onClose={handleCloseSheet}
-        panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] max-w-2xl mx-auto"
-      >
-        <div className="text-center px-5 pt-3 pb-5">
-          <h2 className="text-xl md:text-2xl font-bold text-black mb-6">What Do You Get?</h2>
+  isOpen={isSheetOpen}
+  onClose={handleCloseSheet}
+  /* Hard cap: 2/3 of the viewport width on all screens */
+  panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] w-[66vw] max-w-[66vw] mx-auto"
+>
+  <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
+    <h2 className="text-lg md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
 
-          <div className="space-y-6 text-left">
-            <div>
-              <p className="font-bold text-lg text-black">Apps & Vibes····················$50</p>
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Support the artist directly and contribute to unlocking it for streaming. Complete access
-                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
-                perks if you win. Exclusive access to super-fan merch store.
-              </p>
-            </div>
-
-            <div>
-              <p className="font-bold text-lg text-black">Good Eats····················$10</p>
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Support the artist directly and contribute to unlocking it for streaming. Complete access
-                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
-                perks if you win. 10% off exclusive to super-fan merch store.
-              </p>
-            </div>
-
-            <div>
-              <p className="font-bold text-lg text-black">Signature Dish····················$25</p>
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Support the artist directly and contribute to unlocking it for streaming. Complete access
-                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
-                perks if you win. 20% off exclusive to super-fan merch store.
-              </p>
-            </div>
-
-            <div>
-              <p className="font-bold text-lg text-black">Chef&apos;s Special····················$50</p>
-              <p className="text-[#4a3f35] text-sm md:text-base">
-                Support the artist directly and contribute to unlocking it for streaming. Complete access
-                to listen to and download full 'Polygamy' song. Play Lyric Genius game experience with
-                perks if you win. Free Caliphornia Cream T-Shirt.
-              </p>
-            </div>
-          </div>
+    {/* 2×2 menu grid */}
+    <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
+      {/* $5 — Apps & Vibes */}
+      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-sm md:text-base font-semibold text-black">Apps &amp; Vibes</h3>
+          <span
+            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+            style={{ backgroundColor: "#4a3f35" }}
+          >
+            $5
+          </span>
         </div>
-      </Sheet>
+        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+          Support the release and unlock streaming. Get full listening + download of “Polygamy,” access
+          to the Lyric Genius game, and entry to the super-fan merch store.
+        </p>
+      </div>
+
+      {/* $10 — Good Eats */}
+      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-sm md:text-base font-semibold text-black">Good Eats</h3>
+          <span
+            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+            style={{ backgroundColor: "#4a3f35" }}
+          >
+            $10
+          </span>
+        </div>
+        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+          Everything in <span className="font-medium">Apps &amp; Vibes</span>, plus <span className="font-medium">10% off</span> your total merch purchase.
+        </p>
+      </div>
+
+      {/* $25 — Signature Dish */}
+      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-sm md:text-base font-semibold text-black">Signature Dish</h3>
+          <span
+            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+            style={{ backgroundColor: "#4a3f35" }}
+          >
+            $25
+          </span>
+        </div>
+        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+          Everything in <span className="font-medium">Good Eats</span>, plus <span className="font-medium">10% off</span> your total merch purchase.
+        </p>
+      </div>
+
+      {/* $50 — Chef's Special */}
+      <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-sm md:text-base font-semibold text-black">Chef&apos;s Special</h3>
+          <span
+            className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+            style={{ backgroundColor: "#4a3f35" }}
+          >
+            $50
+          </span>
+        </div>
+        <p className="mt-2 text-[#4a3f35] text-xs md:text-sm leading-snug">
+          Everything in <span className="font-medium">Signature Dish</span>, plus a <span className="font-medium">Caliphornia Cream T-Shirt</span>.
+        </p>
+      </div>
+    </div>
+  </div>
+</Sheet>
+
     </div>
   )
 }
