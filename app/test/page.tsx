@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DownloadTestView } from "@/components/views/download-test";
+import { DownloadView } from "@/components/views/download-test";
 
-// --- Keep your existing email gate EXACTLY as-is ---
+// --- unchanged: your existing email gate ---
 function EmailGate() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "exists" | "error">("idle");
@@ -37,7 +37,6 @@ function EmailGate() {
           setStatus("success");
           setMessage("You're in! Check your email soon for access details.");
         }
-        // TODO (next step): set a cookie or redirect to the next page in your flow.
       } else {
         setStatus("error");
         setMessage("Something went wrong. Please try again.");
@@ -97,11 +96,6 @@ function EmailGate() {
                 color: "#fff",
                 outline: "none",
               }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  // Let form submit handle it
-                }
-              }}
             />
           </label>
 
@@ -149,13 +143,19 @@ function EmailGate() {
   );
 }
 
-// --- New: route wrapper that picks which view to show ---
-export default function TestPage() {
+// --- Small inner component that uses useSearchParams, wrapped in Suspense below ---
+function TestInner() {
   const params = useSearchParams();
   const gate = params.get("gate");
-
-  // Default: show the *download test* (no paywall) at /test
-  // If you want the old email gate here, visit /test?gate=1
   if (gate === "1") return <EmailGate />;
-  return <DownloadTestView />;
+  return <DownloadView />; // your no-paywall test view
+}
+
+// --- Page export with Suspense boundary (fixes the build error) ---
+export default function TestPage() {
+  return (
+    <Suspense fallback={null}>
+      <TestInner />
+    </Suspense>
+  );
 }
