@@ -99,17 +99,11 @@ export default function ReleasesHub() {
                     </div>
                   </div>
 
-                  {/* Info */}
+                  {/* Info (title only, no duplicate drop date) */}
                   <div className="px-2.5 py-2 sm:px-3 sm:py-3">
                     <h3 className="text-[12px] sm:text-sm md:text-base font-bold text-black truncate">
                       {d.title}
                     </h3>
-
-                    {d.status === "upcoming" && d.dateLabel ? (
-                      <p className="mt-0.5 text-[10px] sm:text-xs" style={{ color: "#9f8b79" }}>
-                        Drops {d.dateLabel}
-                      </p>
-                    ) : null}
                   </div>
                 </div>
               </Card>
