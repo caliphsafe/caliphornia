@@ -1,5 +1,5 @@
-import { ReleasesHub } from "@/components/views/releases-hub"
+import ReleasesHub from "@/components/views/releases-hub"
 
 export default function ReleasesPage() {
   return <ReleasesHub />
-} 
+}
