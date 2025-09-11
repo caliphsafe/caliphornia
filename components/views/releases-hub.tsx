@@ -22,7 +22,7 @@ const DROPS: Drop[] = [
   // Upcomings can use a real cover (blurred) OR fall back to placeholder
   { slug: "#", title: "NOT TODAY FT. DELLY",  cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP",  cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1"  },
-  { slug: "#", title: "DROP 4",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 8"  },
+  { slug: "#", title: "DROP 4",  cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8"  },
   { slug: "#", title: "DROP 5",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 15" },
   { slug: "#", title: "DROP 6",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 22" },
   { slug: "#", title: "DROP 7",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 29" },
