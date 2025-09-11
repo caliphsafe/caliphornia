@@ -12,11 +12,17 @@ type Drop = {
   dateLabel?: string
 }
 
+type PreviousRelease = {
+  title: string
+  cover: string
+  url: string // link to streaming (Spotify/Apple/etc.)
+}
+
 const DROPS: Drop[] = [
   // FEATURED (live)
   { slug: "/home", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
 
-  // UPCOMING — real covers will render blurred; missing covers fall back to placeholder
+  // UPCOMING
   { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
   { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
@@ -30,7 +36,14 @@ const DROPS: Drop[] = [
   { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Dec 3" },
 ]
 
-// Shared tile with your original art/lock/chip logic (unchanged except for responsive blur)
+// TODO: replace these with your actual last 3 releases (covers + streaming URLs)
+const PREVIOUS_RELEASES: PreviousRelease[] = [
+  { title: "LAST DROP 1", cover: "/prev1-cover.png", url: "#" },
+  { title: "LAST DROP 2", cover: "/prev2-cover.png", url: "#" },
+  { title: "LAST DROP 3", cover: "/prev3-cover.png", url: "#" },
+]
+
+// Shared tile for live/upcoming (keeps your lock/veil/blur rules)
 function ReleaseTile({ drop }: { drop: Drop }) {
   const isLive = drop.status === "live"
   const Wrapper: any = isLive ? Link : "div"
@@ -42,14 +55,12 @@ function ReleaseTile({ drop }: { drop: Drop }) {
     <Wrapper {...wrapperProps}>
       <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm relative">
         <div className="relative w-full aspect-square bg-black">
-          {/* Cover (responsive blur: 3px mobile, 12px desktop for upcoming) */}
+          {/* Cover (responsive blur for upcoming only) */}
           <Image
             src={drop.cover || "/cover-placeholder.png"}
             alt={`${drop.title} cover`}
             fill
-            className={`object-cover ${
-              isLive ? "" : "blur-[3px] md:blur-[12px] opacity-80 scale-105"
-            }`}
+            className={`object-cover ${isLive ? "" : "blur-[3px] md:blur-[12px] opacity-80 scale-105"}`}
             sizes="(max-width: 768px) 60vw, 360px"
             priority={isLive}
           />
@@ -57,7 +68,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
           {/* Soft veil on upcoming */}
           {!isLive && <div className="absolute inset-0 bg-[rgba(243,242,238,0.35)]" />}
 
-          {/* Center lock (upcoming only) */}
+          {/* Center lock for upcoming */}
           {!isLive && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="backdrop-blur-sm bg-[rgba(0,0,0,0.35)] border border-[#B8A082] rounded-full w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shadow-md">
@@ -81,10 +92,45 @@ function ReleaseTile({ drop }: { drop: Drop }) {
   )
 }
 
+// Separate tile for previously released (no blur, no lock, external link to streaming)
+function PreviousTile({ item }: { item: PreviousRelease }) {
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block group focus:outline-none focus:ring-2 focus:ring-[#B8A082]"
+      aria-label={`${item.title} — streaming`}
+      title={`${item.title} — streaming`}
+    >
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm relative">
+        <div className="relative w-full aspect-square bg-black">
+          <Image
+            src={item.cover || "/cover-placeholder.png"}
+            alt={`${item.title} cover`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 60vw, 360px"
+          />
+          {/* Chip: STREAMING */}
+          <div className="absolute top-2 left-2">
+            <span
+              className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold"
+              style={{ backgroundColor: "#303030", color: "white" }}
+            >
+              STREAMING
+            </span>
+          </div>
+        </div>
+      </div>
+    </a>
+  )
+}
+
 export default function ReleasesHub() {
   const live = DROPS.find((d) => d.status === "live")
   const upcoming = DROPS.filter((d) => d.status === "upcoming")
-  const later = upcoming.slice(6) // if you ever exceed one row, these spill to “Later”
+  const later = upcoming.slice(6)
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F3F2EE" }}>
@@ -108,12 +154,9 @@ export default function ReleasesHub() {
         <section className="px-5">
           <div className="mx-auto max-w-5xl">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,420px)_1fr] gap-4 md:gap-6 items-stretch">
-              {/* Large art tile */}
               <div className="rounded-3xl overflow-hidden border border-[#B8A082] bg-white/40 shadow">
                 <ReleaseTile drop={live} />
               </div>
-
-              {/* Copy block */}
               <div className="rounded-3xl border border-[#B8A082] bg-[#F3F2EE]/70 p-5 md:p-6 flex flex-col justify-between">
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-black">This Week’s Drop</h2>
@@ -169,13 +212,25 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* Later (auto appears only if >6 upcoming) */}
+      {/* Later (if >6 upcoming) */}
       {later.length > 0 && (
-        <section className="mt-8 md:mt-10 px-5 pb-24">
+        <section className="mt-8 md:mt-10 px-5">
           <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Later</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
             {later.map((d, i) => (
               <ReleaseTile key={`later-${i}`} drop={d} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Previously Released — links to streaming */}
+      {PREVIOUS_RELEASES.length > 0 && (
+        <section className="mt-10 md:mt-12 px-5 pb-24">
+          <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Previously Released</h3>
+          <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+            {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
+              <PreviousTile key={`prev-${i}`} item={item} />
             ))}
           </div>
         </section>
