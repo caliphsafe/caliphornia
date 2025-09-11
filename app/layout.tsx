@@ -6,6 +6,7 @@ import { MusicPlayerProvider } from "@/contexts/music-player-context"
 import { MusicPlayer } from "@/components/patterns/music-player"
 import { FullScreenPlayer } from "@/components/patterns/full-screen-player"
 import { ScrollToTop } from "@/components/utils/scroll-to-top"
+import { Footer } from "@/components/patterns/footer"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,7 +23,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Caliphornia Player",
   description: "Music player for Caliphornia",
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -36,6 +37,7 @@ export default function RootLayout({
         <MusicPlayerProvider>
           <ScrollToTop />
           {children}
+          <Footer /> {/* Footer always visible at bottom of every page */}
           <MusicPlayer />
           <FullScreenPlayer />
         </MusicPlayerProvider>
