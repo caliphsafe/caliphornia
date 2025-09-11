@@ -7,11 +7,13 @@ import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
 import { PlayButton } from "@/components/patterns/play-button"
+import { useMusicPlayer } from "@/contexts/music-player-context"
 
 export function DownloadView() {
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isGameOpen, setIsGameOpen] = useState(false)
   const [ecwidLoadedOnce, setEcwidLoadedOnce] = useState(false)
+  const { isPlayerVisible } = useMusicPlayer()
 
   const fullSong = {
     id: "polygamy-caliph",
@@ -52,7 +54,12 @@ export function DownloadView() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-8" style={{ backgroundColor: "#f3f2ee" }}>
+    <div
+      className={`min-h-screen px-6 py-8 flex flex-col ${
+        isPlayerVisible ? "pb-32" : "pb-12"
+      }`}
+      style={{ backgroundColor: "#f3f2ee" }}
+    >
       {/* Header */}
       <div className="text-center mb-8">
         <Header />
@@ -75,20 +82,20 @@ export function DownloadView() {
       </div>
 
       {/* Download Button */}
-<div className="mb-12 max-w-[640px] mx-auto">
-  <Button
-    variant="primary"
-    size="large"
-    className="w-full text-xl font-bold py-6"
-    style={{ backgroundColor: "#4a3f35", color: "white" }}
-    asChild
-  >
-    <a href="/api/download">DOWNLOAD .MP3</a>
-  </Button>
-</div>
+      <div className="mb-12 max-w-[640px] mx-auto">
+        <Button
+          variant="primary"
+          size="large"
+          className="w-full text-xl font-bold py-6"
+          style={{ backgroundColor: "#4a3f35", color: "white" }}
+          asChild
+        >
+          <a href="/api/download">DOWNLOAD .MP3</a>
+        </Button>
+      </div>
 
       {/* Bonuses Section */}
-      <div className="max-w-[640px] mx-auto">
+      <div className="max-w-[640px] mx-auto flex-1">
         <h2 className="text-2xl font-bold text-black mb-6">Bonuses</h2>
 
         <div className="space-y-4">
@@ -103,7 +110,9 @@ export function DownloadView() {
               <span className="text-2xl">🧩</span>
               <span className="text-lg font-medium text-black">Play LYRIC GENIUS</span>
             </div>
-            <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isGameOpen ? "rotate-45" : ""}`} />
+            <ArrowUpRightIcon
+              className={`w-6 h-6 text-black transition-transform ${isGameOpen ? "rotate-45" : ""}`}
+            />
           </button>
 
           {/* Dropdown panel for LYRIC GENIUS (iframe) */}
@@ -136,7 +145,9 @@ export function DownloadView() {
               <span className="text-2xl">🛍️</span>
               <span className="text-lg font-medium text-black">Shop CALIPHORNIA® Merch</span>
             </div>
-            <ArrowUpRightIcon className={`w-6 h-6 text-black transition-transform ${isShopOpen ? "rotate-45" : ""}`} />
+            <ArrowUpRightIcon
+              className={`w-6 h-6 text-black transition-transform ${isShopOpen ? "rotate-45" : ""}`}
+            />
           </button>
 
           {/* Dropdown panel (same width as content) */}
@@ -146,67 +157,37 @@ export function DownloadView() {
               isShopOpen ? "max-h-[3000px] opacity-100 mt-2" : "max-h-0 opacity-0"
             }`}
           >
-            {/* 2-column layout on md+, stacked on mobile */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Product 1 — SingleProduct v2 */}
+              {/* Product 1 */}
               <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
                 <div
                   className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780973754"
                   itemScope
                   itemType="http://schema.org/Product"
                   data-single-product-id="780973754"
-                >
-                  <div itemProp="image" />
-                  <div className="ecsp-title" itemProp="name" content="Caliphornia Cream Puff Print Box T-Shirt" />
-                  <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
-                    <div
-                      className="ecsp-productBrowser-price ecsp-price"
-                      itemProp="price"
-                      content="35"
-                      data-spw-price-location="button"
-                    >
-                      <div itemProp="priceCurrency" content="USD" />
-                    </div>
-                  </div>
-                  <div customprop="options" />
-                  <div customprop="qty" />
-                  <div customprop="addtobag" />
-                  <div customprop="vatinprice" />
-                </div>
+                />
               </div>
 
-              {/* Product 2 — SingleProduct v2 */}
+              {/* Product 2 */}
               <div className="bg-white/50 border border-[#B8A082]/60 rounded-md p-3">
                 <div
                   className="ecsp ecsp-SingleProduct-v2 ecsp-SingleProduct-v2-bordered ecsp-SingleProduct-v2-centered ecsp-Product ec-Product-780978001"
                   itemScope
                   itemType="http://schema.org/Product"
                   data-single-product-id="780978001"
-                >
-                  <div itemProp="image" />
-                  <div className="ecsp-title" itemProp="name" content="Caliphornia Brown Bag Relaxed Fit Hoodie" />
-                  <div itemType="http://schema.org/Offer" itemScope itemProp="offers">
-                    <div
-                      className="ecsp-productBrowser-price ecsp-price"
-                      itemProp="price"
-                      content="70"
-                      data-spw-price-location="button"
-                    >
-                      <div itemProp="priceCurrency" content="USD" />
-                    </div>
-                  </div>
-                  <div customprop="options" />
-                  <div customprop="qty" />
-                  <div customprop="addtobag" />
-                  <div customprop="vatinprice" />
-                </div>
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Load Ecwid SingleProduct script once on first open and render widgets */}
+      {/* Footer */}
+      <footer className="mt-12 text-center text-xs md:text-sm font-medium" style={{ color: "#4a3f35" }}>
+        POWERED BY KIIKU © 2025
+      </footer>
+
+      {/* Load Ecwid script once */}
       {ecwidLoadedOnce && (
         <Script
           id="ecwid-singleproduct"
