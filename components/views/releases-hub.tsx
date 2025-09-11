@@ -8,7 +8,7 @@ type Drop = {
   title: string
   cover: string
   status: "live" | "upcoming"
-  dateLabel?: string // e.g., "Sep 24"
+  dateLabel?: string
 }
 
 const DROPS: Drop[] = [
@@ -18,15 +18,14 @@ const DROPS: Drop[] = [
     cover: "/polygamy-cover.png",
     status: "live",
   },
-  // 11 stand-ins (unchanged)
-  { slug: "#", title: "DROP 2",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Sep 24" },
-  { slug: "#", title: "DROP 3",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 1" },
-  { slug: "#", title: "DROP 4",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 8" },
-  { slug: "#", title: "DROP 5",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 15" },
-  { slug: "#", title: "DROP 6",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 22" },
-  { slug: "#", title: "DROP 7",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 29" },
-  { slug: "#", title: "DROP 8",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 5" },
-  { slug: "#", title: "DROP 9",  cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 12" },
+  { slug: "#", title: "DROP 2", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Sep 24" },
+  { slug: "#", title: "DROP 3", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 1" },
+  { slug: "#", title: "DROP 4", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 8" },
+  { slug: "#", title: "DROP 5", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 15" },
+  { slug: "#", title: "DROP 6", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 22" },
+  { slug: "#", title: "DROP 7", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 29" },
+  { slug: "#", title: "DROP 8", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 5" },
+  { slug: "#", title: "DROP 9", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 12" },
   { slug: "#", title: "DROP 10", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 19" },
   { slug: "#", title: "DROP 11", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 26" },
   { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Dec 3" },
@@ -45,7 +44,6 @@ export default function ReleasesHub() {
           className="h-auto w-[160px] md:w-[180px]"
           priority
         />
-        {/* Sleeker message only (per your request) */}
         <p className="mt-4 max-w-2xl text-sm md:text-base leading-relaxed" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
@@ -64,7 +62,7 @@ export default function ReleasesHub() {
 
             return (
               <Card key={i} {...(cardProps as any)}>
-                <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm">
+                <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm relative">
                   <div className="relative w-full aspect-square bg-black">
                     {/* Cover */}
                     <Image
@@ -77,12 +75,17 @@ export default function ReleasesHub() {
                       sizes="(max-width: 768px) 33vw, 200px"
                     />
 
-                    {/* Frosted veil for upcoming (restores your previous vibe) */}
+                    {/* Frosted veil for upcoming */}
+                    {!isLive && <div className="absolute inset-0 bg-[rgba(243,242,238,0.4)]" />}
+
+                    {/* Lock overlay for upcoming */}
                     {!isLive && (
-                      <div className="absolute inset-0 bg-[rgba(243,242,238,0.4)]" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-white text-3xl sm:text-4xl md:text-5xl opacity-90">🔒</span>
+                      </div>
                     )}
 
-                    {/* Status chip (LIVE stays brown) */}
+                    {/* Status chip */}
                     <div className="absolute top-2 left-2">
                       <span
                         className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold"
@@ -96,13 +99,12 @@ export default function ReleasesHub() {
                     </div>
                   </div>
 
-                  {/* Info — tuned for mobile visibility (no subtitle chip) */}
+                  {/* Info */}
                   <div className="px-2.5 py-2 sm:px-3 sm:py-3">
                     <h3 className="text-[12px] sm:text-sm md:text-base font-bold text-black truncate">
                       {d.title}
                     </h3>
 
-                    {/* Secondary line (date for upcoming) */}
                     {d.status === "upcoming" && d.dateLabel ? (
                       <p className="mt-0.5 text-[10px] sm:text-xs" style={{ color: "#9f8b79" }}>
                         Drops {d.dateLabel}
