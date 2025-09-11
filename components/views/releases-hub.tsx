@@ -71,7 +71,7 @@ export default function ReleasesHub() {
                       src={d.cover || "/cover-placeholder.png"}
                       alt={`${d.title} cover`}
                       fill
-                      className={`object-cover ${isLive ? "" : "blur-[2px] opacity-80 scale-105"}`}
+                      className={`object-cover ${isLive ? "" : "blur-[10px] opacity-80 scale-105"}`}
                       sizes="(max-width: 768px) 33vw, 200px"
                     />
 
