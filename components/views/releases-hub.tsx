@@ -34,7 +34,7 @@ const DROPS: Drop[] = [
   { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Dec 3" },
 ]
 
-export default function ReleasesView() {
+export default function ReleasesHub() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F3F2EE" }}>
       {/* Header / Logo */}
