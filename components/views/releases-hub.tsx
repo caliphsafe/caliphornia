@@ -2,7 +2,8 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { LockClosedIcon } from "@heroicons/react/24/solid"
+import { useState } from "react"
+import { LockClosedIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid"
 
 type Drop = {
   slug: string
@@ -15,14 +16,19 @@ type Drop = {
 type PreviousRelease = {
   title: string
   cover: string
-  url: string // link to streaming (Spotify/Apple/etc.)
+  links: {
+    apple?: string
+    spotify?: string
+    tidal?: string
+    youtube?: string
+  }
 }
 
 const DROPS: Drop[] = [
   // FEATURED (live)
   { slug: "/home", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
 
-  // UPCOMING
+  // UPCOMING (keep your covers or placeholders)
   { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
   { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
@@ -36,14 +42,53 @@ const DROPS: Drop[] = [
   { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Dec 3" },
 ]
 
-// TODO: replace these with your actual last 3 releases (covers + streaming URLs)
+// Replace these with your real covers + streaming URLs
 const PREVIOUS_RELEASES: PreviousRelease[] = [
-  { title: "LAST DROP 1", cover: "/prev1-cover.png", url: "#" },
-  { title: "LAST DROP 2", cover: "/prev2-cover.png", url: "#" },
-  { title: "LAST DROP 3", cover: "/prev3-cover.png", url: "#" },
+  {
+    title: "LAST DROP 1",
+    cover: "/prev1-cover.png",
+    links: {
+      apple: "#",
+      spotify: "#",
+      tidal: "#",
+      youtube: "#",
+    },
+  },
+  {
+    title: "LAST DROP 2",
+    cover: "/prev2-cover.png",
+    links: {
+      apple: "#",
+      spotify: "#",
+      tidal: "#",
+      youtube: "#",
+    },
+  },
+  {
+    title: "LAST DROP 3",
+    cover: "/prev3-cover.png",
+    links: {
+      apple: "#",
+      spotify: "#",
+      tidal: "#",
+      youtube: "#",
+    },
+  },
 ]
 
-// Shared tile for live/upcoming (keeps your lock/veil/blur rules)
+// --------- UI Helpers ---------
+function Chip({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return (
+    <span
+      className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm"
+      style={{ backgroundColor: dark ? "rgba(0,0,0,0.55)" : "#4a3f35", color: "white" }}
+    >
+      {children}
+    </span>
+  )
+}
+
+// Shared tile for live/upcoming (keeps your blur/lock rules EXACT)
 function ReleaseTile({ drop }: { drop: Drop }) {
   const isLive = drop.status === "live"
   const Wrapper: any = isLive ? Link : "div"
@@ -53,9 +98,9 @@ function ReleaseTile({ drop }: { drop: Drop }) {
 
   return (
     <Wrapper {...wrapperProps}>
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm relative">
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.08)] relative backdrop-blur-[2px]">
         <div className="relative w-full aspect-square bg-black">
-          {/* Cover (responsive blur for upcoming only) */}
+          {/* Cover (responsive blur for upcoming only: mobile 3px, desktop 12px) */}
           <Image
             src={drop.cover || "/cover-placeholder.png"}
             alt={`${drop.title} cover`}
@@ -79,12 +124,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
 
           {/* Status chip (LIVE or date) */}
           <div className="absolute top-2 left-2">
-            <span
-              className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold"
-              style={{ backgroundColor: isLive ? "#4a3f35" : "rgba(0,0,0,0.55)", color: "white" }}
-            >
-              {isLive ? "LIVE" : drop.dateLabel ?? "SOON"}
-            </span>
+            <Chip dark={!isLive}>{isLive ? "LIVE" : drop.dateLabel ?? "SOON"}</Chip>
           </div>
         </div>
       </div>
@@ -92,18 +132,22 @@ function ReleaseTile({ drop }: { drop: Drop }) {
   )
 }
 
-// Separate tile for previously released (no blur, no lock, external link to streaming)
-function PreviousTile({ item }: { item: PreviousRelease }) {
+// Previous (no blur/lock). Opens a streaming sheet instead of direct link.
+function PreviousTile({
+  item,
+  onOpen,
+}: {
+  item: PreviousRelease
+  onOpen: (release: PreviousRelease) => void
+}) {
   return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block group focus:outline-none focus:ring-2 focus:ring-[#B8A082]"
+    <button
+      onClick={() => onOpen(item)}
+      className="block group focus:outline-none focus:ring-2 focus:ring-[#B8A082] rounded-2xl"
       aria-label={`${item.title} — streaming`}
       title={`${item.title} — streaming`}
     >
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082] bg-white/40 shadow-sm relative">
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.08)] relative backdrop-blur-[2px]">
         <div className="relative w-full aspect-square bg-black">
           <Image
             src={item.cover || "/cover-placeholder.png"}
@@ -114,26 +158,130 @@ function PreviousTile({ item }: { item: PreviousRelease }) {
           />
           {/* Chip: STREAMING */}
           <div className="absolute top-2 left-2">
-            <span
-              className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold"
-              style={{ backgroundColor: "#303030", color: "white" }}
-            >
+            <span className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white bg-[#303030]">
               STREAMING
             </span>
           </div>
         </div>
       </div>
+    </button>
+  )
+}
+
+// Streaming sheet modal
+function StreamingSheet({
+  open,
+  onClose,
+  release,
+}: {
+  open: boolean
+  onClose: () => void
+  release: PreviousRelease | null
+}) {
+  if (!open || !release) return null
+
+  const LinkBtn = ({
+    label,
+    href,
+    bg,
+  }: {
+    label: string
+    href?: string
+    bg: string
+  }) => (
+    <a
+      href={href || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`flex items-center justify-between w-full rounded-xl px-4 py-3 font-semibold text-white shadow-sm transition ${
+        href ? "hover:opacity-90" : "opacity-60 cursor-not-allowed"
+      }`}
+      style={{ backgroundColor: bg }}
+    >
+      <span>{label}</span>
+      <ArrowTopRightOnSquareIcon className="w-5 h-5" />
     </a>
+  )
+
+  return (
+    <div className="fixed inset-0 z-[120]">
+      {/* Dim backdrop with subtle noise */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5)), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%222%22 stitchTiles=%22stitch%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.03%22/></svg>')",
+          backgroundSize: "cover, 160px 160px",
+        }}
+        onClick={onClose}
+      />
+
+      {/* Bottom sheet */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <div className="mx-auto max-w-xl w-[92%] md:w-[72%] bg-[#F3F2EE] border border-[#B8A082] rounded-t-3xl shadow-[0_-18px_50px_rgba(0,0,0,0.28)] overflow-hidden">
+          {/* Handle + close */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-2">
+            <div className="flex-1 flex justify-center">
+              <div className="w-12 h-1.5 bg-[#9f8b79] rounded-full" />
+            </div>
+            <button
+              onClick={onClose}
+              className="ml-2 p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
+              aria-label="Close"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Header */}
+          <div className="px-5 pb-4 flex items-center gap-3">
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#B8A082] shadow">
+              <Image src={release.cover} alt={`${release.title} cover`} fill className="object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold text-black truncate">{release.title}</h3>
+              <p className="text-sm" style={{ color: "#867260" }}>
+                Listen on your favorite platform
+              </p>
+            </div>
+          </div>
+
+          {/* Links */}
+          <div className="px-5 pb-5 grid grid-cols-1 gap-3">
+            <LinkBtn label="Apple Music" href={release.links.apple} bg="#111111" />
+            <LinkBtn label="Spotify" href={release.links.spotify} bg="#1DB954" />
+            <LinkBtn label="TIDAL" href={release.links.tidal} bg="#0A0A0A" />
+            <LinkBtn label="YouTube" href={release.links.youtube} bg="#FF0000" />
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
 export default function ReleasesHub() {
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
+
   const live = DROPS.find((d) => d.status === "live")
   const upcoming = DROPS.filter((d) => d.status === "upcoming")
   const later = upcoming.slice(6)
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F3F2EE" }}>
+    <div
+      className="min-h-screen relative"
+      // Layered background: soft gradient + vignette + ultra-subtle noise
+      style={{
+        background:
+          "radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,0.75), rgba(243,242,238,1)), linear-gradient(180deg, rgba(230,224,212,0.35), rgba(243,242,238,1) 30%), #F3F2EE",
+      }}
+    >
+      {/* Subtle top flourish */}
+      <div
+        className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[120vw] h-[120px] blur-[60px] opacity-50"
+        style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
+      />
+
       {/* Header */}
       <header className="px-6 pt-8 pb-5 flex flex-col items-center text-center">
         <Image
@@ -154,10 +302,10 @@ export default function ReleasesHub() {
         <section className="px-5">
           <div className="mx-auto max-w-5xl">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,420px)_1fr] gap-4 md:gap-6 items-stretch">
-              <div className="rounded-3xl overflow-hidden border border-[#B8A082] bg-white/40 shadow">
+              <div className="rounded-3xl overflow-hidden border border-[#B8A082]/70 bg-white/40 shadow-[0_30px_60px_rgba(0,0,0,0.12)] backdrop-blur-sm">
                 <ReleaseTile drop={live} />
               </div>
-              <div className="rounded-3xl border border-[#B8A082] bg-[#F3F2EE]/70 p-5 md:p-6 flex flex-col justify-between">
+              <div className="rounded-3xl border border-[#B8A082]/70 bg-[#F3F2EE]/80 p-5 md:p-6 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-black">This Week’s Drop</h2>
                   <p className="mt-2 text-sm md:text-base" style={{ color: "#4a3f35" }}>
@@ -212,7 +360,7 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* Later (if >6 upcoming) */}
+      {/* Later */}
       {later.length > 0 && (
         <section className="mt-8 md:mt-10 px-5">
           <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Later</h3>
@@ -224,17 +372,31 @@ export default function ReleasesHub() {
         </section>
       )}
 
-      {/* Previously Released — links to streaming */}
+      {/* Previously Released — opens streaming sheet */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section className="mt-10 md:mt-12 px-5 pb-24">
           <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Previously Released</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
             {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
-              <PreviousTile key={`prev-${i}`} item={item} />
+              <PreviousTile
+                key={`prev-${i}`}
+                item={item}
+                onOpen={(release) => {
+                  setActivePrev(release)
+                  setSheetOpen(true)
+                }}
+              />
             ))}
           </div>
         </section>
       )}
+
+      {/* Streaming modal */}
+      <StreamingSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        release={activePrev}
+      />
     </div>
   )
 }
