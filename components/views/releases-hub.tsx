@@ -204,7 +204,7 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
   )
 }
 
-// ---------- Streaming Pop-up (rounded, bordered, pops above bottom) ----------
+// ---------- Streaming Pop-up ----------
 function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: () => void; release: PreviousRelease | null }) {
   if (!open || !release) return null
   const LinkBtn = ({ label, href, bg }: { label: string; href?: string; bg: string }) => (
@@ -221,7 +221,6 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   )
   return (
     <div className="fixed inset-0 z-[120]">
-      {/* Dim backdrop click-to-close */}
       <div
         className="absolute inset-0"
         style={{
@@ -231,12 +230,11 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
         }}
         onClick={onClose}
       />
-      {/* Floating card near bottom, fully rounded */}
       <div className="absolute left-0 right-0 bottom-6 md:bottom-10">
         <div className={`mx-auto max-w-xl w-[92%] md:w-[72%] ${glass} rounded-3xl overflow-hidden`}>
           <Grain />
           <div className="flex items-center justify-end px-3 pt-2 pb-1">
-            <button onClick={onClose} className="p-2 rounded-full hover:bg黑/5 text-[#4a3f35]" aria-label="Close">
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -335,7 +333,7 @@ function FeaturedCard({ live }: { live: Drop }) {
           "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
       }}
     >
-      {/* blurred logo in hero background (non-interactive) */}
+      {/* blurred logo in hero background */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
           className="w-[70vw] max-w-[820px] aspect-[4/1] opacity-25 blur-[40px]"
@@ -362,7 +360,7 @@ function FeaturedCard({ live }: { live: Drop }) {
 
           {/* layout: mobile stack, desktop two-column */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* NEW: padded square cover on all breakpoints */}
+            {/* padded square cover */}
             <div className="p-3 md:p-5">
               <div ref={imgRef} className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
                 <Image
@@ -384,7 +382,6 @@ function FeaturedCard({ live }: { live: Drop }) {
             {/* info */}
             <div className="flex flex-col justify-between px-4 pb-4 pt-0 md:p-6 relative">
               <div>
-                {/* Two-line format */}
                 <div className="text-[11px] md:text-xs font-bold tracking-[0.18em] text-[#867260] uppercase">
                   THIS WEEK’S DROP
                 </div>
@@ -413,7 +410,7 @@ function FeaturedCard({ live }: { live: Drop }) {
                 </div>
               </div>
 
-              {/* Single CTA only — rectangle brown button */}
+              {/* Single CTA — rectangle brown button */}
               <div className="mt-4">
                 <Link
                   ref={enterRef as any}
@@ -478,7 +475,7 @@ function AboutCaliph() {
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
             {/* portrait */}
-            <div className="relative min-h=[240px] md:min-h-[340px]">
+            <div className="relative min-h-[240px] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
                   src="/caliph-profile.png"
@@ -567,7 +564,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — carved frame with balanced inner padding */}
+      {/* NEXT UP */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -581,7 +578,6 @@ export default function ReleasesHub() {
               className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
               style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
             >
-              {/* Balanced edge padding left/right so first/last tiles don't touch borders */}
               <div className="flex gap-3 sm:gap-4 min-w-max py-3 px-4 sm:px-5">
                 {upcoming.slice(0, 6).map((d, idx) => (
                   <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
@@ -593,6 +589,9 @@ export default function ReleasesHub() {
           </div>
         </div>
       </section>
+
+      {/* ABOUT CALIPH — RESTORED */}
+      <AboutCaliph />
 
       {/* PREVIOUSLY RELEASED */}
       {PREVIOUS_RELEASES.length > 0 && (
