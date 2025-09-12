@@ -56,7 +56,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
   },
   {
     title: "EATER JAMES (Single)",
-    cover: "/eater-james-cover.jpg",
+    cover: "/eater-james-cover.JPG",
     links: {
       apple: "https://music.apple.com/us/album/eater-james-single/1788913374?at=1001lry3&ct=dashboard&uo=4",
       spotify: "https://open.spotify.com/album/6Fifi70A9hcS7SWMXmNzjn",
