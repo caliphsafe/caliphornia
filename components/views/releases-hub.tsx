@@ -45,33 +45,33 @@ const DROPS: Drop[] = [
 // Replace these with your real covers + streaming URLs
 const PREVIOUS_RELEASES: PreviousRelease[] = [
   {
-    title: "LAST DROP 1",
-    cover: "/prev1-cover.png",
+    title: "MARIA JULIA (Single)",
+    cover: "/maria-julia-cover.png",
     links: {
-      apple: "#",
-      spotify: "#",
-      tidal: "#",
-      youtube: "#",
+      apple: "https://music.apple.com/us/album/maria-julia-single/1828692139?at=1001lry3&ct=dashboard&uo=4",
+      spotify: "https://open.spotify.com/album/0tYN2jrPeKd3GvSX5ZL9GK",
+      tidal: "https://tidal.com/browse/album/449886502",
+      youtube: "https://www.youtube.com/watch?v=xSiBH-F6klU",
     },
   },
   {
-    title: "LAST DROP 2",
-    cover: "/prev2-cover.png",
+    title: "EATER JAMES (Single)",
+    cover: "/eater-james-cover.png",
     links: {
-      apple: "#",
-      spotify: "#",
-      tidal: "#",
-      youtube: "#",
+      apple: "https://music.apple.com/us/album/eater-james-single/1788913374?at=1001lry3&ct=dashboard&uo=4",
+      spotify: "https://open.spotify.com/album/6Fifi70A9hcS7SWMXmNzjn",
+      tidal: "https://tidal.com/browse/album/409282874",
+      youtube: "https://www.youtube.com/watch?v=OJsX3XioJb8",
     },
   },
   {
-    title: "LAST DROP 3",
+    title: "FREE LIPH (EP)",
     cover: "/prev3-cover.png",
     links: {
-      apple: "#",
-      spotify: "#",
-      tidal: "#",
-      youtube: "#",
+      apple: "https://music.apple.com/us/album/free-liph/1781918994",
+      spotify: "https://open.spotify.com/album/1Y4kh3SZuSyTp1Mm4xO032",
+      tidal: "https://tidal.com/browse/album/401698101",
+      youtube: "https://youtube.com/playlist?list=OLAK5uy_mxiilUPgUyGTiaWR8z6GWhShifQ7MGtZY&si=EEMpBQS-NLQZezdr",
     },
   },
 ]
