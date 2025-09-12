@@ -78,7 +78,6 @@ const glass =
   "bg-white/55 backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.14)]"
 
 function Grain() {
-  // ultra-subtle grain on top of cards/sections
   return (
     <div
       aria-hidden
@@ -220,7 +219,6 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   )
   return (
     <div className="fixed inset-0 z-[120]">
-      {/* backdrop (click to close) */}
       <div
         className="absolute inset-0"
         style={{
@@ -259,7 +257,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   )
 }
 
-// ---------- Sticky Nav (center logo on mobile; left on desktop) ----------
+// ---------- Sticky Nav ----------
 function TopNav() {
   const [solid, setSolid] = useState(false)
   useEffect(() => {
@@ -315,7 +313,7 @@ function AudioPreview({ src }: { src: string }) {
   )
 }
 
-// ---------- Feature Presentation ----------
+// ---------- Feature Presentation (full cover visible on desktop) ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
 
@@ -363,27 +361,27 @@ function FeaturedCard({ live }: { live: Drop }) {
       <div className="mx-auto max-w-5xl relative">
         <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
-          {/* subtle bevel */}
           <div className="pointer-events-none absolute inset-0 rounded-3xl"
                style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -20px 40px rgba(0,0,0,0.06)" }} />
-
-          {/* avant-garde overlay stripes (very faint) */}
           <div className="pointer-events-none absolute inset-0 opacity-[0.10]"
                style={{ backgroundImage: "repeating-linear-gradient(135deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 8px)" }} />
 
           {/* layout: mobile stack, desktop two-column */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* full cover */}
+            {/* full cover (mobile fills, desktop shows full image) */}
             <div ref={imgRef} className="relative w-full aspect-[1/1] md:h-full md:aspect-auto md:min-h-[420px] bg-black will-change-transform">
               <Image
                 src={live.cover || "/cover-placeholder.png"}
                 alt={`${live.title} cover`}
                 fill
                 sizes="(max-width: 768px) 100vw, 700px"
-                className="object-cover"
+                className="object-cover md:object-contain"  // <-- desktop shows entire cover art
                 priority
               />
               <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
+              {/* add letterbox pad on desktop when object-contain introduces empty space */}
+              <div className="hidden md:block absolute inset-0 pointer-events-none"
+                   style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }} />
             </div>
 
             {/* info */}
@@ -430,7 +428,7 @@ function FeaturedCard({ live }: { live: Drop }) {
   )
 }
 
-// ---------- Section reveal (motion-safe) ----------
+// ---------- Section reveal ----------
 function useReveal() {
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
@@ -454,7 +452,7 @@ function useReveal() {
   return ref
 }
 
-// ---------- About Caliph (equal-height columns) ----------
+// ---------- About Caliph (concise bio + equal-height columns) ----------
 function AboutCaliph() {
   const ref = useReveal()
   return (
@@ -472,13 +470,12 @@ function AboutCaliph() {
       <div className="mx-auto max-w-6xl relative">
         <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
-          {/* grid with equal-height columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
-            {/* portrait (matches text height via h-full) */}
+            {/* portrait matches text height */}
             <div className="relative min-h-[320px] md:min-h-[420px]">
               <div className="absolute inset-0">
                 <Image
-                  src="/caliph-portrait.jpg" /* swap to your email-gate image */
+                  src="/caliph-profile.png" /* swap to your email-gate image */
                   alt="Caliph portrait"
                   fill
                   className="object-cover"
@@ -491,9 +488,12 @@ function AboutCaliph() {
             <div className="relative p-4 md:p-6 flex flex-col">
               <h3 className="text-lg md:text-xl font-bold text-black">About Caliph</h3>
               <p className="mt-2 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus
-                ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent
-                mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla.
+                Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
+                music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he draws
+                on his journey as a Black Muslim immigrant to explore identity, resilience, and healing. His breakout on
+                the Grammy-winning <em>American Dreamers</em> project led into <em>Immigrant Of The Year</em>, a 10-track
+                portrait of setbacks, mental health, and hope—crafted with full creative independence across writing,
+                production, visuals, and code.
               </p>
 
               {/* info grid */}
@@ -501,23 +501,22 @@ function AboutCaliph() {
                 <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
                   <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Hometown</div>
-                  <div className="text-sm font-bold text-black mt-1">Boston, MA</div>
+                  <div className="text-sm font-bold text-black mt-1">Dakar, Senegal / New England</div>
                 </div>
                 <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
                   <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Genres</div>
-                  <div className="text-sm font-bold text-black mt-1">Hip-Hop · Afro-fusion</div>
+                  <div className="text-sm font-bold text-black mt-1">Hip-Hop · Afro-Fusion · R&B</div>
                 </div>
                 <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
                   <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Awards & Accolades</div>
-                  <div className="text-sm font-bold text-black mt-1">Festival alum · Press features</div>
+                  <div className="text-sm font-bold text-black mt-1">Multi-Grammy Award Winning Artist</div>
                 </div>
               </div>
 
               <p className="mt-3 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
-                Curabitur sodales ligula in libero. Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh.
-                Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed convallis tristique sem.
+                An authentic voice turning struggle into art and experience into legacy.
               </p>
             </div>
           </div>
@@ -544,7 +543,6 @@ export default function ReleasesHub() {
       style={{
         background:
           "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
-        // mobile scroll safety: allow natural vertical pan
         touchAction: "pan-y",
       }}
     >
@@ -566,7 +564,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — carved frame with gaussian side fades */}
+      {/* NEXT UP — carved frame (no side fades anymore) */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-5 relative">
         <div className="px-4 flex items-center justify-between mb-3">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -574,16 +572,8 @@ export default function ReleasesHub() {
         </div>
 
         <div className="px-4">
-          <div
-            className={`mx-auto max-w-6xl relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}
-          >
+          <div className={`mx-auto max-w-6xl relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
             <Grain />
-            {/* side gaussian fades (overlay, non-interactive) */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-12 sm:w-16 z-10"
-                 style={{ background: "linear-gradient(90deg, rgba(243,242,238,0.95), rgba(243,242,238,0))", filter: "blur(2px)" }} />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:w-16 z-10"
-                 style={{ background: "linear-gradient(-90deg, rgba(243,242,238,0.95), rgba(243,242,238,0))", filter: "blur(2px)" }} />
-
             <div
               className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
               style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
