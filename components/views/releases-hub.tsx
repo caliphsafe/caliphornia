@@ -236,7 +236,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
         <div className={`mx-auto max-w-xl w-[92%] md:w-[72%] ${glass} rounded-3xl overflow-hidden`}>
           <Grain />
           <div className="flex items-center justify-end px-3 pt-2 pb-1">
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
+            <button onClick={onClose} className="p-2 rounded-full hover:bg黑/5 text-[#4a3f35]" aria-label="Close">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -298,7 +298,7 @@ function TopNav() {
   )
 }
 
-// ---------- Feature Presentation (square cover; editorial text; pull-quote; single CTA) ----------
+// ---------- Feature Presentation ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
 
@@ -346,6 +346,8 @@ function FeaturedCard({ live }: { live: Drop }) {
       <div className="mx-auto max-w-5xl relative">
         <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
+
+          {/* bevel + faint pattern */}
           <div
             className="pointer-events-none absolute inset-0 rounded-3xl"
             style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -20px 40px rgba(0,0,0,0.06)" }}
@@ -360,43 +362,49 @@ function FeaturedCard({ live }: { live: Drop }) {
 
           {/* layout: mobile stack, desktop two-column */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* cover stays a PERFECT SQUARE on all breakpoints */}
-            <div ref={imgRef} className="relative w-full aspect-square bg-black will-change-transform">
-              <Image
-                src={live.cover || "/cover-placeholder.png"}
-                alt={`${live.title} cover`}
-                fill
-                sizes="(max-width: 768px) 100vw, 700px"
-                className="object-cover"
-                priority
-              />
-              <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
-              {/* subtle inner border */}
-              <div className="hidden md:block absolute inset-0 pointer-events-none"
-                   style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }} />
+            {/* NEW: padded square cover on all breakpoints */}
+            <div className="p-3 md:p-5">
+              <div ref={imgRef} className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
+                <Image
+                  src={live.cover || "/cover-placeholder.png"}
+                  alt={`${live.title} cover`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 700px"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
+                <div
+                  className="hidden md:block absolute inset-0 pointer-events-none"
+                  style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }}
+                />
+              </div>
             </div>
 
             {/* info */}
-            <div className="flex flex-col justify-between p-4 md:p-6 relative">
+            <div className="flex flex-col justify-between px-4 pb-4 pt-0 md:p-6 relative">
               <div>
-                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">
-                  This Week’s Drop: POLYGAMY (PROD. CALIPH)
+                {/* Two-line format */}
+                <div className="text-[11px] md:text-xs font-bold tracking-[0.18em] text-[#867260] uppercase">
+                  THIS WEEK’S DROP
+                </div>
+                <h2 className="mt-1 text-lg md:text-2xl font-extrabold tracking-tight text-black">
+                  CALIPH – POLYGAMY (PROD. BY CALIPH)
                 </h2>
 
-                {/* Editorial paragraph */}
-                <p className="mt-2 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
-                  A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life lessons
-                  through a family lens. Across verses he compares three breakups to his grandfather’s three successful
-                  marriages—as told in the third verse—turning hard-won boundaries into wit, rhythm, and resolve. Produced
-                  by Caliph and sampling Monique Séka’s classic West African cut “Okaman,” the record keeps it light even as
-                  it vows not to fall for the wrong love again—balancing care for himself with the needs of the women in his
-                  world.
+                {/* Editorial paragraph (justified) */}
+                <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
+                  A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life
+                  lessons through a family lens. Across verses he compares three breakups to his grandfather’s three
+                  successful marriages—as told in the third verse—turning hard-won boundaries into wit, rhythm, and
+                  resolve. Produced by Caliph and sampling Monique Séka’s West African classic “Okaman,” the record
+                  keeps it light while guarding the heart—meeting his needs and the women in his world with clarity.
                 </p>
 
-                {/* Pull quote */}
+                {/* Pull quote (justified) */}
                 <div className={`mt-3 p-3 md:p-4 rounded-2xl ${glass} relative`}>
                   <Grain />
-                  <blockquote className="text-sm md:text-base font-semibold text-black leading-relaxed">
+                  <blockquote className="text-sm md:text-base font-semibold text-black leading-relaxed text-justify">
                     “If my granddaddy ain’t have his 3rd wife<br />
                     I wouldn’t be out here livin out my 3rd life<br />
                     Fell in love 3 times and this my 3rd strike<br />
@@ -405,15 +413,15 @@ function FeaturedCard({ live }: { live: Drop }) {
                 </div>
               </div>
 
-              {/* Single CTA only */}
+              {/* Single CTA only — rectangle brown button */}
               <div className="mt-4">
                 <Link
                   ref={enterRef as any}
                   href="/home"
-                  className="inline-flex justify-center w-full md:w-auto rounded-full px-5 py-2.5 font-semibold text-white transition will-change-transform"
+                  className="inline-flex justify-center w-full md:w-auto rounded-md px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
-                  Enter Drop
+                  Unlock Song
                 </Link>
               </div>
             </div>
@@ -448,7 +456,7 @@ function useReveal() {
   return ref
 }
 
-// ---------- About Caliph (badges above bio; compact) ----------
+// ---------- About Caliph (badges above bio; justified; compact) ----------
 function AboutCaliph() {
   const ref = useReveal()
   return (
@@ -470,10 +478,10 @@ function AboutCaliph() {
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
             {/* portrait */}
-            <div className="relative min-h-[240px] md:min-h-[340px]">
+            <div className="relative min-h=[240px] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
-                  src="/caliph-profile.png" /* replace with your email-gate image */
+                  src="/caliph-profile.png"
                   alt="Caliph portrait"
                   fill
                   className="object-cover"
@@ -505,8 +513,8 @@ function AboutCaliph() {
                 </div>
               </div>
 
-              {/* concise bio BELOW badges */}
-              <p className="mt-2 text-[13px] md:text-sm leading-relaxed" style={{ color: "#4a3f35" }}>
+              {/* concise bio BELOW badges (justified) */}
+              <p className="mt-2 text-[13px] md:text-sm leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
                 Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
                 music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he
                 channels the journey of a Black Muslim immigrant to explore identity, resilience, and healing—from the
@@ -551,7 +559,7 @@ export default function ReleasesHub() {
 
       {/* helper copy (mobile) */}
       <header className="px-5 pt-3 pb-3 flex flex-col items-center text-center sm:hidden">
-        <p className="max-w-xl text-sm leading-relaxed" style={{ color: "#867260" }}>
+        <p className="max-w-xl text-sm leading-relaxed text-justify" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
       </header>
@@ -559,7 +567,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — carved frame, equal edge spacing & stronger blur already applied in tiles */}
+      {/* NEXT UP — carved frame with balanced inner padding */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -573,24 +581,18 @@ export default function ReleasesHub() {
               className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
               style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
             >
-              <div className="flex gap-3 sm:gap-4 min-w-max py-3">
-                {/* left spacer to equalize edge padding */}
-                <div className="shrink-0 w-3 sm:w-4" />
+              {/* Balanced edge padding left/right so first/last tiles don't touch borders */}
+              <div className="flex gap-3 sm:gap-4 min-w-max py-3 px-4 sm:px-5">
                 {upcoming.slice(0, 6).map((d, idx) => (
                   <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
                     <ReleaseTile drop={d} />
                   </div>
                 ))}
-                {/* right spacer to equalize edge padding */}
-                <div className="shrink-0 w-3 sm:w-4" />
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* ABOUT CALIPH */}
-      <AboutCaliph />
 
       {/* PREVIOUSLY RELEASED */}
       {PREVIOUS_RELEASES.length > 0 && (
