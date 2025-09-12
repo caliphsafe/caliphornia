@@ -66,7 +66,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
   },
   {
     title: "FREE LIPH (EP)",
-    cover: "/prev3-cover.png",
+    cover: "/free-liph-ep-cover.jpg",
     links: {
       apple: "https://music.apple.com/us/album/free-liph/1781918994",
       spotify: "https://open.spotify.com/album/1Y4kh3SZuSyTp1Mm4xO032",
