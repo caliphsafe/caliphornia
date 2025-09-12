@@ -73,7 +73,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
   },
 ]
 
-// ---------- Micro components ----------
+// ---------- UI bits ----------
 function Chip({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <span
@@ -85,6 +85,63 @@ function Chip({ children, dark = false }: { children: React.ReactNode; dark?: bo
   )
 }
 
+// magnetic hover hook (no re-renders)
+function useMagnetic() {
+  const ref = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect()
+      const x = ((e.clientX - r.left) / r.width - 0.5) * 14 // tilt deg
+      const y = ((e.clientY - r.top) / r.height - 0.5) * -14
+      el.style.transform = `perspective(600px) rotateX(${y}deg) rotateY(${x}deg) translateZ(0)`
+      el.style.boxShadow = "0 14px 40px rgba(0,0,0,0.18)"
+    }
+    const reset = () => {
+      el.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg)"
+      el.style.boxShadow = ""
+    }
+    el.addEventListener("mousemove", onMove)
+    el.addEventListener("mouseleave", reset)
+    return () => {
+      el.removeEventListener("mousemove", onMove)
+      el.removeEventListener("mouseleave", reset)
+    }
+  }, [])
+  return ref
+}
+
+function CTAButtons() {
+  const enterRef = useMagnetic()
+  const supportRef = useMagnetic()
+  return (
+    <div className="mt-4 grid grid-cols-2 gap-2.5">
+      <Link
+        ref={enterRef as any}
+        href="/home"
+        className="text-center rounded-full px-4 py-2.5 font-semibold text-white transition will-change-transform"
+        style={{ backgroundColor: "#4a3f35" }}
+      >
+        Enter Drop
+      </Link>
+      <Link
+        ref={supportRef as any}
+        href="/buy"
+        className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition will-change-transform"
+        style={{ color: "#4a3f35" }}
+      >
+        Support
+      </Link>
+    </div>
+  )
+}
+
+// hover lift for tiles
+const cardLift =
+  "transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
+
+// release tile (keeps blur/lock rules)
 function ReleaseTile({ drop }: { drop: Drop }) {
   const isLive = drop.status === "live"
   const Wrapper: any = isLive ? Link : "div"
@@ -94,7 +151,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
 
   return (
     <Wrapper {...wrapperProps}>
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 relative backdrop-blur-[2px] shadow-[0_8px_24px_rgba(0,0,0,0.10)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]">
+      <div className={`rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 relative backdrop-blur-[2px] shadow-[0_8px_24px_rgba(0,0,0,0.10)] ${cardLift}`}>
         <div className="relative w-full aspect-square bg-black">
           <Image
             src={drop.cover || "/cover-placeholder.png"}
@@ -121,21 +178,15 @@ function ReleaseTile({ drop }: { drop: Drop }) {
   )
 }
 
-function PreviousTile({
-  item,
-  onOpen,
-}: {
-  item: PreviousRelease
-  onOpen: (release: PreviousRelease) => void
-}) {
+function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: PreviousRelease) => void }) {
   return (
     <button
       onClick={() => onOpen(item)}
-      className="block group focus:outline-none focus:ring-2 focus:ring-[#B8A082] rounded-2xl"
+      className={`block group focus:outline-none focus:ring-2 focus:ring-[#B8A082] rounded-2xl ${cardLift}`}
       aria-label={`${item.title} — streaming`}
       title={`${item.title} — streaming`}
     >
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 relative backdrop-blur-[2px] shadow-[0_8px_24px_rgba(0,0,0,0.10)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]">
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 relative backdrop-blur-[2px] shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
         <div className="relative w-full aspect-square bg-black">
           <Image
             src={item.cover || "/cover-placeholder.png"}
@@ -155,32 +206,21 @@ function PreviousTile({
   )
 }
 
-function StreamingSheet({
-  open,
-  onClose,
-  release,
-}: {
-  open: boolean
-  onClose: () => void
-  release: PreviousRelease | null
-}) {
+// bottom sheet
+function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: () => void; release: PreviousRelease | null }) {
   if (!open || !release) return null
-
   const LinkBtn = ({ label, href, bg }: { label: string; href?: string; bg: string }) => (
     <a
       href={href || "#"}
       target="_blank"
       rel="noopener noreferrer"
-      className={`flex items-center justify-between w-full rounded-xl px-4 py-3 font-semibold text-white shadow-sm transition ${
-        href ? "hover:opacity-90" : "opacity-60 cursor-not-allowed"
-      }`}
+      className={`flex items-center justify-between w-full rounded-xl px-4 py-3 font-semibold text-white shadow-sm transition ${href ? "hover:opacity-90" : "opacity-60 cursor-not-allowed"}`}
       style={{ backgroundColor: bg }}
     >
       <span>{label}</span>
       <ArrowTopRightOnSquareIcon className="w-5 h-5" />
     </a>
   )
-
   return (
     <div className="fixed inset-0 z-[120]">
       <div
@@ -195,11 +235,7 @@ function StreamingSheet({
       <div className="absolute bottom-0 left-0 right-0">
         <div className="mx-auto max-w-xl w-[92%] md:w-[72%] bg-[#F3F2EE] border border-[#B8A082] rounded-t-3xl shadow-[0_-18px_50px_rgba(0,0,0,0.28)] overflow-hidden">
           <div className="flex items-center justify-end px-3 pt-2 pb-1">
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
-              aria-label="Close"
-            >
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -209,9 +245,7 @@ function StreamingSheet({
             </div>
             <div className="min-w-0">
               <h3 className="text-base font-bold text-black truncate">{release.title}</h3>
-              <p className="text-xs" style={{ color: "#867260" }}>
-                Listen on your favorite platform
-              </p>
+              <p className="text-xs" style={{ color: "#867260" }}>Listen on your favorite platform</p>
             </div>
           </div>
           <div className="px-4 pb-4 grid grid-cols-1 gap-2.5">
@@ -226,108 +260,7 @@ function StreamingSheet({
   )
 }
 
-// ---------- Feature Presentation (parallax hero) ----------
-function FeaturedCard({ live }: { live: Drop }) {
-  const imgRef = useRef<HTMLDivElement | null>(null)
-  const [parallax, setParallax] = useState(0)
-
-  useEffect(() => {
-    const el = imgRef.current
-    let ticking = false
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-    const onScroll = () => {
-      if (ticking || prefersReduced) return
-      ticking = true
-      requestAnimationFrame(() => {
-        const y = window.scrollY || 0
-        // clamp 0 -> 24px translate
-        const t = Math.min(24, Math.max(0, y * 0.15))
-        setParallax(t)
-        ticking = false
-      })
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  return (
-    <section
-      className="px-4 py-5 md:py-6 relative"
-      style={{
-        background:
-          "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
-      }}
-    >
-      {/* animated accent behind */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-20 -left-10 w-[420px] h-[420px] rounded-full opacity-30 blur-[80px] animate-blob"
-             style={{ background: "radial-gradient(circle at 30% 30%, rgba(184,160,130,0.45), transparent 60%)" }} />
-        <div className="absolute -bottom-24 -right-8 w-[360px] h-[360px] rounded-full opacity-25 blur-[70px] animate-blob2"
-             style={{ background: "radial-gradient(circle at 70% 70%, rgba(0,0,0,0.12), transparent 55%)" }} />
-      </div>
-
-      <div className="mx-auto max-w-5xl relative">
-        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_30px_70px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] items-stretch">
-            {/* Big cover w/ parallax */}
-            <div
-              ref={imgRef}
-              className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[360px] bg-black will-change-transform"
-              style={{ transform: `translateY(${parallax}px)` }}
-            >
-              <Image
-                src={live.cover || "/cover-placeholder.png"}
-                alt={`${live.title} cover`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 560px"
-                priority
-              />
-              <div className="absolute top-2 left-2">
-                <Chip>LIVE</Chip>
-              </div>
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent,rgba(0,0,0,0.12))]" />
-            </div>
-
-            {/* Compact info */}
-            <div className="flex flex-col justify-between p-4 md:p-6">
-              <div>
-                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">This Week’s Drop</h2>
-                <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
-                  Jump in, fund the run, and push this record to streaming. Your momentum here shapes what gets visuals
-                  and what drops next.
-                </p>
-                <div className="mt-3 flex items-center gap-2.5">
-                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">FEATURED</div>
-                  <div className="text-base md:text-lg font-bold text-black">{live.title}</div>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-2.5">
-                <Link
-                  href="/home"
-                  className="text-center rounded-full px-4 py-2.5 font-semibold text-white hover:opacity-90 transition shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
-                  style={{ backgroundColor: "#4a3f35" }}
-                >
-                  Enter Drop
-                </Link>
-                <Link
-                  href="/buy"
-                  className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition"
-                  style={{ color: "#4a3f35" }}
-                >
-                  Support
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ---------- Sticky Top Nav (glass) ----------
+// Sticky glass nav + marquee
 function TopNav() {
   const [solid, setSolid] = useState(false)
   useEffect(() => {
@@ -337,9 +270,7 @@ function TopNav() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
   return (
-    <div
-      className={`sticky top-0 z-[200] transition-all ${solid ? "backdrop-blur-md bg-white/60 border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)]" : "backdrop-blur-[2px] bg-transparent"}`}
-    >
+    <div className={`sticky top-0 z-[200] transition-all ${solid ? "backdrop-blur-md bg-white/60 border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)]" : "backdrop-blur-[2px] bg-transparent"}`}>
       <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/caliphornia-logo.svg" alt="CALIPHORNIA" width={120} height={28} className="h-auto w-[110px]" priority />
@@ -353,17 +284,126 @@ function TopNav() {
           </Link>
         </div>
       </div>
+      {/* Marquee */}
+      <div className="overflow-hidden border-t border-[#B8A082]/40 text-xs py-1 select-none">
+        <div className="marquee whitespace-nowrap" style={{ color: "#4a3f35" }}>
+          <span className="mx-6">Next drop every Tuesday • Fund the run → unlock streaming • Thank you, superfans ❤️</span>
+          <span className="mx-6">POLYGAMY is LIVE now • Tap Enter Drop to play + support</span>
+          <span className="mx-6">Apple · Spotify · TIDAL · YouTube links below for past releases</span>
+        </div>
+      </div>
     </div>
   )
 }
 
-// ---------- Page ----------
+// Feature hero with parallax (no setState on scroll)
+function FeaturedCard({ live }: { live: Drop }) {
+  const imgRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = imgRef.current
+    if (!el) return
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    let raf = 0
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY || 0
+        const t = Math.min(24, Math.max(0, y * 0.15))
+        el.style.transform = `translate3d(0, ${t}px, 0)`
+        raf = 0
+      })
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  return (
+    <section className="px-4 py-5 md:py-6 relative"
+      style={{
+        background:
+          "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
+      }}>
+      {/* ambient equalizer */}
+      <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 z-0 flex gap-1 opacity-40 eq">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span key={i} className="block w-1 rounded-sm bg-[#B8A082]" style={{ height: 8 }} />
+        ))}
+      </div>
+
+      <div className="mx-auto max-w-5xl relative">
+        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_30px_70px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] items-stretch">
+            <div ref={imgRef} className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[360px] bg-black will-change-transform">
+              <Image
+                src={live.cover || "/cover-placeholder.png"}
+                alt={`${live.title} cover`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 560px"
+                priority
+              />
+              <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent,rgba(0,0,0,0.12))]" />
+            </div>
+
+            <div className="flex flex-col justify-between p-4 md:p-6">
+              <div>
+                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">This Week’s Drop</h2>
+                <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
+                  Jump in, fund the run, and push this record to streaming. Your momentum here shapes what gets visuals and what drops next.
+                </p>
+                <div className="mt-3 flex items-center gap-2.5">
+                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">FEATURED</div>
+                  <div className="text-base md:text-lg font-bold text-black">{live.title}</div>
+                </div>
+              </div>
+              <CTAButtons />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// IntersectionObserver reveal helper
+function useReveal() {
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+    el.classList.add("will-change-transform", "opacity-0", "translate-y-3")
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          el.classList.remove("opacity-0", "translate-y-3")
+          el.classList.add("animate-reveal")
+          io.disconnect()
+        }
+      })
+    }, { threshold: 0.12 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return ref
+}
+
 export default function ReleasesHub() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
 
   const live = DROPS.find((d) => d.status === "live")
   const upcoming = DROPS.filter((d) => d.status === "upcoming")
+
+  const nextRef = useReveal()
+  const prevRef = useReveal()
 
   return (
     <div
@@ -373,51 +413,44 @@ export default function ReleasesHub() {
           "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
       }}
     >
-      {/* Global ambient glow */}
+      {/* Ambient glow */}
       <div
         className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[120vw] h-[110px] blur-[50px] opacity-40"
         style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
       />
 
-      {/* Sticky glass nav */}
       <TopNav />
 
-      {/* Tighter header copy (under nav for mobile only) */}
+      {/* Mobile header copy */}
       <header className="px-5 pt-3 pb-3 flex flex-col items-center text-center sm:hidden">
         <p className="max-w-xl text-sm leading-relaxed" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
       </header>
 
-      {/* Feature Presentation */}
       {live && <FeaturedCard live={live} />}
 
-      {/* Next Up — compact runway */}
+      {/* Next Up */}
       <section
+        ref={nextRef}
         className="mt-3 md:mt-4 py-5 relative"
         style={{
           background:
             "linear-gradient(180deg, rgba(240,236,228,0.65), rgba(243,242,238,0.5)), radial-gradient(900px 260px at 80% -20%, rgba(0,0,0,0.05), transparent)",
         }}
       >
-        {/* subtle animated accent */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-10 top-0 w-[340px] h-[340px] rounded-full opacity-25 blur-[70px] animate-blob"
+          <div className="absolute -right-10 top-0 w-[340px] h-[340px] rounded-full opacity-25 blur-[70px]"
                style={{ background: "radial-gradient(circle at 70% 30%, rgba(184,160,130,0.35), transparent 60%)" }} />
         </div>
 
         <div className="px-4 flex items-center justify-between mb-3">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
-          <div className="text-xs" style={{ color: "#867260" }}>
-            Weekly releases
-          </div>
+          <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
         </div>
 
         <div className="px-4">
-          <div
-            className="mx-auto max-w-6xl overflow-x-auto snap-x snap-mandatory scrollbar-thin"
-            style={{ scrollbarColor: "#9f8b79 transparent" }}
-          >
+          <div className="mx-auto max-w-6xl overflow-x-auto snap-x snap-mandatory scrollbar-thin" style={{ scrollbarColor: "#9f8b79 transparent" }}>
             <div className="flex gap-3 sm:gap-4 min-w-max pr-3">
               {upcoming.slice(0, 6).map((d, idx) => (
                 <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
@@ -429,20 +462,16 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* Previously Released — compact grid */}
+      {/* Previously Released */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section
+          ref={prevRef}
           className="mt-5 md:mt-6 px-4 pb-16 pt-5 relative"
           style={{
             background:
               "linear-gradient(180deg, rgba(235,230,220,0.40), rgba(243,242,238,0.8)), radial-gradient(800px 280px at 10% -25%, rgba(0,0,0,0.05), transparent)",
           }}
         >
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-[-60px] bottom-[-60px] w-[320px] h-[320px] rounded-full opacity-25 blur-[70px] animate-blob2"
-                 style={{ background: "radial-gradient(circle at 30% 70%, rgba(0,0,0,0.10), transparent 55%)" }} />
-          </div>
-
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black mb-3">Previously Released</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4">
             {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
@@ -461,18 +490,32 @@ export default function ReleasesHub() {
 
       <StreamingSheet open={sheetOpen} onClose={() => setSheetOpen(false)} release={activePrev} />
 
-      {/* Global CSS for animated blobs + motion respect */}
+      {/* global CSS for animations, marquee, reveals, equalizer */}
       <style jsx global>{`
-        @keyframes blobFloat {
-          0% { transform: translate3d(0,0,0) scale(1); }
-          50% { transform: translate3d(0,-8px,0) scale(1.02); }
-          100% { transform: translate3d(0,0,0) scale(1); }
+        .marquee {
+          display: inline-block;
+          animation: marquee 24s linear infinite;
         }
-        .animate-blob { animation: blobFloat 8s ease-in-out infinite; }
-        .animate-blob2 { animation: blobFloat 10s ease-in-out infinite; }
-
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-reveal {
+          animation: revealUp 600ms cubic-bezier(.2,.7,.2,1) forwards;
+        }
+        @keyframes revealUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .eq span { animation: eqBeat 1s ease-in-out infinite; }
+        .eq span:nth-child(odd){ animation-duration: 1.2s; }
+        .eq span:nth-child(3n){ animation-duration: 0.9s; }
+        @keyframes eqBeat {
+          0%,100% { transform: scaleY(0.7); }
+          50% { transform: scaleY(1.6); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .animate-blob, .animate-blob2 { animation: none !important; }
+          .marquee, .animate-reveal, .eq span { animation: none !important; }
         }
       `}</style>
     </div>
