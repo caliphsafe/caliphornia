@@ -73,7 +73,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
   },
 ]
 
-// ---------- UI bits ----------
+// ---------- tiny bits ----------
 function Chip({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <span
@@ -85,21 +85,28 @@ function Chip({ children, dark = false }: { children: React.ReactNode; dark?: bo
   )
 }
 
-// magnetic hover hook (no re-renders)
+// hover lift for desktop tiles (no tilt on mobile)
+const cardLift =
+  "transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
+
+// magnetic hover (desktop only)
 function useMagnetic() {
   const ref = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null)
   useEffect(() => {
+    if (typeof window === "undefined") return
+    const coarse = window.matchMedia("(pointer: coarse)").matches
+    if (coarse) return // disable on touch
     const el = ref.current
     if (!el) return
     const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect()
-      const x = ((e.clientX - r.left) / r.width - 0.5) * 14 // tilt deg
-      const y = ((e.clientY - r.top) / r.height - 0.5) * -14
-      el.style.transform = `perspective(600px) rotateX(${y}deg) rotateY(${x}deg) translateZ(0)`
-      el.style.boxShadow = "0 14px 40px rgba(0,0,0,0.18)"
+      const x = ((e.clientX - r.left) / r.width - 0.5) * 12
+      const y = ((e.clientY - r.top) / r.height - 0.5) * -12
+      el.style.transform = `perspective(600px) rotateX(${y}deg) rotateY(${x}deg)`
+      el.style.boxShadow = "0 12px 36px rgba(0,0,0,0.16)"
     }
     const reset = () => {
-      el.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg)"
+      el.style.transform = "perspective(600px) rotateX(0) rotateY(0)"
       el.style.boxShadow = ""
     }
     el.addEventListener("mousemove", onMove)
@@ -112,36 +119,7 @@ function useMagnetic() {
   return ref
 }
 
-function CTAButtons() {
-  const enterRef = useMagnetic()
-  const supportRef = useMagnetic()
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-2.5">
-      <Link
-        ref={enterRef as any}
-        href="/home"
-        className="text-center rounded-full px-4 py-2.5 font-semibold text-white transition will-change-transform"
-        style={{ backgroundColor: "#4a3f35" }}
-      >
-        Enter Drop
-      </Link>
-      <Link
-        ref={supportRef as any}
-        href="/buy"
-        className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition will-change-transform"
-        style={{ color: "#4a3f35" }}
-      >
-        Support
-      </Link>
-    </div>
-  )
-}
-
-// hover lift for tiles
-const cardLift =
-  "transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
-
-// release tile (keeps blur/lock rules)
+// ---------- Tiles ----------
 function ReleaseTile({ drop }: { drop: Drop }) {
   const isLive = drop.status === "live"
   const Wrapper: any = isLive ? Link : "div"
@@ -157,8 +135,8 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             src={drop.cover || "/cover-placeholder.png"}
             alt={`${drop.title} cover`}
             fill
+            sizes="(max-width: 768px) 100vw, 520px"
             className={`object-cover ${isLive ? "" : "blur-[3px] md:blur-[12px] opacity-80 scale-105"}`}
-            sizes="(max-width: 768px) 100vw, 420px"
             priority={isLive}
           />
           {!isLive && <div className="absolute inset-0 bg-[rgba(243,242,238,0.35)]" />}
@@ -192,8 +170,8 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
             src={item.cover || "/cover-placeholder.png"}
             alt={`${item.title} cover`}
             fill
+            sizes="(max-width: 768px) 100vw, 520px"
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 420px"
           />
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
             <span className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-white bg-[#303030]">
@@ -206,7 +184,7 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
   )
 }
 
-// bottom sheet
+// ---------- Bottom Sheet ----------
 function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: () => void; release: PreviousRelease | null }) {
   if (!open || !release) return null
   const LinkBtn = ({ label, href, bg }: { label: string; href?: string; bg: string }) => (
@@ -260,7 +238,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   )
 }
 
-// Sticky glass nav + marquee
+// ---------- Sticky Nav (mobile-centered logo; desktop-left) ----------
 function TopNav() {
   const [solid, setSolid] = useState(false)
   useEffect(() => {
@@ -270,48 +248,52 @@ function TopNav() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
   return (
-    <div className={`sticky top-0 z-[200] transition-all ${solid ? "backdrop-blur-md bg-white/60 border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)]" : "backdrop-blur-[2px] bg-transparent"}`}>
-      <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/caliphornia-logo.svg" alt="CALIPHORNIA" width={120} height={28} className="h-auto w-[110px]" priority />
+    <div
+      className={`sticky top-0 z-[200] transition-all ${
+        solid
+          ? "backdrop-blur-md bg-white/60 border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)]"
+          : "backdrop-blur-[2px] bg-transparent"
+      }`}
+    >
+      <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-center md:justify-between">
+        {/* left spacer for perfect centering on mobile */}
+        <div className="hidden md:block w-[120px]" />
+        <Link href="/" className="flex items-center justify-center">
+          <Image
+            src="/caliphornia-logo.svg"
+            alt="CALIPHORNIA"
+            width={140}
+            height={32}
+            className="h-auto w-[128px] md:w-[120px]"
+            priority
+          />
         </Link>
-        <div className="hidden sm:flex items-center gap-2">
-          <Link href="/home" className="rounded-full px-3 py-1.5 text-[13px] font-semibold text-white" style={{ backgroundColor: "#4a3f35" }}>
-            Enter Drop
-          </Link>
-          <Link href="/buy" className="rounded-full px-3 py-1.5 text-[13px] font-semibold border border-[#B8A082]" style={{ color: "#4a3f35" }}>
-            Support
-          </Link>
-        </div>
-      </div>
-      {/* Marquee */}
-      <div className="overflow-hidden border-t border-[#B8A082]/40 text-xs py-1 select-none">
-        <div className="marquee whitespace-nowrap" style={{ color: "#4a3f35" }}>
-          <span className="mx-6">Next drop every Tuesday • Fund the run → unlock streaming • Thank you, superfans ❤️</span>
-          <span className="mx-6">POLYGAMY is LIVE now • Tap Enter Drop to play + support</span>
-          <span className="mx-6">Apple · Spotify · TIDAL · YouTube links below for past releases</span>
-        </div>
+        {/* right spacer (no CTAs here; CTAs live only in the hero card) */}
+        <div className="hidden md:block w-[180px]" />
       </div>
     </div>
   )
 }
 
-// Feature hero with parallax (no setState on scroll)
+// ---------- Feature Presentation (full cover; mobile-first; parallax off on touch) ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     const el = imgRef.current
-    if (!el) return
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (prefersReduced) return
+    if (!el || typeof window === "undefined") return
+    // Disable parallax on touch and when user prefers reduced motion
+    const coarse = window.matchMedia("(pointer: coarse)").matches
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (coarse || reduced) return
 
     let raf = 0
     const onScroll = () => {
       if (raf) return
       raf = requestAnimationFrame(() => {
         const y = window.scrollY || 0
-        const t = Math.min(24, Math.max(0, y * 0.15))
-        el.style.transform = `translate3d(0, ${t}px, 0)`
+        const t = Math.min(20, Math.max(0, y * 0.12))
+        el.style.transform = `translate3d(0, ${t}px, 0)` // GPU-friendly
         raf = 0
       })
     }
@@ -322,47 +304,72 @@ function FeaturedCard({ live }: { live: Drop }) {
     }
   }, [])
 
+  // Magnetic on desktop only
+  const enterRef = useMagnetic()
+  const supportRef = useMagnetic()
+
   return (
-    <section className="px-4 py-5 md:py-6 relative"
+    <section
+      className="px-4 pt-4 pb-5 md:py-6 relative"
       style={{
         background:
           "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
-      }}>
-      {/* ambient equalizer */}
-      <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 z-0 flex gap-1 opacity-40 eq">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <span key={i} className="block w-1 rounded-sm bg-[#B8A082]" style={{ height: 8 }} />
-        ))}
-      </div>
-
-      <div className="mx-auto max-w-5xl relative">
-        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_30px_70px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] items-stretch">
-            <div ref={imgRef} className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[360px] bg-black will-change-transform">
+      }}
+    >
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_24px_60px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
+          {/* Mobile-first: cover first, then info. Desktop becomes two-column */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
+            {/* Full cover */}
+            <div
+              ref={imgRef}
+              className="relative w-full aspect-[1/1] md:h-full md:aspect-auto md:min-h-[420px] bg-black will-change-transform"
+            >
               <Image
                 src={live.cover || "/cover-placeholder.png"}
                 alt={`${live.title} cover`}
                 fill
+                sizes="(max-width: 768px) 100vw, 700px"
                 className="object-cover"
-                sizes="(max-width: 768px) 100vw, 560px"
                 priority
               />
               <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent,rgba(0,0,0,0.12))]" />
             </div>
 
+            {/* Info */}
             <div className="flex flex-col justify-between p-4 md:p-6">
               <div>
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">This Week’s Drop</h2>
                 <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
-                  Jump in, fund the run, and push this record to streaming. Your momentum here shapes what gets visuals and what drops next.
+                  Jump in, fund the run, and push this record to streaming. Your momentum here shapes what gets visuals
+                  and what drops next.
                 </p>
                 <div className="mt-3 flex items-center gap-2.5">
                   <div className="text-[11px] font-semibold tracking-wide text-[#867260]">FEATURED</div>
-                  <div className="text-base md:text-lg font-bold text-black">{live.title}</div>
+                  <div className="text-base md:text-lg font-bold text-black truncate">{live.title}</div>
                 </div>
               </div>
-              <CTAButtons />
+
+              {/* CTAs live ONLY here */}
+              <div className="mt-4 grid grid-cols-2 gap-2.5">
+                <Link
+                  ref={enterRef as any}
+                  href="/home"
+                  className="text-center rounded-full px-4 py-2.5 font-semibold text-white transition will-change-transform"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  Enter Drop
+                </Link>
+                <Link
+                  ref={supportRef as any}
+                  href="/buy"
+                  className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition will-change-transform"
+                  style={{ color: "#4a3f35" }}
+                >
+                  Support
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -371,15 +378,15 @@ function FeaturedCard({ live }: { live: Drop }) {
   )
 }
 
-// IntersectionObserver reveal helper
+// ---------- Section Reveal (safe on mobile) ----------
 function useReveal() {
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     const el = ref.current
-    if (!el) return
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (prefersReduced) return
-    el.classList.add("will-change-transform", "opacity-0", "translate-y-3")
+    if (!el || typeof window === "undefined") return
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (reduced) return
+    el.classList.add("opacity-0", "translate-y-3", "will-change-transform")
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -395,6 +402,7 @@ function useReveal() {
   return ref
 }
 
+// ---------- Page ----------
 export default function ReleasesHub() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
@@ -419,18 +427,20 @@ export default function ReleasesHub() {
         style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
       />
 
+      {/* Sticky nav: mobile-centered logo; desktop-left */}
       <TopNav />
 
-      {/* Mobile header copy */}
+      {/* Mobile helper copy under nav */}
       <header className="px-5 pt-3 pb-3 flex flex-col items-center text-center sm:hidden">
         <p className="max-w-xl text-sm leading-relaxed" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
       </header>
 
+      {/* Feature Presentation */}
       {live && <FeaturedCard live={live} />}
 
-      {/* Next Up */}
+      {/* Next Up — compact runway */}
       <section
         ref={nextRef}
         className="mt-3 md:mt-4 py-5 relative"
@@ -439,11 +449,6 @@ export default function ReleasesHub() {
             "linear-gradient(180deg, rgba(240,236,228,0.65), rgba(243,242,238,0.5)), radial-gradient(900px 260px at 80% -20%, rgba(0,0,0,0.05), transparent)",
         }}
       >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-10 top-0 w-[340px] h-[340px] rounded-full opacity-25 blur-[70px]"
-               style={{ background: "radial-gradient(circle at 70% 30%, rgba(184,160,130,0.35), transparent 60%)" }} />
-        </div>
-
         <div className="px-4 flex items-center justify-between mb-3">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
           <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
@@ -462,7 +467,7 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* Previously Released */}
+      {/* Previously Released — compact grid */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section
           ref={prevRef}
@@ -490,32 +495,17 @@ export default function ReleasesHub() {
 
       <StreamingSheet open={sheetOpen} onClose={() => setSheetOpen(false)} release={activePrev} />
 
-      {/* global CSS for animations, marquee, reveals, equalizer */}
+      {/* global CSS for reveals */}
       <style jsx global>{`
-        .marquee {
-          display: inline-block;
-          animation: marquee 24s linear infinite;
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         .animate-reveal {
-          animation: revealUp 600ms cubic-bezier(.2,.7,.2,1) forwards;
+          animation: revealUp 520ms cubic-bezier(.2,.7,.2,1) forwards;
         }
         @keyframes revealUp {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .eq span { animation: eqBeat 1s ease-in-out infinite; }
-        .eq span:nth-child(odd){ animation-duration: 1.2s; }
-        .eq span:nth-child(3n){ animation-duration: 0.9s; }
-        @keyframes eqBeat {
-          0%,100% { transform: scaleY(0.7); }
-          50% { transform: scaleY(1.6); }
-        }
         @media (prefers-reduced-motion: reduce) {
-          .marquee, .animate-reveal, .eq span { animation: none !important; }
+          .animate-reveal { animation: none !important; }
         }
       `}</style>
     </div>
