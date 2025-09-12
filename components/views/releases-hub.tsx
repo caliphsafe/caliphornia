@@ -292,28 +292,7 @@ function TopNav() {
   )
 }
 
-// ---------- Minimal audio preview (tap to play/pause; starts paused) ----------
-function AudioPreview({ src }: { src: string }) {
-  const ref = useRef<HTMLAudioElement | null>(null)
-  const [playing, setPlaying] = useState(false)
-  return (
-    <div className="mt-3">
-      <audio ref={ref} src={src} preload="none" />
-      <button
-        onClick={() => {
-          const el = ref.current; if (!el) return
-          if (playing) { el.pause(); setPlaying(false) } else { el.play().then(() => setPlaying(true)).catch(() => {}) }
-        }}
-        className="rounded-full border border-[#B8A082] px-3 py-1.5 text-sm font-semibold"
-        style={{ color: "#4a3f35" }}
-      >
-        {playing ? "Pause Preview" : "Play Preview"}
-      </button>
-    </div>
-  )
-}
-
-// ---------- Feature Presentation (full cover visible on desktop) ----------
+// ---------- Feature Presentation (full cover visible on desktop; single CTA) ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
 
@@ -342,7 +321,6 @@ function FeaturedCard({ live }: { live: Drop }) {
   }, [])
 
   const enterRef = useMagnetic()
-  const supportRef = useMagnetic()
 
   return (
     <section
@@ -375,11 +353,10 @@ function FeaturedCard({ live }: { live: Drop }) {
                 alt={`${live.title} cover`}
                 fill
                 sizes="(max-width: 768px) 100vw, 700px"
-                className="object-cover md:object-contain"  // <-- desktop shows entire cover art
+                className="object-cover md:object-contain"
                 priority
               />
               <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
-              {/* add letterbox pad on desktop when object-contain introduces empty space */}
               <div className="hidden md:block absolute inset-0 pointer-events-none"
                    style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }} />
             </div>
@@ -396,28 +373,17 @@ function FeaturedCard({ live }: { live: Drop }) {
                   <div className="text-[11px] font-semibold tracking-wide text-[#867260]">FEATURED</div>
                   <div className="text-base md:text-lg font-bold text-black truncate">{live.title}</div>
                 </div>
-
-                {/* optional audio preview (starts paused) */}
-                <AudioPreview src="/audio/polygamy-preview.mp3" />
               </div>
 
-              {/* CTAs (only here) */}
-              <div className="mt-4 grid grid-cols-2 gap-2.5">
+              {/* Single CTA only */}
+              <div className="mt-4">
                 <Link
                   ref={enterRef as any}
                   href="/home"
-                  className="text-center rounded-full px-4 py-2.5 font-semibold text-white transition will-change-transform"
+                  className="inline-flex justify-center w-full md:w-auto rounded-full px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   Enter Drop
-                </Link>
-                <Link
-                  ref={supportRef as any}
-                  href="/buy"
-                  className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition will-change-transform"
-                  style={{ color: "#4a3f35" }}
-                >
-                  Support
                 </Link>
               </div>
             </div>
@@ -452,27 +418,27 @@ function useReveal() {
   return ref
 }
 
-// ---------- About Caliph (concise bio + equal-height columns) ----------
+// ---------- About Caliph (compact) ----------
 function AboutCaliph() {
   const ref = useReveal()
   return (
     <section
       ref={ref}
-      className="mt-6 md:mt-8 px-4 py-6 relative"
-      style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.35), rgba(243,242,238,0.75))" }}
+      className="mt-4 md:mt-6 px-4 py-4 relative"
+      style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.30), rgba(243,242,238,0.7))" }}
     >
       {/* blurred logo backdrop */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="w-[78vw] max-w-[900px] opacity-25 blur-[38px]"
+        <div className="w-[72vw] max-w-[820px] opacity-25 blur-[34px]"
              style={{ background: "url('/caliphornia-logo.svg') center/contain no-repeat", aspectRatio: "4/1" }} />
       </div>
 
       <div className="mx-auto max-w-6xl relative">
-        <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+        <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
-            {/* portrait matches text height */}
-            <div className="relative min-h-[320px] md:min-h-[420px]">
+            {/* portrait (reduced min-height for compactness) */}
+            <div className="relative min-h-[240px] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
                   src="/caliph-profile.png" /* swap to your email-gate image */
@@ -484,38 +450,37 @@ function AboutCaliph() {
               </div>
             </div>
 
-            {/* info card */}
-            <div className="relative p-4 md:p-6 flex flex-col">
-              <h3 className="text-lg md:text-xl font-bold text-black">About Caliph</h3>
-              <p className="mt-2 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
-                Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
-                music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he draws
-                on his journey as a Black Muslim immigrant to explore identity, resilience, and healing. His breakout on
-                the Grammy-winning <em>American Dreamers</em> project led into <em>Immigrant Of The Year</em>, a 10-track
-                portrait of setbacks, mental health, and hope—crafted with full creative independence across writing,
-                production, visuals, and code.
+            {/* info card - tighter paddings/line lengths */}
+            <div className="relative p-3 md:p-4 flex flex-col">
+              <h3 className="text-base md:text-lg font-bold text-black">About Caliph</h3>
+              <p className="mt-1.5 text-[13px] md:text-sm leading-relaxed" style={{ color: "#4a3f35" }}>
+                Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world music
+                into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he channels the
+                journey of a Black Muslim immigrant to explore identity, resilience, and healing. From the Grammy-winning
+                <em> American Dreamers</em> to <em>Immigrant Of The Year</em>, his work turns setbacks and mental health battles
+                into hope—crafted independently across writing, production, visuals, and code.
               </p>
 
               {/* info grid */}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className={`relative rounded-2xl p-2.5 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
-                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Hometown</div>
-                  <div className="text-sm font-bold text-black mt-1">Dakar, Senegal / New England</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Hometown</div>
+                  <div className="text-[13px] font-bold text-black mt-0.5">Dakar, Senegal / New England</div>
                 </div>
-                <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
+                <div className={`relative rounded-2xl p-2.5 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
-                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Genres</div>
-                  <div className="text-sm font-bold text-black mt-1">Hip-Hop · Afro-Fusion · R&B</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Genres</div>
+                  <div className="text-[13px] font-bold text-black mt-0.5">Hip-Hop · Afro-Fusion · R&B</div>
                 </div>
-                <div className={`relative rounded-2xl p-3 ${glass} backdrop-blur-[8px]`}>
+                <div className={`relative rounded-2xl p-2.5 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
-                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">Awards & Accolades</div>
-                  <div className="text-sm font-bold text-black mt-1">Multi-Grammy Award Winning Artist</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Awards & Accolades</div>
+                  <div className="text-[13px] font-bold text-black mt-0.5">Multi-Grammy Award Winning Artist</div>
                 </div>
               </div>
 
-              <p className="mt-3 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
+              <p className="mt-2 text-[13px] md:text-sm" style={{ color: "#4a3f35" }}>
                 An authentic voice turning struggle into art and experience into legacy.
               </p>
             </div>
@@ -564,9 +529,9 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — carved frame (no side fades anymore) */}
-      <section ref={nextRef} className="mt-3 md:mt-4 py-5 relative">
-        <div className="px-4 flex items-center justify-between mb-3">
+      {/* NEXT UP — carved frame (no side fades) */}
+      <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
+        <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
           <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
         </div>
@@ -590,15 +555,15 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* ABOUT CALIPH */}
+      {/* ABOUT CALIPH (compact) */}
       <AboutCaliph />
 
       {/* PREVIOUSLY RELEASED */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section
           ref={prevRef}
-          className="mt-6 md:mt-8 px-4 pb-16 pt-5 relative"
-          style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.40), rgba(243,242,238,0.8))" }}
+          className="mt-5 md:mt-6 px-4 pb-14 pt-4 relative"
+          style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.35), rgba(243,242,238,0.8))" }}
         >
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black mb-3">Previously Released</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4">
