@@ -46,7 +46,7 @@ const DROPS: Drop[] = [
 const PREVIOUS_RELEASES: PreviousRelease[] = [
   {
     title: "MARIA JULIA (Single)",
-    cover: "/maria-julia-cover.png",
+    cover: "/maria-julia-cover.jpg",
     links: {
       apple: "https://music.apple.com/us/album/maria-julia-single/1828692139?at=1001lry3&ct=dashboard&uo=4",
       spotify: "https://open.spotify.com/album/0tYN2jrPeKd3GvSX5ZL9GK",
@@ -56,7 +56,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
   },
   {
     title: "EATER JAMES (Single)",
-    cover: "/eater-james-cover.png",
+    cover: "/eater-james-cover.jpg",
     links: {
       apple: "https://music.apple.com/us/album/eater-james-single/1788913374?at=1001lry3&ct=dashboard&uo=4",
       spotify: "https://open.spotify.com/album/6Fifi70A9hcS7SWMXmNzjn",
