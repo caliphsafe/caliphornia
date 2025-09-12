@@ -153,9 +153,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             alt={`${drop.title} cover`}
             fill
             sizes="(max-width: 768px) 100vw, 520px"
-            className={`object-cover ${
-              isLive ? "" : "blur-[6px] md:blur-[16px] opacity-75 scale-110"
-            }`}
+            className={`object-cover ${isLive ? "" : "blur-[6px] md:blur-[16px] opacity-75 scale-110"}`}
             priority={isLive}
           />
           {!isLive && <div className="absolute inset-0 bg-[rgba(243,242,238,0.35)]" />}
@@ -296,10 +294,9 @@ function TopNav() {
   )
 }
 
-// ---------- Feature Presentation ----------
+// ---------- Feature Presentation (cover art links to /home; rectangular button; no quote) ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
-
   useEffect(() => {
     const el = imgRef.current
     if (!el || typeof window === "undefined") return
@@ -333,7 +330,6 @@ function FeaturedCard({ live }: { live: Drop }) {
           "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
       }}
     >
-      {/* blurred logo in hero background */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
           className="w-[70vw] max-w-[820px] aspect-[4/1] opacity-25 blur-[40px]"
@@ -345,7 +341,6 @@ function FeaturedCard({ live }: { live: Drop }) {
         <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
 
-          {/* bevel + faint pattern */}
           <div
             className="pointer-events-none absolute inset-0 rounded-3xl"
             style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -20px 40px rgba(0,0,0,0.06)" }}
@@ -358,25 +353,27 @@ function FeaturedCard({ live }: { live: Drop }) {
             }}
           />
 
-          {/* layout: mobile stack, desktop two-column */}
+          {/* layout */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* padded square cover */}
+            {/* padded square cover that links to /home */}
             <div className="p-3 md:p-5">
-              <div ref={imgRef} className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
-                <Image
-                  src={live.cover || "/cover-placeholder.png"}
-                  alt={`${live.title} cover`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 700px"
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
-                <div
-                  className="hidden md:block absolute inset-0 pointer-events-none"
-                  style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }}
-                />
-              </div>
+              <Link href="/home" className="block">
+                <div ref={imgRef} className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
+                  <Image
+                    src={live.cover || "/cover-placeholder.png"}
+                    alt={`${live.title} cover`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 700px"
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
+                  <div
+                    className="hidden md:block absolute inset-0 pointer-events-none"
+                    style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }}
+                  />
+                </div>
+              </Link>
             </div>
 
             {/* info */}
@@ -386,10 +383,9 @@ function FeaturedCard({ live }: { live: Drop }) {
                   THIS WEEK’S DROP
                 </div>
                 <h2 className="mt-1 text-lg md:text-2xl font-extrabold tracking-tight text-black">
-                  CALIPH – POLYGAMY (PROD. BY CALIPH)
+                  POLYGAMY (PROD. BY CALIPH)
                 </h2>
 
-                {/* Editorial paragraph (justified) */}
                 <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
                   A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life
                   lessons through a family lens. Across verses he compares three breakups to his grandfather’s three
@@ -397,25 +393,14 @@ function FeaturedCard({ live }: { live: Drop }) {
                   resolve. Produced by Caliph and sampling Monique Séka’s West African classic “Okaman,” the record
                   keeps it light while guarding the heart—meeting his needs and the women in his world with clarity.
                 </p>
-
-                {/* Pull quote (justified) */}
-                <div className={`mt-3 p-3 md:p-4 rounded-2xl ${glass} relative`}>
-                  <Grain />
-                  <blockquote className="text-sm md:text-base font-semibold text-black leading-relaxed text-justify">
-                    “If my granddaddy ain’t have his 3rd wife<br />
-                    I wouldn’t be out here livin out my 3rd life<br />
-                    Fell in love 3 times and this my 3rd strike<br />
-                    In her dugout digging her out for the 3rd night”
-                  </blockquote>
-                </div>
               </div>
 
-              {/* Single CTA — rectangle brown button */}
+              {/* Rectangular CTA (no rounded corners) */}
               <div className="mt-4">
                 <Link
                   ref={enterRef as any}
                   href="/home"
-                  className="inline-flex justify-center w-full md:w-auto rounded-md px-5 py-2.5 font-semibold text-white transition will-change-transform"
+                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   Unlock Song
@@ -453,7 +438,7 @@ function useReveal() {
   return ref
 }
 
-// ---------- About Caliph (badges above bio; justified; compact) ----------
+// ---------- About Caliph ----------
 function AboutCaliph() {
   const ref = useReveal()
   return (
@@ -462,7 +447,6 @@ function AboutCaliph() {
       className="mt-4 md:mt-6 px-4 py-4 relative"
       style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.30), rgba(243,242,238,0.7))" }}
     >
-      {/* blurred logo backdrop */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
           className="w-[72vw] max-w-[820px] opacity-25 blur-[34px]"
@@ -474,7 +458,6 @@ function AboutCaliph() {
         <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
-            {/* portrait */}
             <div className="relative min-h-[240px] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
@@ -487,11 +470,9 @@ function AboutCaliph() {
               </div>
             </div>
 
-            {/* info card */}
             <div className="relative p-3 md:p-4 flex flex-col">
               <h3 className="text-base md:text-lg font-bold text-black">About Caliph</h3>
 
-              {/* badges ABOVE bio */}
               <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div className={`relative rounded-2xl p-2.5 ${glass} backdrop-blur-[8px]`}>
                   <Grain />
@@ -510,7 +491,6 @@ function AboutCaliph() {
                 </div>
               </div>
 
-              {/* concise bio BELOW badges (justified) */}
               <p className="mt-2 text-[13px] md:text-sm leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
                 Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
                 music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he
@@ -564,7 +544,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP */}
+      {/* NEXT UP — smaller (~80%), equal left/right padding */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -572,25 +552,28 @@ export default function ReleasesHub() {
         </div>
 
         <div className="px-4">
-          <div className={`mx-auto max-w-6xl relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+          <div className={`mx-auto max-w-5xl relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
             <Grain />
             <div
               className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
               style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
             >
-              <div className="flex gap-3 sm:gap-4 min-w-max py-3 px-4 sm:px-5">
+              {/* equal edge padding using symmetric spacers + smaller tiles */}
+              <div className="flex gap-2.5 sm:gap-3 min-w-max py-3">
+                <div className="shrink-0 w-4 sm:w-5" />
                 {upcoming.slice(0, 6).map((d, idx) => (
-                  <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
+                  <div key={idx} className="w-[46vw] xs:w-[40vw] sm:w-[26vw] md:w-[180px] snap-start shrink-0">
                     <ReleaseTile drop={d} />
                   </div>
                 ))}
+                <div className="shrink-0 w-4 sm:w-5" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ABOUT CALIPH — RESTORED */}
+      {/* ABOUT CALIPH */}
       <AboutCaliph />
 
       {/* PREVIOUSLY RELEASED */}
