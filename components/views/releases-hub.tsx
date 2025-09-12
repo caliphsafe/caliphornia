@@ -219,11 +219,9 @@ function StreamingSheet({
       {/* Bottom sheet */}
       <div className="absolute bottom-0 left-0 right-0">
         <div className="mx-auto max-w-xl w-[92%] md:w-[72%] bg-[#F3F2EE] border border-[#B8A082] rounded-t-3xl shadow-[0_-18px_50px_rgba(0,0,0,0.28)] overflow-hidden">
-          {/* Handle + close */}
-          <div className="flex items-center justify-between px-4 pt-3 pb-2">
-            <div className="flex-1 flex justify-center">
-              <div className="w-12 h-1.5 bg-[#9f8b79] rounded-full" />
-            </div>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-2"> {/* CHANGED: removed brown handle bar */}
+            <div /> {/* spacer to keep title area centered if needed */}
             <button
               onClick={onClose}
               className="ml-2 p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
@@ -233,7 +231,7 @@ function StreamingSheet({
             </button>
           </div>
 
-          {/* Header */}
+          {/* Header content */}
           <div className="px-5 pb-4 flex items-center gap-3">
             <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#B8A082] shadow">
               <Image src={release.cover} alt={`${release.title} cover`} fill className="object-cover" />
@@ -299,7 +297,14 @@ export default function ReleasesHub() {
 
       {/* Featured (billboard) */}
       {live && (
-        <section className="px-5">
+        <section
+          className="px-5 py-6 md:py-8" // NEW: give the band some breathing room
+          style={{
+            // NEW: distinct section background band
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(243,242,238,0)), radial-gradient(800px 320px at 20% -10%, rgba(184,160,130,0.12), transparent)",
+          }}
+        >
           <div className="mx-auto max-w-5xl">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,420px)_1fr] gap-4 md:gap-6 items-stretch">
               <div className="rounded-3xl overflow-hidden border border-[#B8A082]/70 bg-white/40 shadow-[0_30px_60px_rgba(0,0,0,0.12)] backdrop-blur-sm">
@@ -312,7 +317,24 @@ export default function ReleasesHub() {
                     Jump in, fund the run, and push this record to streaming. Plays, purchases, and momentum here shape
                     what gets visuals and what drops next.
                   </p>
+
+                  {/* NEW: small cover art inside the info card, directly under copy */}
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[#B8A082] shadow">
+                      <Image
+                        src={live.cover || "/cover-placeholder.png"}
+                        alt={`${live.title} cover`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold tracking-wide text-[#867260]">FEATURED</div>
+                      <div className="text-base md:text-lg font-bold text-black truncate">{live.title}</div>
+                    </div>
+                  </div>
                 </div>
+
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <Link
                     href="/home"
@@ -336,7 +358,14 @@ export default function ReleasesHub() {
       )}
 
       {/* Next Up — horizontal runway */}
-      <section className="mt-8 md:mt-10">
+      <section
+        className="mt-6 md:mt-8 py-6" // CHANGED: add padding for the band
+        style={{
+          // NEW: cool band for contrast
+          background:
+            "linear-gradient(180deg, rgba(240,236,228,0.7), rgba(243,242,238,0.6)), radial-gradient(1000px 300px at 80% -20%, rgba(0,0,0,0.05), transparent)",
+        }}
+      >
         <div className="px-5 flex items-center justify-between mb-3 md:mb-4">
           <h3 className="text-base md:text-lg font-semibold text-black">Next Up</h3>
           <div className="text-xs md:text-sm" style={{ color: "#867260" }}>
@@ -362,7 +391,14 @@ export default function ReleasesHub() {
 
       {/* Later */}
       {later.length > 0 && (
-        <section className="mt-8 md:mt-10 px-5">
+        <section
+          className="mt-8 md:mt-10 px-5 py-6" // CHANGED: added padding
+          style={{
+            // NEW: subtle tinted background for the grid section
+            background:
+              "linear-gradient(180deg, rgba(246,245,240,0.7), rgba(243,242,238,0.85)), radial-gradient(900px 300px at 50% -40%, rgba(184,160,130,0.08), transparent)",
+          }}
+        >
           <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Later</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
             {later.map((d, i) => (
@@ -374,7 +410,14 @@ export default function ReleasesHub() {
 
       {/* Previously Released — opens streaming sheet */}
       {PREVIOUS_RELEASES.length > 0 && (
-        <section className="mt-10 md:mt-12 px-5 pb-24">
+        <section
+          className="mt-10 md:mt-12 px-5 pb-24 pt-6" // CHANGED: added top padding
+          style={{
+            // NEW: darker-on-light band to set it apart
+            background:
+              "linear-gradient(180deg, rgba(235,230,220,0.45), rgba(243,242,238,0.85)), radial-gradient(900px 320px at 10% -30%, rgba(0,0,0,0.05), transparent)",
+          }}
+        >
           <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Previously Released</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
             {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
