@@ -28,7 +28,7 @@ const DROPS: Drop[] = [
   // FEATURED (live)
   { slug: "/home", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
 
-  // UPCOMING (keep your covers or placeholders)
+  // UPCOMING
   { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
   { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
@@ -106,7 +106,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             alt={`${drop.title} cover`}
             fill
             className={`object-cover ${isLive ? "" : "blur-[3px] md:blur-[12px] opacity-80 scale-105"}`}
-            sizes="(max-width: 768px) 60vw, 360px"
+            sizes="(max-width: 768px) 100vw, 420px"  // UPDATED
             priority={isLive}
           />
 
@@ -154,7 +154,7 @@ function PreviousTile({
             alt={`${item.title} cover`}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 60vw, 360px"
+            sizes="(max-width: 768px) 100vw, 420px"  // UPDATED
           />
           {/* Chip: STREAMING */}
           <div className="absolute top-2 left-2">
@@ -219,9 +219,8 @@ function StreamingSheet({
       {/* Bottom sheet */}
       <div className="absolute bottom-0 left-0 right-0">
         <div className="mx-auto max-w-xl w-[92%] md:w-[72%] bg-[#F3F2EE] border border-[#B8A082] rounded-t-3xl shadow-[0_-18px_50px_rgba(0,0,0,0.28)] overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 pt-3 pb-2"> {/* CHANGED: removed brown handle bar */}
-            <div /> {/* spacer to keep title area centered if needed */}
+          {/* Header (handle removed) */}
+          <div className="flex items-center justify-end px-4 pt-3 pb-2">
             <button
               onClick={onClose}
               className="ml-2 p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
@@ -257,6 +256,76 @@ function StreamingSheet({
   )
 }
 
+/** FEATURE PRESENTATION: single hero card with big cover inside the same container */
+function FeaturedCard({ live }: { live: Drop }) {
+  return (
+    <section
+      className="px-5 py-8"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(243,242,238,0)), radial-gradient(1100px 420px at 50% -20%, rgba(184,160,130,0.14), transparent)",
+      }}
+    >
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/60 shadow-[0_40px_80px_rgba(0,0,0,0.15)] backdrop-blur-md overflow-hidden">
+          {/* Cover — BIG and centered; on md+ a 2-col layout preserves size */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] gap-0 items-stretch">
+            {/* Big cover */}
+            <div className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[420px] bg-black">
+              <Image
+                src={live.cover || "/cover-placeholder.png"}
+                alt={`${live.title} cover`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 560px"
+                priority
+              />
+              {/* LIVE chip */}
+              <div className="absolute top-3 left-3">
+                <Chip dark={false}>LIVE</Chip>
+              </div>
+            </div>
+
+            {/* Info side */}
+            <div className="flex flex-col justify-between p-5 md:p-7">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-black">This Week’s Drop</h2>
+                <p className="mt-2 text-sm md:text-base leading-relaxed" style={{ color: "#4a3f35" }}>
+                  Jump in, fund the run, and push this record to streaming. Plays, purchases, and momentum here shape
+                  what gets visuals and what drops next.
+                </p>
+
+                {/* Title row */}
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="text-xs font-semibold tracking-wide text-[#867260]">FEATURED</div>
+                  <div className="text-base md:text-lg font-bold text-black">{live.title}</div>
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <Link
+                  href="/home"
+                  className="text-center rounded-full px-4 py-3 font-semibold text-white hover:opacity-90 transition"
+                  style={{ backgroundColor: "#4a3f35" }}
+                >
+                  Enter Drop
+                </Link>
+                <Link
+                  href="/buy"
+                  className="text-center rounded-full px-4 py-3 font-semibold border border-[#B8A082] hover:bg-black/5 transition"
+                  style={{ color: "#4a3f35" }}
+                >
+                  Support
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function ReleasesHub() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
@@ -267,7 +336,7 @@ export default function ReleasesHub() {
 
   return (
     <div
-      className="min-h-screen relative"
+      className="min-h-screen relative overflow-x-hidden"  // overflow fix to prevent mobile drift
       // Layered background: soft gradient + vignette + ultra-subtle noise
       style={{
         background:
@@ -295,73 +364,13 @@ export default function ReleasesHub() {
         </p>
       </header>
 
-      {/* Featured (billboard) */}
-      {live && (
-        <section
-          className="px-5 py-6 md:py-8" // NEW: give the band some breathing room
-          style={{
-            // NEW: distinct section background band
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(243,242,238,0)), radial-gradient(800px 320px at 20% -10%, rgba(184,160,130,0.12), transparent)",
-          }}
-        >
-          <div className="mx-auto max-w-5xl">
-            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,420px)_1fr] gap-4 md:gap-6 items-stretch">
-              <div className="rounded-3xl overflow-hidden border border-[#B8A082]/70 bg-white/40 shadow-[0_30px_60px_rgba(0,0,0,0.12)] backdrop-blur-sm">
-                <ReleaseTile drop={live} />
-              </div>
-              <div className="rounded-3xl border border-[#B8A082]/70 bg-[#F3F2EE]/80 p-5 md:p-6 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-black">This Week’s Drop</h2>
-                  <p className="mt-2 text-sm md:text-base" style={{ color: "#4a3f35" }}>
-                    Jump in, fund the run, and push this record to streaming. Plays, purchases, and momentum here shape
-                    what gets visuals and what drops next.
-                  </p>
-
-                  {/* NEW: small cover art inside the info card, directly under copy */}
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[#B8A082] shadow">
-                      <Image
-                        src={live.cover || "/cover-placeholder.png"}
-                        alt={`${live.title} cover`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-semibold tracking-wide text-[#867260]">FEATURED</div>
-                      <div className="text-base md:text-lg font-bold text-black truncate">{live.title}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Link
-                    href="/home"
-                    className="text-center rounded-full px-4 py-2.5 font-semibold text-white hover:opacity-90 transition"
-                    style={{ backgroundColor: "#4a3f35" }}
-                  >
-                    Enter Drop
-                  </Link>
-                  <Link
-                    href="/buy"
-                    className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition"
-                    style={{ color: "#4a3f35" }}
-                  >
-                    Support
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* FEATURE PRESENTATION */}
+      {live && <FeaturedCard live={live} />}
 
       {/* Next Up — horizontal runway */}
       <section
-        className="mt-6 md:mt-8 py-6" // CHANGED: add padding for the band
+        className="mt-6 md:mt-8 py-6"
         style={{
-          // NEW: cool band for contrast
           background:
             "linear-gradient(180deg, rgba(240,236,228,0.7), rgba(243,242,238,0.6)), radial-gradient(1000px 300px at 80% -20%, rgba(0,0,0,0.05), transparent)",
         }}
@@ -392,9 +401,8 @@ export default function ReleasesHub() {
       {/* Later */}
       {later.length > 0 && (
         <section
-          className="mt-8 md:mt-10 px-5 py-6" // CHANGED: added padding
+          className="mt-8 md:mt-10 px-5 py-6"
           style={{
-            // NEW: subtle tinted background for the grid section
             background:
               "linear-gradient(180deg, rgba(246,245,240,0.7), rgba(243,242,238,0.85)), radial-gradient(900px 300px at 50% -40%, rgba(184,160,130,0.08), transparent)",
           }}
@@ -411,9 +419,8 @@ export default function ReleasesHub() {
       {/* Previously Released — opens streaming sheet */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section
-          className="mt-10 md:mt-12 px-5 pb-24 pt-6" // CHANGED: added top padding
+          className="mt-10 md:mt-12 px-5 pb-24 pt-6"
           style={{
-            // NEW: darker-on-light band to set it apart
             background:
               "linear-gradient(180deg, rgba(235,230,220,0.45), rgba(243,242,238,0.85)), radial-gradient(900px 320px at 10% -30%, rgba(0,0,0,0.05), transparent)",
           }}
