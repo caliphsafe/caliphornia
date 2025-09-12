@@ -85,17 +85,15 @@ function Chip({ children, dark = false }: { children: React.ReactNode; dark?: bo
   )
 }
 
-// hover lift for desktop tiles (no tilt on mobile)
 const cardLift =
   "transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
 
-// magnetic hover (desktop only)
 function useMagnetic() {
   const ref = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null)
   useEffect(() => {
     if (typeof window === "undefined") return
     const coarse = window.matchMedia("(pointer: coarse)").matches
-    if (coarse) return // disable on touch
+    if (coarse) return // no tilt on touch
     const el = ref.current
     if (!el) return
     const onMove = (e: MouseEvent) => {
@@ -238,7 +236,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   )
 }
 
-// ---------- Sticky Nav (mobile-centered logo; desktop-left) ----------
+// ---------- Sticky Nav ----------
 function TopNav() {
   const [solid, setSolid] = useState(false)
   useEffect(() => {
@@ -256,7 +254,6 @@ function TopNav() {
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-center md:justify-between">
-        {/* left spacer for perfect centering on mobile */}
         <div className="hidden md:block w-[120px]" />
         <Link href="/" className="flex items-center justify-center">
           <Image
@@ -268,32 +265,29 @@ function TopNav() {
             priority
           />
         </Link>
-        {/* right spacer (no CTAs here; CTAs live only in the hero card) */}
         <div className="hidden md:block w-[180px]" />
       </div>
     </div>
   )
 }
 
-// ---------- Feature Presentation (full cover; mobile-first; parallax off on touch) ----------
+// ---------- Feature Presentation (futuristic) ----------
 function FeaturedCard({ live }: { live: Drop }) {
   const imgRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const el = imgRef.current
     if (!el || typeof window === "undefined") return
-    // Disable parallax on touch and when user prefers reduced motion
     const coarse = window.matchMedia("(pointer: coarse)").matches
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (coarse || reduced) return
-
     let raf = 0
     const onScroll = () => {
       if (raf) return
       raf = requestAnimationFrame(() => {
         const y = window.scrollY || 0
-        const t = Math.min(20, Math.max(0, y * 0.12))
-        el.style.transform = `translate3d(0, ${t}px, 0)` // GPU-friendly
+        const t = Math.min(16, Math.max(0, y * 0.1))
+        el.style.transform = `translate3d(0, ${t}px, 0)`
         raf = 0
       })
     }
@@ -304,7 +298,6 @@ function FeaturedCard({ live }: { live: Drop }) {
     }
   }, [])
 
-  // Magnetic on desktop only
   const enterRef = useMagnetic()
   const supportRef = useMagnetic()
 
@@ -316,15 +309,21 @@ function FeaturedCard({ live }: { live: Drop }) {
           "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
       }}
     >
-      <div className="mx-auto max-w-5xl">
-        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_24px_60px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
-          {/* Mobile-first: cover first, then info. Desktop becomes two-column */}
+      {/* blurred logo backdrop for the hero */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="w-[70vw] max-w-[820px] aspect-[4/1] opacity-25 blur-[40px]"
+             style={{ background: "url('/caliphornia-logo.svg') center/contain no-repeat" }} />
+      </div>
+
+      <div className="mx-auto max-w-5xl relative">
+        {/* avant-garde glass frame with subtle angle stripes */}
+        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_24px_60px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden relative">
+          <div className="pointer-events-none absolute inset-0 opacity-[0.12]"
+               style={{ backgroundImage: "repeating-linear-gradient(135deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 8px)" }} />
+
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
             {/* Full cover */}
-            <div
-              ref={imgRef}
-              className="relative w-full aspect-[1/1] md:h-full md:aspect-auto md:min-h-[420px] bg-black will-change-transform"
-            >
+            <div ref={imgRef} className="relative w-full aspect-[1/1] md:h-full md:aspect-auto md:min-h-[420px] bg-black will-change-transform">
               <Image
                 src={live.cover || "/cover-placeholder.png"}
                 alt={`${live.title} cover`}
@@ -334,11 +333,18 @@ function FeaturedCard({ live }: { live: Drop }) {
                 priority
               />
               <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent,rgba(0,0,0,0.12))]" />
+              {/* neon corner accents */}
+              <div className="pointer-events-none absolute inset-0">
+                <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-[#B8A082]/70 rounded-tl-3xl" />
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-[#B8A082]/70 rounded-br-3xl" />
+              </div>
             </div>
 
             {/* Info */}
-            <div className="flex flex-col justify-between p-4 md:p-6">
+            <div className="flex flex-col justify-between p-4 md:p-6 relative">
+              {/* floating glow */}
+              <div className="pointer-events-none absolute -top-8 -right-8 w-40 h-40 rounded-full blur-[60px] opacity-40"
+                   style={{ background: "radial-gradient(circle, rgba(184,160,130,0.55), transparent 60%)" }} />
               <div>
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">This Week’s Drop</h2>
                 <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
@@ -350,8 +356,6 @@ function FeaturedCard({ live }: { live: Drop }) {
                   <div className="text-base md:text-lg font-bold text-black truncate">{live.title}</div>
                 </div>
               </div>
-
-              {/* CTAs live ONLY here */}
               <div className="mt-4 grid grid-cols-2 gap-2.5">
                 <Link
                   ref={enterRef as any}
@@ -372,13 +376,17 @@ function FeaturedCard({ live }: { live: Drop }) {
               </div>
             </div>
           </div>
+
+          {/* subtle inner “carve” for hero frame */}
+          <div className="pointer-events-none absolute inset-0 rounded-3xl"
+               style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -20px 40px rgba(0,0,0,0.06)" }} />
         </div>
       </div>
     </section>
   )
 }
 
-// ---------- Section Reveal (safe on mobile) ----------
+// ---------- Section Reveal ----------
 function useReveal() {
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
@@ -411,6 +419,7 @@ export default function ReleasesHub() {
   const upcoming = DROPS.filter((d) => d.status === "upcoming")
 
   const nextRef = useReveal()
+  const aboutRef = useReveal()
   const prevRef = useReveal()
 
   return (
@@ -427,10 +436,10 @@ export default function ReleasesHub() {
         style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
       />
 
-      {/* Sticky nav: mobile-centered logo; desktop-left */}
+      {/* Sticky nav */}
       <TopNav />
 
-      {/* Mobile helper copy under nav */}
+      {/* Mobile helper copy */}
       <header className="px-5 pt-3 pb-3 flex flex-col items-center text-center sm:hidden">
         <p className="max-w-xl text-sm leading-relaxed" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
@@ -440,29 +449,90 @@ export default function ReleasesHub() {
       {/* Feature Presentation */}
       {live && <FeaturedCard live={live} />}
 
-      {/* Next Up — compact runway */}
+      {/* Next Up — “carved-in” carousel with gaussian side fades */}
       <section
         ref={nextRef}
         className="mt-3 md:mt-4 py-5 relative"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(240,236,228,0.65), rgba(243,242,238,0.5)), radial-gradient(900px 260px at 80% -20%, rgba(0,0,0,0.05), transparent)",
-        }}
       >
         <div className="px-4 flex items-center justify-between mb-3">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
           <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
         </div>
 
+        {/* carved frame */}
         <div className="px-4">
-          <div className="mx-auto max-w-6xl overflow-x-auto snap-x snap-mandatory scrollbar-thin" style={{ scrollbarColor: "#9f8b79 transparent" }}>
-            <div className="flex gap-3 sm:gap-4 min-w-max pr-3">
-              {upcoming.slice(0, 6).map((d, idx) => (
-                <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
-                  <ReleaseTile drop={d} />
-                </div>
-              ))}
+          <div
+            className="mx-auto max-w-6xl relative rounded-3xl overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(240,236,228,0.65), rgba(243,242,238,0.55))",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -30px 40px rgba(0,0,0,0.06), 0 18px 40px rgba(0,0,0,0.08)",
+            }}
+          >
+            {/* side gaussian fades (sit ABOVE images) */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-12 sm:w-16 z-10"
+                 style={{ background: "linear-gradient(90deg, rgba(243,242,238,0.95), rgba(243,242,238,0))", filter: "blur(2px)" }} />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:w-16 z-10"
+                 style={{ background: "linear-gradient(-90deg, rgba(243,242,238,0.95), rgba(243,242,238,0))", filter: "blur(2px)" }} />
+
+            {/* scroller */}
+            <div
+              className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
+              style={{ scrollbarColor: "#9f8b79 transparent" }}
+            >
+              <div className="flex gap-3 sm:gap-4 min-w-max pr-3 pl-3 py-3">
+                {upcoming.slice(0, 6).map((d, idx) => (
+                  <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
+                    <ReleaseTile drop={d} />
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Caliph — dynamic reveal with blurred background logo */}
+      <section
+        ref={aboutRef}
+        className="mt-6 md:mt-8 px-4 py-6 relative"
+        style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.35), rgba(243,242,238,0.75))" }}
+      >
+        {/* blurred logo backdrop */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="w-[78vw] max-w-[900px] opacity-25 blur-[38px]"
+               style={{ background: "url('/caliphornia-logo.svg') center/contain no-repeat", aspectRatio: "4/1" }} />
+        </div>
+
+        <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-[340px_1fr] gap-5 md:gap-7 items-start relative">
+          {/* Portrait — replace src with the one used on your email gate page */}
+          <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/60 backdrop-blur-sm shadow-[0_14px_36px_rgba(0,0,0,0.12)]">
+            <div className="relative w-full aspect-[4/5] bg-black">
+              <Image
+                src="/caliph-portrait.jpg" /* <-- swap to your real path from the email gate page */
+                alt="Caliph portrait"
+                fill
+                sizes="(max-width: 768px) 100vw, 360px"
+                className="object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Copy */}
+          <div className="rounded-2xl border border-[#B8A082]/70 bg-white/60 backdrop-blur-sm p-4 md:p-6 shadow-[0_14px_36px_rgba(0,0,0,0.12)]">
+            <h3 className="text-lg md:text-xl font-bold text-black">About Caliph</h3>
+            <p className="mt-2 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus
+              ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent
+              mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class
+              aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales
+              ligula in libero. Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam.
+            </p>
+            <p className="mt-3 text-sm md:text-[15px]" style={{ color: "#4a3f35" }}>
+              In scelerisque sem at dolor. Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc
+              egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa.
+            </p>
           </div>
         </div>
       </section>
@@ -471,10 +541,10 @@ export default function ReleasesHub() {
       {PREVIOUS_RELEASES.length > 0 && (
         <section
           ref={prevRef}
-          className="mt-5 md:mt-6 px-4 pb-16 pt-5 relative"
+          className="mt-6 md:mt-8 px-4 pb-16 pt-5 relative"
           style={{
             background:
-              "linear-gradient(180deg, rgba(235,230,220,0.40), rgba(243,242,238,0.8)), radial-gradient(800px 280px at 10% -25%, rgba(0,0,0,0.05), transparent)",
+              "linear-gradient(180deg, rgba(235,230,220,0.40), rgba(243,242,238,0.8))",
           }}
         >
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black mb-3">Previously Released</h3>
