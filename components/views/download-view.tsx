@@ -383,7 +383,7 @@ function FeaturedCard({ live }: { live: Drop }) {
                   This Week’s Drop: POLYGAMY (PROD. CALIPH)
                 </h2>
 
-                {/* Editorial paragraph */}
+                {/* Editorial paragraph */} 
                 <p className="mt-2 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
                   A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life lessons
                   through a family lens. Across verses he compares three breakups to his grandfather’s three successful
