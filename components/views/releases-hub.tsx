@@ -80,7 +80,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
 function Chip({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <span
-      className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm"
+      className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold shadow-sm"
       style={{ backgroundColor: dark ? "rgba(0,0,0,0.55)" : "#4a3f35", color: "white" }}
     >
       {children}
@@ -98,7 +98,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
 
   return (
     <Wrapper {...wrapperProps}>
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.08)] relative backdrop-blur-[2px]">
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_8px_24px_rgba(0,0,0,0.10)] relative backdrop-blur-[2px]">
         <div className="relative w-full aspect-square bg-black">
           {/* Cover (responsive blur for upcoming only: mobile 3px, desktop 12px) */}
           <Image
@@ -106,7 +106,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             alt={`${drop.title} cover`}
             fill
             className={`object-cover ${isLive ? "" : "blur-[3px] md:blur-[12px] opacity-80 scale-105"}`}
-            sizes="(max-width: 768px) 100vw, 420px"  // UPDATED
+            sizes="(max-width: 768px) 100vw, 420px"
             priority={isLive}
           />
 
@@ -116,14 +116,14 @@ function ReleaseTile({ drop }: { drop: Drop }) {
           {/* Center lock for upcoming */}
           {!isLive && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="backdrop-blur-sm bg-[rgba(0,0,0,0.35)] border border-[#B8A082] rounded-full w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shadow-md">
-                <LockClosedIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              <div className="backdrop-blur-sm bg-[rgba(0,0,0,0.35)] border border-[#B8A082] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-md">
+                <LockClosedIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
             </div>
           )}
 
           {/* Status chip (LIVE or date) */}
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
             <Chip dark={!isLive}>{isLive ? "LIVE" : drop.dateLabel ?? "SOON"}</Chip>
           </div>
         </div>
@@ -147,18 +147,18 @@ function PreviousTile({
       aria-label={`${item.title} — streaming`}
       title={`${item.title} — streaming`}
     >
-      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.08)] relative backdrop-blur-[2px]">
+      <div className="rounded-2xl overflow-hidden border border-[#B8A082]/70 bg-white/30 shadow-[0_8px_24px_rgba(0,0,0,0.10)] relative backdrop-blur-[2px]">
         <div className="relative w-full aspect-square bg-black">
           <Image
             src={item.cover || "/cover-placeholder.png"}
             alt={`${item.title} cover`}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 420px"  // UPDATED
+            sizes="(max-width: 768px) 100vw, 420px"
           />
           {/* Chip: STREAMING */}
-          <div className="absolute top-2 left-2">
-            <span className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white bg-[#303030]">
+          <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
+            <span className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-white bg-[#303030]">
               STREAMING
             </span>
           </div>
@@ -219,11 +219,11 @@ function StreamingSheet({
       {/* Bottom sheet */}
       <div className="absolute bottom-0 left-0 right-0">
         <div className="mx-auto max-w-xl w-[92%] md:w-[72%] bg-[#F3F2EE] border border-[#B8A082] rounded-t-3xl shadow-[0_-18px_50px_rgba(0,0,0,0.28)] overflow-hidden">
-          {/* Header (handle removed) */}
-          <div className="flex items-center justify-end px-4 pt-3 pb-2">
+          {/* Header (no handle; X only) */}
+          <div className="flex items-center justify-end px-3 pt-2 pb-1">
             <button
               onClick={onClose}
-              className="ml-2 p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
+              className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]"
               aria-label="Close"
             >
               <XMarkIcon className="w-6 h-6" />
@@ -231,20 +231,20 @@ function StreamingSheet({
           </div>
 
           {/* Header content */}
-          <div className="px-5 pb-4 flex items-center gap-3">
-            <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#B8A082] shadow">
+          <div className="px-4 pb-3 flex items-center gap-3">
+            <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-[#B8A082] shadow">
               <Image src={release.cover} alt={`${release.title} cover`} fill className="object-cover" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-lg font-bold text-black truncate">{release.title}</h3>
-              <p className="text-sm" style={{ color: "#867260" }}>
+              <h3 className="text-base font-bold text-black truncate">{release.title}</h3>
+              <p className="text-xs" style={{ color: "#867260" }}>
                 Listen on your favorite platform
               </p>
             </div>
           </div>
 
           {/* Links */}
-          <div className="px-5 pb-5 grid grid-cols-1 gap-3">
+          <div className="px-4 pb-4 grid grid-cols-1 gap-2.5">
             <LinkBtn label="Apple Music" href={release.links.apple} bg="#111111" />
             <LinkBtn label="Spotify" href={release.links.spotify} bg="#1DB954" />
             <LinkBtn label="TIDAL" href={release.links.tidal} bg="#0A0A0A" />
@@ -256,22 +256,22 @@ function StreamingSheet({
   )
 }
 
-/** FEATURE PRESENTATION: single hero card with big cover inside the same container */
+/** FEATURE PRESENTATION: compact hero with big cover inside */
 function FeaturedCard({ live }: { live: Drop }) {
   return (
     <section
-      className="px-5 py-8"
+      className="px-4 py-5 md:py-6"
       style={{
         background:
-          "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(243,242,238,0)), radial-gradient(1100px 420px at 50% -20%, rgba(184,160,130,0.14), transparent)",
+          "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
       }}
     >
       <div className="mx-auto max-w-5xl">
-        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/60 shadow-[0_40px_80px_rgba(0,0,0,0.15)] backdrop-blur-md overflow-hidden">
-          {/* Cover — BIG and centered; on md+ a 2-col layout preserves size */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] gap-0 items-stretch">
+        <div className="rounded-3xl border border-[#B8A082]/70 bg-white/55 shadow-[0_30px_70px_rgba(0,0,0,0.14)] backdrop-blur-md overflow-hidden">
+          {/* Two-col on md+, stacked on mobile; cover remains LARGE */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,520px)_1fr] items-stretch">
             {/* Big cover */}
-            <div className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[420px] bg-black">
+            <div className="relative w-full aspect-[1/1] md:aspect-auto md:h-full md:min-h-[380px] bg-black">
               <Image
                 src={live.cover || "/cover-placeholder.png"}
                 alt={`${live.title} cover`}
@@ -280,39 +280,41 @@ function FeaturedCard({ live }: { live: Drop }) {
                 sizes="(max-width: 768px) 100vw, 560px"
                 priority
               />
-              {/* LIVE chip */}
-              <div className="absolute top-3 left-3">
-                <Chip dark={false}>LIVE</Chip>
+              <div className="absolute top-2 left-2">
+                <Chip>LIVE</Chip>
               </div>
+
+              {/* subtle inner vignette for depth */}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent,rgba(0,0,0,0.12))]" />
             </div>
 
-            {/* Info side */}
-            <div className="flex flex-col justify-between p-5 md:p-7">
+            {/* Info side (compact) */}
+            <div className="flex flex-col justify-between p-4 md:p-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-black">This Week’s Drop</h2>
-                <p className="mt-2 text-sm md:text-base leading-relaxed" style={{ color: "#4a3f35" }}>
-                  Jump in, fund the run, and push this record to streaming. Plays, purchases, and momentum here shape
-                  what gets visuals and what drops next.
+                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black">This Week’s Drop</h2>
+                <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed" style={{ color: "#4a3f35" }}>
+                  Jump in, fund the run, and push this record to streaming. Your momentum here shapes what gets visuals
+                  and what drops next.
                 </p>
 
                 {/* Title row */}
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="text-xs font-semibold tracking-wide text-[#867260]">FEATURED</div>
+                <div className="mt-3 flex items-center gap-2.5">
+                  <div className="text-[11px] font-semibold tracking-wide text-[#867260]">FEATURED</div>
                   <div className="text-base md:text-lg font-bold text-black">{live.title}</div>
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-2.5">
                 <Link
                   href="/home"
-                  className="text-center rounded-full px-4 py-3 font-semibold text-white hover:opacity-90 transition"
+                  className="text-center rounded-full px-4 py-2.5 font-semibold text-white hover:opacity-90 transition shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   Enter Drop
                 </Link>
                 <Link
                   href="/buy"
-                  className="text-center rounded-full px-4 py-3 font-semibold border border-[#B8A082] hover:bg-black/5 transition"
+                  className="text-center rounded-full px-4 py-2.5 font-semibold border border-[#B8A082] hover:bg-black/5 transition"
                   style={{ color: "#4a3f35" }}
                 >
                   Support
@@ -332,25 +334,24 @@ export default function ReleasesHub() {
 
   const live = DROPS.find((d) => d.status === "live")
   const upcoming = DROPS.filter((d) => d.status === "upcoming")
-  const later = upcoming.slice(6)
 
   return (
     <div
-      className="min-h-screen relative overflow-x-hidden"  // overflow fix to prevent mobile drift
-      // Layered background: soft gradient + vignette + ultra-subtle noise
+      className="min-h-screen relative overflow-x-hidden"
       style={{
+        // lighter, modern base with subtle vignette & noise
         background:
-          "radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,0.75), rgba(243,242,238,1)), linear-gradient(180deg, rgba(230,224,212,0.35), rgba(243,242,238,1) 30%), #F3F2EE",
+          "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
       }}
     >
-      {/* Subtle top flourish */}
+      {/* Top flourish glow */}
       <div
-        className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[120vw] h-[120px] blur-[60px] opacity-50"
+        className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[120vw] h-[110px] blur-[50px] opacity-40"
         style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
       />
 
-      {/* Header */}
-      <header className="px-6 pt-8 pb-5 flex flex-col items-center text-center">
+      {/* Header (tighter) */}
+      <header className="px-5 pt-6 pb-4 flex flex-col items-center text-center">
         <Image
           src="/caliphornia-logo.svg"
           alt="CALIPHORNIA"
@@ -359,7 +360,7 @@ export default function ReleasesHub() {
           className="h-auto w-[160px] md:w-[180px]"
           priority
         />
-        <p className="mt-4 max-w-2xl text-sm md:text-base leading-relaxed" style={{ color: "#867260" }}>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: "#867260" }}>
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
       </header>
@@ -367,29 +368,29 @@ export default function ReleasesHub() {
       {/* FEATURE PRESENTATION */}
       {live && <FeaturedCard live={live} />}
 
-      {/* Next Up — horizontal runway */}
+      {/* Next Up — compact runway */}
       <section
-        className="mt-6 md:mt-8 py-6"
+        className="mt-4 md:mt-5 py-5"
         style={{
           background:
-            "linear-gradient(180deg, rgba(240,236,228,0.7), rgba(243,242,238,0.6)), radial-gradient(1000px 300px at 80% -20%, rgba(0,0,0,0.05), transparent)",
+            "linear-gradient(180deg, rgba(240,236,228,0.65), rgba(243,242,238,0.5)), radial-gradient(900px 260px at 80% -20%, rgba(0,0,0,0.05), transparent)",
         }}
       >
-        <div className="px-5 flex items-center justify-between mb-3 md:mb-4">
-          <h3 className="text-base md:text-lg font-semibold text-black">Next Up</h3>
-          <div className="text-xs md:text-sm" style={{ color: "#867260" }}>
+        <div className="px-4 flex items-center justify-between mb-3">
+          <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
+          <div className="text-xs" style={{ color: "#867260" }}>
             Weekly releases
           </div>
         </div>
 
-        <div className="px-5">
+        <div className="px-4">
           <div
             className="mx-auto max-w-6xl overflow-x-auto snap-x snap-mandatory scrollbar-thin"
             style={{ scrollbarColor: "#9f8b79 transparent" }}
           >
-            <div className="flex gap-3 sm:gap-4 md:gap-5 min-w-max pr-4">
+            <div className="flex gap-3 sm:gap-4 min-w-max pr-3">
               {upcoming.slice(0, 6).map((d, idx) => (
-                <div key={idx} className="w-[52vw] xs:w-[44vw] sm:w-[33vw] md:w-[220px] snap-start shrink-0">
+                <div key={idx} className="w-[56vw] xs:w-[44vw] sm:w-[30vw] md:w-[210px] snap-start shrink-0">
                   <ReleaseTile drop={d} />
                 </div>
               ))}
@@ -398,35 +399,17 @@ export default function ReleasesHub() {
         </div>
       </section>
 
-      {/* Later */}
-      {later.length > 0 && (
-        <section
-          className="mt-8 md:mt-10 px-5 py-6"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(246,245,240,0.7), rgba(243,242,238,0.85)), radial-gradient(900px 300px at 50% -40%, rgba(184,160,130,0.08), transparent)",
-          }}
-        >
-          <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Later</h3>
-          <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-            {later.map((d, i) => (
-              <ReleaseTile key={`later-${i}`} drop={d} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Previously Released — opens streaming sheet */}
+      {/* Previously Released — compact grid with sheet */}
       {PREVIOUS_RELEASES.length > 0 && (
         <section
-          className="mt-10 md:mt-12 px-5 pb-24 pt-6"
+          className="mt-6 md:mt-7 px-4 pb-16 pt-5"
           style={{
             background:
-              "linear-gradient(180deg, rgba(235,230,220,0.45), rgba(243,242,238,0.85)), radial-gradient(900px 320px at 10% -30%, rgba(0,0,0,0.05), transparent)",
+              "linear-gradient(180deg, rgba(235,230,220,0.40), rgba(243,242,238,0.8)), radial-gradient(800px 280px at 10% -25%, rgba(0,0,0,0.05), transparent)",
           }}
         >
-          <h3 className="text-base md:text-lg font-semibold text-black mb-3 md:mb-4">Previously Released</h3>
-          <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+          <h3 className="text-[15px] md:text-[17px] font-semibold text-black mb-3">Previously Released</h3>
+          <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4">
             {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
               <PreviousTile
                 key={`prev-${i}`}
