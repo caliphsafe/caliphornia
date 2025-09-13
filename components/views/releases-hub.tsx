@@ -455,7 +455,7 @@ function AboutCaliph() {
       </div>
 
       <div className="mx-auto max-w-6xl relative">
-        <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+        <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
             <div className="relative min-h-[240px] md:min-h-[340px]">
@@ -544,7 +544,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — smaller (~80%), equal left/right padding */}
+      {/* NEXT UP — FIXED LEFT PADDING + dynamic depth */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -552,23 +552,46 @@ export default function ReleasesHub() {
         </div>
 
         <div className="px-4">
-          <div className={`mx-auto max-w-5xl relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+          {/* Carved frame with TRUE inner padding so first tile never touches the border */}
+          <div
+            className={`mx-auto max-w-5xl relative rounded-3xl ${glass}`}
+            style={{
+              overflow: "hidden",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -16px 32px rgba(0,0,0,0.06), 0 24px 60px rgba(0,0,0,0.12)",
+            }}
+          >
             <Grain />
-            <div
-              className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
-              style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
-            >
-              {/* equal edge padding using symmetric spacers + smaller tiles */}
-              <div className="flex gap-2.5 sm:gap-3 min-w-max py-3">
-                <div className="shrink-0 w-4 sm:w-5" />
-                {upcoming.slice(0, 6).map((d, idx) => (
-                  <div key={idx} className="w-[46vw] xs:w-[40vw] sm:w-[26vw] md:w-[180px] snap-start shrink-0">
-                    <ReleaseTile drop={d} />
-                  </div>
-                ))}
-                <div className="shrink-0 w-4 sm:w-5" />
+            {/* Inner padding wrapper (the fix): */}
+            <div className="p-3 sm:p-4">
+              <div
+                className="overflow-x-auto snap-x snap-mandatory scrollbar-thin rounded-[20px] sm:rounded-[22px]"
+                style={{
+                  scrollbarColor: "#9f8b79 transparent",
+                  WebkitOverflowScrolling: "touch",
+                  maskImage:
+                    "linear-gradient(90deg, transparent 0, black 24px, black calc(100% - 24px), transparent 100%)",
+                }}
+              >
+                {/* Scroller content has its own symmetric padding too */}
+                <div className="flex gap-3 sm:gap-4 min-w-max py-2 px-1 sm:px-2">
+                  {upcoming.slice(0, 6).map((d, idx) => (
+                    <div key={idx} className="w-[46vw] xs:w-[40vw] sm:w-[26vw] md:w-[180px] snap-start shrink-0">
+                      <ReleaseTile drop={d} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+
+            {/* Soft edge vignette for depth */}
+            <div
+              className="pointer-events-none absolute inset-0 rounded-3xl"
+              style={{
+                boxShadow:
+                  "inset 0 0 0 1px rgba(184,160,130,0.35), inset 0 0 40px rgba(0,0,0,0.06)",
+              }}
+            />
           </div>
         </div>
       </section>
