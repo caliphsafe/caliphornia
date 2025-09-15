@@ -75,7 +75,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
 
 // ---------- Style tokens ----------
 const glass =
-  "bg-white/55 backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.14)]"
+  "bg-white/55 backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
 
 function Grain() {
   return (
@@ -294,32 +294,9 @@ function TopNav() {
   )
 }
 
-// ---------- Feature Presentation (cover art links to /home; rectangular button; no quote) ----------
+// ---------- Feature Presentation (no parallax for zero scroll-jank) ----------
 function FeaturedCard({ live }: { live: Drop }) {
-  const imgRef = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    const el = imgRef.current
-    if (!el || typeof window === "undefined") return
-    const coarse = window.matchMedia("(pointer: coarse)").matches
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (coarse || reduced) return
-    let raf = 0
-    const onScroll = () => {
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        const y = window.scrollY || 0
-        const t = Math.min(16, Math.max(0, y * 0.1))
-        el.style.transform = `translate3d(0, ${t}px, 0)`
-        raf = 0
-      })
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => {
-      window.removeEventListener("scroll", onScroll)
-      if (raf) cancelAnimationFrame(raf)
-    }
-  }, [])
-
+  // Removed scroll/parallax handler to eliminate initial scroll hitch on mobile & desktop
   const enterRef = useMagnetic()
 
   return (
@@ -338,27 +315,15 @@ function FeaturedCard({ live }: { live: Drop }) {
       </div>
 
       <div className="mx-auto max-w-5xl relative">
-        <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+        <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
-
-          <div
-            className="pointer-events-none absolute inset-0 rounded-3xl"
-            style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -20px 40px rgba(0,0,0,0.06)" }}
-          />
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.10]"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(135deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 8px)",
-            }}
-          />
 
           {/* layout */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
             {/* padded square cover that links to /home */}
             <div className="p-3 md:p-5">
               <Link href="/home" className="block">
-                <div ref={imgRef} className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
+                <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
                   <Image
                     src={live.cover || "/cover-placeholder.png"}
                     alt={`${live.title} cover`}
@@ -368,10 +333,6 @@ function FeaturedCard({ live }: { live: Drop }) {
                     priority
                   />
                   <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
-                  <div
-                    className="hidden md:block absolute inset-0 pointer-events-none"
-                    style={{ boxShadow: "inset 0 0 0 1px rgba(184,160,130,0.35)" }}
-                  />
                 </div>
               </Link>
             </div>
@@ -455,7 +416,7 @@ function AboutCaliph() {
       </div>
 
       <div className="mx-auto max-w-6xl relative">
-        <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+        <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
             <div className="relative min-h-[240px] md:min-h-[340px]">
@@ -544,7 +505,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — FIXED LEFT PADDING + dynamic depth */}
+      {/* NEXT UP — single outline, true inner padding, no vignette/mask */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -552,28 +513,13 @@ export default function ReleasesHub() {
         </div>
 
         <div className="px-4">
-          {/* Carved frame with TRUE inner padding so first tile never touches the border */}
-          <div
-            className={`mx-auto max-w-5xl relative rounded-3xl ${glass}`}
-            style={{
-              overflow: "hidden",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -16px 32px rgba(0,0,0,0.06), 0 24px 60px rgba(0,0,0,0.12)",
-            }}
-          >
+          <div className={`mx-auto max-w-5xl relative rounded-2xl ${glass} overflow-hidden`}>
             <Grain />
-            {/* Inner padding wrapper (the fix): */}
             <div className="p-3 sm:p-4">
               <div
-                className="overflow-x-auto snap-x snap-mandatory scrollbar-thin rounded-[20px] sm:rounded-[22px]"
-                style={{
-                  scrollbarColor: "#9f8b79 transparent",
-                  WebkitOverflowScrolling: "touch",
-                  maskImage:
-                    "linear-gradient(90deg, transparent 0, black 24px, black calc(100% - 24px), transparent 100%)",
-                }}
+                className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
+                style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
               >
-                {/* Scroller content has its own symmetric padding too */}
                 <div className="flex gap-3 sm:gap-4 min-w-max py-2 px-1 sm:px-2">
                   {upcoming.slice(0, 6).map((d, idx) => (
                     <div key={idx} className="w-[46vw] xs:w-[40vw] sm:w-[26vw] md:w-[180px] snap-start shrink-0">
@@ -583,15 +529,6 @@ export default function ReleasesHub() {
                 </div>
               </div>
             </div>
-
-            {/* Soft edge vignette for depth */}
-            <div
-              className="pointer-events-none absolute inset-0 rounded-3xl"
-              style={{
-                boxShadow:
-                  "inset 0 0 0 1px rgba(184,160,130,0.35), inset 0 0 40px rgba(0,0,0,0.06)",
-              }}
-            />
           </div>
         </div>
       </section>
@@ -626,6 +563,9 @@ export default function ReleasesHub() {
 
       {/* global CSS */}
       <style jsx global>{`
+        /* app-like snappiness: allow sections to render independently without blocking scroll */
+        section { content-visibility: auto; contain-intrinsic-size: 1px 600px; }
+
         .animate-reveal { animation: revealUp 520ms cubic-bezier(.2,.7,.2,1) forwards; }
         @keyframes revealUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @media (prefers-reduced-motion: reduce) { .animate-reveal { animation: none !important; } }
