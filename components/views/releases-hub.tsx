@@ -153,6 +153,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             alt={`${drop.title} cover`}
             fill
             sizes="(max-width: 768px) 100vw, 520px"
+            loading={isLive ? "eager" : "lazy"}
             className={`object-cover ${isLive ? "" : "blur-[6px] md:blur-[16px] opacity-75 scale-110"}`}
             priority={isLive}
           />
@@ -189,6 +190,7 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
             alt={`${item.title} cover`}
             fill
             sizes="(max-width: 768px) 100vw, 520px"
+            loading="lazy"
             className="object-cover"
           />
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
@@ -294,9 +296,8 @@ function TopNav() {
   )
 }
 
-// ---------- Feature Presentation (no parallax for zero scroll-jank) ----------
+// ---------- Feature Presentation (no parallax, eager hero only) ----------
 function FeaturedCard({ live }: { live: Drop }) {
-  // Removed scroll/parallax handler to eliminate initial scroll hitch on mobile & desktop
   const enterRef = useMagnetic()
 
   return (
@@ -315,10 +316,9 @@ function FeaturedCard({ live }: { live: Drop }) {
       </div>
 
       <div className="mx-auto max-w-5xl relative">
-        <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
+        <div className={`relative rounded-3xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
 
-          {/* layout */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
             {/* padded square cover that links to /home */}
             <div className="p-3 md:p-5">
@@ -329,8 +329,9 @@ function FeaturedCard({ live }: { live: Drop }) {
                     alt={`${live.title} cover`}
                     fill
                     sizes="(max-width: 768px) 100vw, 700px"
-                    className="object-cover"
+                    loading="eager"
                     priority
+                    className="object-cover"
                   />
                   <div className="absolute top-2 left-2"><Chip>LIVE</Chip></div>
                 </div>
@@ -425,8 +426,9 @@ function AboutCaliph() {
                   src="/caliph-profile.png"
                   alt="Caliph portrait"
                   fill
-                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 560px"
+                  loading="lazy"
+                  className="object-cover"
                 />
               </div>
             </div>
@@ -485,6 +487,7 @@ export default function ReleasesHub() {
         background:
           "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
         touchAction: "pan-y",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       {/* global ambient glow */}
@@ -505,7 +508,7 @@ export default function ReleasesHub() {
       {/* HERO */}
       {live && <FeaturedCard live={live} />}
 
-      {/* NEXT UP — single outline, true inner padding, no vignette/mask */}
+      {/* NEXT UP — single outline, real inner padding, no vignette */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Next Up</h3>
@@ -520,7 +523,7 @@ export default function ReleasesHub() {
                 className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
                 style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
               >
-                <div className="flex gap-3 sm:gap-4 min-w-max py-2 px-1 sm:px-2">
+                <div className="flex gap-3 sm:gap-4 min-w-max py-2 px-2">
                   {upcoming.slice(0, 6).map((d, idx) => (
                     <div key={idx} className="w-[46vw] xs:w-[40vw] sm:w-[26vw] md:w-[180px] snap-start shrink-0">
                       <ReleaseTile drop={d} />
@@ -561,14 +564,14 @@ export default function ReleasesHub() {
 
       <StreamingSheet open={sheetOpen} onClose={() => setSheetOpen(false)} release={activePrev} />
 
-      {/* global CSS */}
+      {/* global CSS (NOTE: removed content-visibility to avoid Safari scroll hitch) */}
       <style jsx global>{`
-        /* app-like snappiness: allow sections to render independently without blocking scroll */
-        section { content-visibility: auto; contain-intrinsic-size: 1px 600px; }
-
         .animate-reveal { animation: revealUp 520ms cubic-bezier(.2,.7,.2,1) forwards; }
         @keyframes revealUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @media (prefers-reduced-motion: reduce) { .animate-reveal { animation: none !important; } }
+
+        /* small iOS polish */
+        html, body { overscroll-behavior-y: none; }
       `}</style>
     </div>
   )
