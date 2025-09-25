@@ -1,4 +1,4 @@
-import { ReleasesHub } from "@/components/views/releases-hub"
+import { Home } from "@/components/views/home"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { supabaseAdmin } from "@/lib/supabase-admin"
@@ -9,7 +9,7 @@ export default async function HomePage() {
   // If they've paid, let them in without further checks
   const supporter = cookieStore.get("supporter")?.value === "1"
   if (supporter) {
-    return <ReleasesHub />
+    return <Home />
   }
 
   // Otherwise they must have passed the email gate
@@ -39,5 +39,5 @@ export default async function HomePage() {
   }
 
   // Passed both checks
-  return <ReleasesHub />
+  return <Home />
 }
