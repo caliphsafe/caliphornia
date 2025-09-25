@@ -7,6 +7,7 @@ import { AlbumCover } from "@/components/patterns/album-cover"
 import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { ActivityFeed } from "@/components/patterns/activity-feed"
+import { MusicPlayer } from "@/components/patterns/music-player"
 
 // ⬇️ NEW: dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
@@ -24,7 +25,7 @@ export function BuyView() {
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [customAmountError, setCustomAmountError] = useState("")
-  const { isPlayerVisible, currentSong } = useMusicPlayer()
+  const { isPlayerVisible, currentSong, playTrack } = useMusicPlayer()
 
   // ⬇️ REVERTED: remove $100, cap at $50
   const presetAmounts = [5, 10, 25, 50]
@@ -53,7 +54,9 @@ export function BuyView() {
   useEffect(() => {
     if (isSheetOpen) document.body.style.overflow = "hidden"
     else document.body.style.overflow = "unset"
-    return () => { document.body.style.overflow = "unset" }
+    return () => {
+      document.body.style.overflow = "unset"
+    }
   }, [isSheetOpen])
 
   const isPlayerActive = isPlayerVisible && currentSong !== null
@@ -70,7 +73,10 @@ export function BuyView() {
     }
     load()
     const id = setInterval(load, 15000)
-    return () => { canceled = true; clearInterval(id) }
+    return () => {
+      canceled = true
+      clearInterval(id)
+    }
   }, [])
 
   const dollars = (cents: number) => Math.round(cents / 100).toString()
@@ -95,8 +101,20 @@ export function BuyView() {
     )}`
   }
 
+  // ⬇️ NEW: Full-song play handler (update src/title/cover if needed)
+  const handlePlayFull = () => {
+    playTrack({
+      src: "/full/polygamy.mp3", // full song URL (Supabase/Firebase/asset)
+      title: "POLYGAMY (Prod. by Caliph)",
+      cover: "/polygamy-cover.png",
+    })
+  }
+
   return (
-    <div className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`} style={{ backgroundColor: "#f3f2ee" }}>
+    <div
+      className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`}
+      style={{ backgroundColor: "#f3f2ee" }}
+    >
       {/* Header (centered, no back button) */}
       <div className="flex items-center justify-center mb-0">
         <Header />
@@ -117,6 +135,17 @@ export function BuyView() {
             WHAT DO I GET?
           </button>
         </div>
+      </div>
+
+      {/* ⬇️ NEW: Play Full Song (mirrors Home behavior, but plays full track here) */}
+      <div className="mt-3 md:mt-4 flex justify-center">
+        <button
+          onClick={handlePlayFull}
+          className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 font-semibold text-white rounded-none"
+          style={{ backgroundColor: "#4a3f35" }}
+        >
+          ▶︎ Play Full Song
+        </button>
       </div>
 
       {/* Price / Progress Display */}
@@ -209,7 +238,7 @@ export function BuyView() {
             {/* $5 — Supporter */}
             <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
+                <h3 className="text-sm md:text-base font-semibold text:black">Supporter</h3>
                 <span
                   className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
                   style={{ backgroundColor: "#4a3f35" }}
@@ -224,7 +253,7 @@ export function BuyView() {
             </div>
 
             {/* $10 — Fan */}
-            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+            <div className="rounded-xl border border-[#B8A082]/70 bg:white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
                 <span
@@ -276,6 +305,9 @@ export function BuyView() {
           </div>
         </div>
       </Sheet>
+
+      {/* Global Music Player (same component used on Home) */}
+      <MusicPlayer />
     </div>
   )
 }
