@@ -118,7 +118,14 @@ export function BuyView() {
       <div className="max-w-[640px] mx-auto">
         <HomeAlbumDisplay />
       </div>
-
+<div className="max-w-[640px] mx-auto mt-3 md:mt-4 flex justify-center">
+  <button
+    onClick={handleWhatDoIGetClick}
+    className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
+  >
+    WHAT DO I GET?
+  </button>
+</div>
       {/* Price / Progress Display */}
       <div className="text-center mb-5 md:mb-8">
         <div
