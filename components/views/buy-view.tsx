@@ -8,8 +8,9 @@ import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { ActivityFeed } from "@/components/patterns/activity-feed"
 import { MusicPlayer } from "@/components/patterns/music-player"
+import { PlayIcon } from "@heroicons/react/24/solid"
 
-// ⬇️ NEW: dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
+// ⬇️ Dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
 
 type Goal = {
@@ -84,7 +85,7 @@ export function BuyView() {
   const handleCheckout = () => {
     const amt = getFinalAmount()
 
-    // ⬇️ NEW: Dev unlock path — if the custom amount EXACTLY equals the secret amount, skip Stripe
+    // ⬇️ Dev unlock path — if the custom amount EXACTLY equals the secret amount, skip Stripe
     if (DEV_UNLOCK_AMOUNT > 0 && customAmount && Number(customAmount) === DEV_UNLOCK_AMOUNT) {
       // Set supporter cookie for 1 year and go to /download
       document.cookie = "supporter=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
@@ -101,11 +102,12 @@ export function BuyView() {
     )}`
   }
 
-  // ⬇️ NEW: Full-song play handler (update src/title/cover if needed)
+  // ⬇️ Play full-song (same behavior as home, but using full track)
   const handlePlayFull = () => {
     playTrack({
-      src: "/full/polygamy.mp3", // full song URL (Supabase/Firebase/asset)
-      title: "POLYGAMY (Prod. by Caliph)",
+      src: "/full/polygamy.mp3", // FULL song URL (Supabase/Firebase/asset)
+      title: "POLYGAMY",
+      artist: "Caliph",          // if your player shows artist; safe to include
       cover: "/polygamy-cover.png",
     })
   }
@@ -120,11 +122,11 @@ export function BuyView() {
         <Header />
       </div>
 
-      {/* Accessible title only (no visual heading) */}
+      {/* Accessible title only */}
       <h1 className="sr-only">POLYGAMY</h1>
 
       {/* Album */}
-      <div className="relative mb-4 md:mb-8">
+      <div className="relative mb-3 md:mb-4">
         <AlbumCover />
         {/* What Do I Get Button Overlay */}
         <div className="absolute bottom-4 md:bottom-10 left-1/2 transform -translate-x-1/2 z-20">
@@ -137,20 +139,38 @@ export function BuyView() {
         </div>
       </div>
 
-      {/* ⬇️ NEW: Play Full Song (mirrors Home behavior, but plays full track here) */}
-      <div className="mt-3 md:mt-4 flex justify-center">
-        <button
-          onClick={handlePlayFull}
-          className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 font-semibold text-white rounded-none"
-          style={{ backgroundColor: "#4a3f35" }}
+      {/* === Play Row (match /home layout: left text, right small play icon) === */}
+      <div className="max-w-[640px] mx-auto mb-4 md:mb-6">
+        <div
+          className="flex items-center justify-between px-4 py-3 md:px-5 md:py-3 rounded-lg border border-[#B8A082]/70 bg-white/70 backdrop-blur-sm"
         >
-          ▶︎ Play Full Song
-        </button>
+          {/* Left: title + artist (tight, like home) */}
+          <div className="min-w-0">
+            <div className="text-sm md:text-base font-extrabold text-black leading-tight truncate">
+              POLYGAMY
+            </div>
+            <div className="text-[11px] md:text-xs font-medium" style={{ color: "#4a3f35" }}>
+              Caliph
+            </div>
+          </div>
+
+          {/* Right: small circular play icon */}
+          <button
+            onClick={handlePlayFull}
+            aria-label="Play full song"
+            className="shrink-0 inline-flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#B8A082] bg-[#4a3f35] text-white hover:opacity-90 transition"
+          >
+            <PlayIcon className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Price / Progress Display */}
       <div className="text-center mb-5 md:mb-8">
-        <div className="px-4 py-3 md:p-4 max-w-[640px] mx-auto" style={{ background: "rgba(212, 211, 196, 0.70)" }}>
+        <div
+          className="px-4 py-3 md:p-4 max-w-[640px] mx-auto"
+          style={{ background: "rgba(212, 211, 196, 0.70)" }}
+        >
           <div className="text-4xl md:text-5xl font-bold text-black mb-2 md:mb-4 leading-none">
             {goal ? `$${dollars(goal.remaining_cents)}` : "$99"}
           </div>
@@ -160,7 +180,7 @@ export function BuyView() {
         </div>
       </div>
 
-      {/* ⬇️ REVERTED: 4 preset buttons */}
+      {/* Preset amounts */}
       <div className="grid grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
         {presetAmounts.map((amount) => (
           <button
@@ -177,14 +197,17 @@ export function BuyView() {
         ))}
       </div>
 
-      {/* Custom Amount Section */}
+      {/* Custom Amount */}
       <div className="mb-6 md:mb-8 max-w-[640px] mx-auto">
-        <label className="block text-xs md:text-sm font-medium mb-2 md:mb-3" style={{ color: "#867260" }}>
+        <label
+          className="block text-xs md:text-sm font-medium mb-2 md:mb-3"
+          style={{ color: "#867260" }}
+        >
           CUSTOM AMOUNT
         </label>
         <div className="relative">
           <span
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-xl md:text-2xl font-bold"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-xl md:text-2xl font-bold"
             style={{ color: "#4a3f35" }}
           >
             $
@@ -201,10 +224,12 @@ export function BuyView() {
             style={{ color: "#4a3f35" }}
           />
         </div>
-        {customAmountError && <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>}
+        {customAmountError && (
+          <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>
+        )}
       </div>
 
-      {/* Checkout Button */}
+      {/* Checkout */}
       <div className="max-w-[640px] mx-auto">
         <Button
           variant="primary"
@@ -227,7 +252,6 @@ export function BuyView() {
       <Sheet
         isOpen={isSheetOpen}
         onClose={handleCloseSheet}
-        /* Hard cap: 2/3 of the viewport width on all screens */
         panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] w-[66vw] max-w-[66vw] mx-auto"
       >
         <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
@@ -238,7 +262,7 @@ export function BuyView() {
             {/* $5 — Supporter */}
             <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-sm md:text-base font-semibold text:black">Supporter</h3>
+                <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
                 <span
                   className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
                   style={{ backgroundColor: "#4a3f35" }}
@@ -253,7 +277,7 @@ export function BuyView() {
             </div>
 
             {/* $10 — Fan */}
-            <div className="rounded-xl border border-[#B8A082]/70 bg:white/60 p-3 md:p-4">
+            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
                 <span
