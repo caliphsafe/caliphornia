@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/primitives/button"
 import { Header } from "@/components/patterns/header"
-import { AlbumCover } from "@/components/patterns/album-cover"
 import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { ActivityFeed } from "@/components/patterns/activity-feed"
 import { MusicPlayer } from "@/components/patterns/music-player"
-import { PlayIcon } from "@heroicons/react/24/solid"
+import { HomeAlbumDisplay } from "@/components/patterns/home-album-display"
 
 // ⬇️ Dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
@@ -26,7 +25,7 @@ export function BuyView() {
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [customAmountError, setCustomAmountError] = useState("")
-  const { isPlayerVisible, currentSong, playTrack } = useMusicPlayer()
+  const { isPlayerVisible, currentSong } = useMusicPlayer()
 
   // ⬇️ REVERTED: remove $100, cap at $50
   const presetAmounts = [5, 10, 25, 50]
@@ -102,16 +101,6 @@ export function BuyView() {
     )}`
   }
 
-  // ⬇️ Play full-song (same behavior as home, but using full track)
-  const handlePlayFull = () => {
-    playTrack({
-      src: "/full/polygamy.mp3", // FULL song URL (Supabase/Firebase/asset)
-      title: "POLYGAMY",
-      artist: "Caliph",          // if your player shows artist; safe to include
-      cover: "/polygamy-cover.png",
-    })
-  }
-
   return (
     <div
       className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`}
@@ -125,44 +114,9 @@ export function BuyView() {
       {/* Accessible title only */}
       <h1 className="sr-only">POLYGAMY</h1>
 
-      {/* Album */}
-      <div className="relative mb-3 md:mb-4">
-        <AlbumCover />
-        {/* What Do I Get Button Overlay */}
-        <div className="absolute bottom-4 md:bottom-10 left-1/2 transform -translate-x-1/2 z-20">
-          <button
-            onClick={handleWhatDoIGetClick}
-            className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
-          >
-            WHAT DO I GET?
-          </button>
-        </div>
-      </div>
-
-      {/* === Play Row (match /home layout: left text, right small play icon) === */}
-      <div className="max-w-[640px] mx-auto mb-4 md:mb-6">
-        <div
-          className="flex items-center justify-between px-4 py-3 md:px-5 md:py-3 rounded-lg border border-[#B8A082]/70 bg-white/70 backdrop-blur-sm"
-        >
-          {/* Left: title + artist (tight, like home) */}
-          <div className="min-w-0">
-            <div className="text-sm md:text-base font-extrabold text-black leading-tight truncate">
-              POLYGAMY
-            </div>
-            <div className="text-[11px] md:text-xs font-medium" style={{ color: "#4a3f35" }}>
-              Caliph
-            </div>
-          </div>
-
-          {/* Right: small circular play icon */}
-          <button
-            onClick={handlePlayFull}
-            aria-label="Play full song"
-            className="shrink-0 inline-flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#B8A082] bg-[#4a3f35] text-white hover:opacity-90 transition"
-          >
-            <PlayIcon className="w-4 h-4 md:w-5 md:h-5" />
-          </button>
-        </div>
+      {/* EXACT SAME PLAY EXPERIENCE AS /home */}
+      <div className="max-w-[640px] mx-auto">
+        <HomeAlbumDisplay />
       </div>
 
       {/* Price / Progress Display */}
@@ -243,7 +197,7 @@ export function BuyView() {
         </Button>
       </div>
 
-      {/* Activity Feed */}
+      {/* Activity Feed (keep, just like /home under the album display) */}
       <div className="max-w-[640px] mx-auto mt-6 md:mt-10">
         <ActivityFeed />
       </div>
