@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
 
   if (isKnown) {
     const url = req.nextUrl.clone()
-    url.pathname = "/home"
+    url.pathname = "/releases"
     return NextResponse.redirect(url)
   }
 
