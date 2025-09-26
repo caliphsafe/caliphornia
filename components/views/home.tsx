@@ -241,7 +241,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
 
           <div className="px-4 pb-3 flex items-center gap-3">
             <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-[#B8A082] shadow">
-              <Image src={release.cover} alt={`${release.title} cover`} fill className="object-cover" />
+             <Image src={release.cover} alt={`${release.title} cover`} fill sizes="56px" className="object-cover"/>
             </div>
             <div className="min-w-0">
               <h3 className="text-base font-bold text-black truncate">{release.title}</h3>
