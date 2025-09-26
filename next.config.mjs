@@ -9,6 +9,22 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+
+  async redirects() {
+    return [
+      // Force old releases route(s) to /home on all devices
+      {
+        source: "/releases",
+        destination: "/home",
+        permanent: true,
+      },
+      {
+        source: "/releases/:path*",
+        destination: "/home",
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig
