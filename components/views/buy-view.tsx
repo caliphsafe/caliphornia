@@ -136,7 +136,12 @@ export function BuyView() {
             {fullSong.artist.toUpperCase()}
           </p>
         </div>
-        <PlayButton song={fullSong} />
+
+        {/* ⬇️ Only change: force the full-track URL */}
+        <PlayButton
+          song={fullSong}
+          src="/full/polygamy.mp3" // <-- replace with the real full-track URL if different
+        />
       </div>
 
       {/* "What Do I Get?" button */}
@@ -296,7 +301,7 @@ export function BuyView() {
 
             {/* $50 — Legend */}
             <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
-              <div className="flex items-baseline justify-between gap-3">
+              <div className="flex items-baseline justify_between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text_black">Legend</h3>
                 <span
                   className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white"
