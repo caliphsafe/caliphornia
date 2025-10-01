@@ -1,58 +1,56 @@
+// components/patterns/play-button.tsx
 "use client"
 
-import type React from "react"
-import { forwardRef } from "react"
-import { cn } from "@/lib/utils"
 import { useMusicPlayer } from "@/contexts/music-player-context"
-import { PlayIcon, PauseIcon } from "@heroicons/react/24/solid"
+// ...other imports...
 
-interface PlayButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string
-  song?: {
-    id: string
-    title: string
-    artist: string
-    albumCover: string
-    audioUrl?: string
-  }
+type Song = {
+  id: string
+  title: string
+  artist: string
+  albumCover?: string
 }
 
-const PlayButton = forwardRef<HTMLButtonElement, PlayButtonProps>(({ className, song, ...props }, ref) => {
-  const { currentSong, isPlaying, playSong, togglePlayPause } = useMusicPlayer()
+type PlayButtonProps = {
+  song: Song
+  /** Optional: force a specific audio URL (e.g., full track) instead of the registry/preview lookup */
+  src?: string
+}
+
+export function PlayButton({ song, src }: PlayButtonProps) {
+  const { playTrack, seek /* if seek isn't exposed, remove this line */, isPlaying, currentSong } = useMusicPlayer()
 
   const handleClick = () => {
-    if (song) {
-      if (currentSong?.id === song.id) {
-        // If same song is playing, toggle play/pause
-        togglePlayPause()
-      } else {
-        // If different song or no song playing, play new song
-        playSong(song)
-      }
-    }
+    // If you have a registry lookup inside playTrack, this explicit `src` will override it.
+    playTrack({
+      id: song.id,
+      title: song.title,
+      artist: song.artist,
+      cover: song.albumCover,
+      // ⬇️ THIS is the important part: force the full track on /buy
+      src, // if undefined, existing behavior remains the same
+    })
+
+    // If your context exposes `seek`, reset to start so it doesn't jump mid-song.
+    // Safe no-op if `seek` is available; otherwise remove.
+    try {
+      if (typeof seek === "function") seek(0)
+    } catch {}
   }
 
-  const isCurrentlyPlaying = currentSong?.id === song?.id && isPlaying
+  const isThisSong = currentSong?.id === song.id
+  const playing = isThisSong && isPlaying
 
   return (
     <button
-      className={cn(
-        "w-10 h-10 hover:opacity-70 transition-opacity flex items-center justify-center cursor-pointer",
-        className,
-      )}
-      ref={ref}
+      aria-label={playing ? "Pause" : "Play"}
       onClick={handleClick}
-      {...props}
+      className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#B8A082] bg-[#4a3f35] text-white hover:opacity-90 transition"
     >
-      {isCurrentlyPlaying ? (
-        <PauseIcon className="w-6 h-6 text-[#9f8b79]" />
-      ) : (
-        <PlayIcon className="w-6 h-6 text-[#9f8b79]" />
-      )}
+      {/* your icon(s) exactly as you have them */}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M8 5v14l11-7z" />
+      </svg>
     </button>
   )
-})
-
-PlayButton.displayName = "PlayButton"
-
-export { PlayButton }
+}
