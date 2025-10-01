@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/primitives/button"
 import { Header } from "@/components/patterns/header"
 import { Sheet } from "@/components/patterns/sheet"
@@ -25,7 +25,7 @@ export function BuyView() {
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [customAmountError, setCustomAmountError] = useState("")
-  const { isPlayerVisible, currentSong } = useMusicPlayer()
+  const { isPlayerVisible, currentSong, playTrack } = useMusicPlayer()
 
   // ⬇️ REVERTED: remove $100, cap at $50
   const presetAmounts = [5, 10, 25, 50]
@@ -101,6 +101,34 @@ export function BuyView() {
     )}`
   }
 
+  /**
+   * 🔊 Force full-song playback on /buy
+   * - Keeps the exact Home UI (HomeAlbumDisplay)
+   * - If that component triggers a 30s preview, we immediately swap it to the full track here.
+   * - Runs once per first play to avoid loops.
+   */
+  const swappedRef = useRef(false)
+  useEffect(() => {
+    const FULL_TRACK = {
+      src: "/full/polygamy.mp3", // <-- put the full track URL here
+      title: "POLYGAMY",
+      artist: "Caliph",
+      cover: "/polygamy-cover.png",
+    }
+
+    if (!currentSong) return
+    if (swappedRef.current) return
+
+    // If the current song is POLYGAMY but not the full-track src, replace it
+    const isPolygamy = (currentSong.title || "").toUpperCase() === "POLYGAMY"
+    const isAlreadyFull = currentSong.src === FULL_TRACK.src
+
+    if (isPolygamy && !isAlreadyFull) {
+      swappedRef.current = true
+      playTrack(FULL_TRACK)
+    }
+  }, [currentSong, playTrack])
+
   return (
     <div
       className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`}
@@ -114,18 +142,21 @@ export function BuyView() {
       {/* Accessible title only */}
       <h1 className="sr-only">POLYGAMY</h1>
 
-      {/* EXACT SAME PLAY EXPERIENCE AS /home */}
+      {/* EXACT SAME PLAY EXPERIENCE AS /home (UI) */}
       <div className="max-w-[640px] mx-auto">
         <HomeAlbumDisplay />
       </div>
-<div className="max-w-[640px] mx-auto mt-3 md:mt-4 flex justify-center">
-  <button
-    onClick={handleWhatDoIGetClick}
-    className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
-  >
-    WHAT DO I GET?
-  </button>
-</div>
+
+      {/* "What Do I Get?" button (centered) */}
+      <div className="max-w-[640px] mx-auto mt-3 md:mt-4 flex justify-center">
+        <button
+          onClick={handleWhatDoIGetClick}
+          className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
+        >
+          WHAT DO I GET?
+        </button>
+      </div>
+
       {/* Price / Progress Display */}
       <div className="text-center mb-5 md:mb-8">
         <div
