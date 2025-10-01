@@ -25,7 +25,7 @@ type PreviousRelease = {
 }
 
 const DROPS: Drop[] = [
-  { slug: "/home", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
+  { slug: "/buy", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
   { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
   { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
@@ -320,9 +320,9 @@ function FeaturedCard({ live }: { live: Drop }) {
           <Grain />
 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* padded square cover that links to /home */}
+            {/* padded square cover that links to /buy */}
             <div className="p-3 md:p-5">
-              <Link href="/home" className="block">
+              <Link href="/buy" className="block">
                 <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
                   <Image
                     src={live.cover || "/cover-placeholder.png"}
@@ -361,7 +361,7 @@ function FeaturedCard({ live }: { live: Drop }) {
               <div className="mt-4">
                 <Link
                   ref={enterRef as any}
-                  href="/home"
+                  href="/buy"
                   className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
