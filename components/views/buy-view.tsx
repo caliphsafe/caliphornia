@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/primitives/button"
 import { Header } from "@/components/patterns/header"
 import { Sheet } from "@/components/patterns/sheet"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { ActivityFeed } from "@/components/patterns/activity-feed"
 import { MusicPlayer } from "@/components/patterns/music-player"
-import { HomeAlbumDisplay } from "@/components/patterns/home-album-display"
+import { AlbumCover } from "@/components/patterns/album-cover"
+import { PlayButton } from "@/components/patterns/play-button"
 
 // ⬇️ Dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
@@ -25,7 +26,7 @@ export function BuyView() {
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [customAmountError, setCustomAmountError] = useState("")
-  const { isPlayerVisible, currentSong, playTrack } = useMusicPlayer()
+  const { isPlayerVisible, currentSong } = useMusicPlayer()
 
   // ⬇️ REVERTED: remove $100, cap at $50
   const presetAmounts = [5, 10, 25, 50]
@@ -101,33 +102,13 @@ export function BuyView() {
     )}`
   }
 
-  /**
-   * 🔊 Force full-song playback on /buy
-   * - Keeps the exact Home UI (HomeAlbumDisplay)
-   * - If that component triggers a 30s preview, we immediately swap it to the full track here.
-   * - Runs once per first play to avoid loops.
-   */
-  const swappedRef = useRef(false)
-  useEffect(() => {
-    const FULL_TRACK = {
-      src: "/full/polygamy.mp3", // <-- put the full track URL here
-      title: "POLYGAMY",
-      artist: "Caliph",
-      cover: "/polygamy-cover.png",
-    }
-
-    if (!currentSong) return
-    if (swappedRef.current) return
-
-    // If the current song is POLYGAMY but not the full-track src, replace it
-    const isPolygamy = (currentSong.title || "").toUpperCase() === "POLYGAMY"
-    const isAlreadyFull = currentSong.src === FULL_TRACK.src
-
-    if (isPolygamy && !isAlreadyFull) {
-      swappedRef.current = true
-      playTrack(FULL_TRACK)
-    }
-  }, [currentSong, playTrack])
+  // 🔊 Full-song object (same shape used on Download page)
+  const fullSong = {
+    id: "polygamy-caliph",
+    title: "Polygamy (Prod. By Caliph)",
+    artist: "Caliph",
+    albumCover: "/polygamy-cover.png",
+  }
 
   return (
     <div
@@ -142,16 +123,27 @@ export function BuyView() {
       {/* Accessible title only */}
       <h1 className="sr-only">POLYGAMY</h1>
 
-      {/* EXACT SAME PLAY EXPERIENCE AS /home (UI) */}
-      <div className="max-w-[640px] mx-auto">
-        <HomeAlbumDisplay />
+      {/* Album Cover (same as Download page) */}
+      <div className="mb-4 md:mb-6">
+        <AlbumCover />
       </div>
 
-      {/* "What Do I Get?" button (centered) */}
-      <div className="max-w-[640px] mx-auto mt-3 md:mt-4 flex justify-center">
+      {/* Song Info with Play Button (IDENTICAL approach to DownloadView) */}
+      <div className="flex items-center justify-between mb-6 max-w-[640px] mx-auto">
+        <div>
+          <h2 className="text-xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h2>
+          <p className="text-xl" style={{ color: "#9f8b79" }}>
+            {fullSong.artist.toUpperCase()}
+          </p>
+        </div>
+        <PlayButton song={fullSong} />
+      </div>
+
+      {/* "What Do I Get?" button */}
+      <div className="max-w-[640px] mx-auto mb-6 md:mb-8 flex justify-center">
         <button
           onClick={handleWhatDoIGetClick}
-          className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
+          className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg_white transition-colors whitespace-nowrap cursor-pointer"
         >
           WHAT DO I GET?
         </button>
@@ -235,7 +227,7 @@ export function BuyView() {
         </Button>
       </div>
 
-      {/* Activity Feed (keep, just like /home under the album display) */}
+      {/* Activity Feed */}
       <div className="max-w-[640px] mx-auto mt-6 md:mt-10">
         <ActivityFeed />
       </div>
@@ -247,7 +239,7 @@ export function BuyView() {
         panelClassName="rounded-t-3xl border border-[#B8A082] shadow-[0_-8px_24px_rgba(0,0,0,0.25)] bg-[#F3F2EE] w-[66vw] max-w-[66vw] mx-auto"
       >
         <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
-          <h2 className="text-lg md:text-2xl font-bold text-black mb-4 md:mb-6">What Do You Get?</h2>
+          <h2 className="text-lg md:text-2xl font-bold text_black mb-4 md:mb-6">What Do You Get?</h2>
 
           {/* 2×2 menu grid */}
           <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
@@ -286,11 +278,11 @@ export function BuyView() {
             </div>
 
             {/* $25 — Superfan */}
-            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+            <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-sm md:text-base font-semibold text-black">Superfan</h3>
+                <h3 className="text-sm md:text-base font-semibold text_black">Superfan</h3>
                 <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   $25
@@ -303,11 +295,11 @@ export function BuyView() {
             </div>
 
             {/* $50 — Legend */}
-            <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
+            <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-sm md:text-base font-semibold text-black">Legend</h3>
+                <h3 className="text-sm md:text-base font-semibold text_black">Legend</h3>
                 <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
+                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   $50
@@ -322,7 +314,7 @@ export function BuyView() {
         </div>
       </Sheet>
 
-      {/* Global Music Player (same component used on Home) */}
+      {/* Global Music Player (same component used across pages) */}
       <MusicPlayer />
     </div>
   )
