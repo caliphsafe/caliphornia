@@ -12,15 +12,15 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // Force old releases route(s) to /home on all devices
+      // Force old /home route(s) to /releases on all devices
       {
-        source: "/releases",
-        destination: "/home",
+        source: "/home",
+        destination: "/releases",
         permanent: true,
       },
       {
-        source: "/releases/:path*",
-        destination: "/home",
+        source: "/home/:path*",
+        destination: "/releases",
         permanent: true,
       },
     ]
