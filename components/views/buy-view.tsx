@@ -136,12 +136,8 @@ export function BuyView() {
             {fullSong.artist.toUpperCase()}
           </p>
         </div>
-
-        {/* ⬇️ Only change: force the full-track URL */}
-        <PlayButton
-          song={fullSong}
-          src="/full/polygamy.mp3" // <-- replace with the real full-track URL if different
-        />
+        {/* Use PlayButton EXACTLY like /download (no extra props) */}
+        <PlayButton song={fullSong} />
       </div>
 
       {/* "What Do I Get?" button */}
