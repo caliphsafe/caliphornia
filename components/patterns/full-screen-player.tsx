@@ -1,13 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import { useRouter, usePathname } from "next/navigation"
 import { useMusicPlayer } from "@/contexts/music-player-context"
 import { PlayIcon, PauseIcon } from "@heroicons/react/24/solid"
 
 export function FullScreenPlayer() {
-  const router = useRouter()
-  const pathname = usePathname()
   const {
     currentSong,
     isPlaying,
@@ -18,11 +15,6 @@ export function FullScreenPlayer() {
     seekTo,
     closeFullScreen,
   } = useMusicPlayer()
-
-  const handleBuyClick = () => {
-    closeFullScreen()
-    router.push("/buy")
-  }
 
   if (!isFullScreenOpen || !currentSong) return null
 
@@ -79,7 +71,7 @@ export function FullScreenPlayer() {
             </div>
           </div>
 
-          {/* Song Info + Unlock (hidden on /download) */}
+          {/* Song Info (Unlock button removed) */}
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <h1 className="text-xl md:text-2xl font-bold text-black truncate">
@@ -89,15 +81,6 @@ export function FullScreenPlayer() {
                 {currentSong.artist}
               </p>
             </div>
-            {pathname !== "/download" && (
-              <button
-                onClick={handleBuyClick}
-                className="px-3 py-1.5 md:px-5 md:py-2 text-white text-sm md:text-base font-semibold hover:opacity-80 shadow-sm"
-                style={{ backgroundColor: "#302822" }}
-              >
-                UNLOCK
-              </button>
-            )}
           </div>
 
           {/* Progress Bar */}
