@@ -233,7 +233,7 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
       <div className="absolute left-0 right-0 bottom-6 md:bottom-10">
         <div className={`mx-auto max-w-xl w-[92%] md:w-[72%] ${glass} rounded-3xl overflow-hidden`}>
           <Grain />
-          <div className="flex items-center justify-end px-3 pt-2 pb-1">
+          <div className="flex items_center justify-end px-3 pt-2 pb-1">
             <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
               <XMarkIcon className="w-6 h-6" />
             </button>
@@ -297,8 +297,12 @@ function TopNav() {
 }
 
 // ---------- Feature Presentation (no parallax, eager hero only) ----------
-function FeaturedCard({ live }: { live: Drop }) {
+function FeaturedCard({ live, supporter = false }: { live: Drop; supporter?: boolean }) {
   const enterRef = useMagnetic()
+
+  // dynamic target + label based on supporter
+  const targetHref = supporter ? "/download" : "/buy"
+  const ctaLabel = supporter ? "Full Access" : "Unlock Song"
 
   return (
     <section
@@ -320,9 +324,9 @@ function FeaturedCard({ live }: { live: Drop }) {
           <Grain />
 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
-            {/* padded square cover that links to /buy */}
+            {/* padded square cover that links to dynamic target */}
             <div className="p-3 md:p-5">
-              <Link href="/buy" className="block">
+              <Link href={targetHref} className="block">
                 <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden">
                   <Image
                     src={live.cover || "/cover-placeholder.png"}
@@ -361,11 +365,11 @@ function FeaturedCard({ live }: { live: Drop }) {
               <div className="mt-4">
                 <Link
                   ref={enterRef as any}
-                  href="/buy"
+                  href={targetHref}
                   className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
-                  Unlock Song
+                  {ctaLabel}
                 </Link>
               </div>
             </div>
@@ -420,7 +424,7 @@ function AboutCaliph() {
         <div className={`relative rounded-2xl overflow-hidden ${glass} backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
-            <div className="relative min-h-[240px] md:min-h-[340px]">
+            <div className="relative min-h_[240px] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
                   src="/caliph-profile.png"
@@ -470,7 +474,7 @@ function AboutCaliph() {
 }
 
 // ---------- Page ----------
-export default function ReleasesHub() {
+export default function ReleasesHub({ supporter = false }: { supporter?: boolean }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
 
@@ -482,7 +486,7 @@ export default function ReleasesHub() {
 
   return (
     <div
-      className="min-h-screen relative overflow-x-hidden"
+      className="min-h-screen relative overflow-x_hidden"
       style={{
         background:
           "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
@@ -506,7 +510,7 @@ export default function ReleasesHub() {
       </header>
 
       {/* HERO */}
-      {live && <FeaturedCard live={live} />}
+      {live && <FeaturedCard live={live} supporter={supporter} />}
 
       {/* NEXT UP — single outline, real inner padding, no vignette */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
