@@ -1,13 +1,13 @@
 "use client"
 
-import { createContext, useContext, useState, useRef, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
 
 interface Song {
   id: string
   title: string
   artist: string
   albumCover: string
-  audioUrl?: string // optional override per song
+  audioUrl?: string // per-song override (optional)
 }
 
 interface MusicPlayerContextType {
@@ -38,7 +38,42 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listenersReadyRef = useRef(false)
 
-  // Wait for metadata helper (for Safari/Chrome reliability)
+  // ---- One-per-session play logger (restored) ----
+  const hasLoggedPlayRef = useRef(false)
+  function logFirstPlayOnce(song?: Song | null) {
+    if (hasLoggedPlayRef.current) return
+    hasLoggedPlayRef.current = true
+
+    try {
+      const payload = {
+        t: Date.now(),
+        page: typeof window !== "undefined" ? window.location.pathname : "",
+        songId: song?.id ?? null,
+        songTitle: song?.title ?? null,
+      }
+      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" })
+      // Prefer sendBeacon for reliability during page transitions
+      if (navigator.sendBeacon && navigator.sendBeacon("/api/activity/play", blob)) {
+        return
+      }
+    } catch {
+      // no-op
+    }
+
+    // Fallback
+    try {
+      fetch("/api/activity/play", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ t: Date.now(), songId: song?.id ?? null }),
+        keepalive: true,
+      }).catch(() => {})
+    } catch {
+      // no-op
+    }
+  }
+
+  // Simple metadata wait to make currentTime/duration reliable (esp. Safari)
   function waitForMetadata(el: HTMLAudioElement, timeoutMs = 1500) {
     if (el.readyState >= 1) return Promise.resolve()
     return new Promise<void>((resolve) => {
@@ -59,17 +94,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  // Track source: per-song override, then env var
-  const resolveSrc = (song?: Song | null) =>
-    song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
-
-  // Default song so toggle works even if no track has been selected yet
-  const DEFAULT_SONG: Song = {
-    id: "default",
-    title: "Track",
-    artist: "Caliph",
-    albumCover: "/placeholder.svg",
-  }
+  const resolveSrc = (song?: Song | null) => song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
 
   function ensureAudio() {
     if (typeof window === "undefined") return null
@@ -82,7 +107,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       el.style.display = "none"
       document.body.appendChild(el)
       audioRef.current = el
-      console.log("[audio] created & appended")
     }
 
     if (audioRef.current && !listenersReadyRef.current) {
@@ -112,8 +136,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
             err?.code === 4 ? "MEDIA_ERR_SRC_NOT_SUPPORTED" :
             "UNKNOWN",
           currentSrc: el.currentSrc,
-          readyState: el.readyState,    // 0..4
-          networkState: el.networkState // 0..3
+          readyState: el.readyState,
+          networkState: el.networkState
         })
       }
 
@@ -128,67 +152,93 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return audioRef.current
   }
 
+  const DEFAULT_SONG: Song = {
+    id: "default",
+    title: "Track",
+    artist: "Caliph",
+    albumCover: "/placeholder.svg",
+  }
+
   const playSong = async (song: Song) => {
     const el = ensureAudio()
     setCurrentSong(song)
     setIsPlayerVisible(true)
 
     const src = resolveSrc(song)
-    console.log("[player] using src:", src)
-
     if (!el || !src) {
-      console.warn("No track URL set. Define NEXT_PUBLIC_TRACK_URL or song.audioUrl.")
+      console.warn("No track URL set. Define NEXT_PUBLIC_TRACK_URL or provide song.audioUrl.")
       setIsPlaying(false)
       return
     }
 
     // Pause before swapping source
     try { el.pause() } catch {}
-    setIsPlaying(false)
 
-    // Rebuild <source> each time
+    // Replace source cleanly
     while (el.firstChild) el.removeChild(el.firstChild)
     const source = document.createElement("source")
     source.src = src
     source.type = "audio/mpeg"
     el.appendChild(source)
 
-    try {
-      el.load()
-      console.log("[audio] after load()", {
-        currentSrc: el.currentSrc,
-        readyState: el.readyState,
-        networkState: el.networkState
-      })
-    } catch {}
+    try { el.load() } catch {}
 
-    // Wait for metadata so seeking / duration are reliable
     await waitForMetadata(el)
 
-    // Always start from the beginning (no preview behavior)
+    // Start from the beginning for full-song behavior
     el.currentTime = 0
     setCurrentTime(0)
 
-    try {
-      await el.play()
-      setIsPlaying(true)
-      console.log("[audio] play() OK")
-    } catch (e: any) {
-      console.warn("[audio] play() failed:", e?.name || e, {
-        readyState: el.readyState,
-        networkState: el.networkState,
-        currentTime: el.currentTime,
-        currentSrc: el.currentSrc,
-      })
-      setIsPlaying(false)
+    // Try to play
+    const tryPlay = async (label: string) => {
+      try {
+        await el.play()
+        setIsPlaying(true)
+        // 🔸 restored: log first play once per page session (works on /buy)
+        logFirstPlayOnce(song)
+        return true
+      } catch (e: any) {
+        console.warn(`[audio] play() failed (${label}):`, e?.name || e, {
+          readyState: el.readyState,
+          networkState: el.networkState,
+          currentTime: el.currentTime,
+          currentSrc: el.currentSrc,
+        })
+        setIsPlaying(false)
+        return false
+      }
     }
+
+    if (await tryPlay("initial")) return
+
+    // Retry once after canplay or short timeout
+    await new Promise<void>((resolve) => {
+      let done = false
+      const onCanPlay = async () => {
+        if (done) return
+        done = true
+        el.removeEventListener("canplay", onCanPlay)
+        el.removeEventListener("canplaythrough", onCanPlay)
+        await tryPlay("canplay")
+        resolve()
+      }
+      el.addEventListener("canplay", onCanPlay, { once: true })
+      el.addEventListener("canplaythrough", onCanPlay, { once: true })
+      setTimeout(async () => {
+        if (done) return
+        done = true
+        el.removeEventListener("canplay", onCanPlay)
+        el.removeEventListener("canplaythrough", onCanPlay)
+        await tryPlay("timeout-300ms")
+        resolve()
+      }, 300)
+    })
   }
 
   const togglePlayPause = async () => {
     const el = ensureAudio()
     if (!el) return
 
-    // If nothing loaded yet, start the default track on first toggle
     if (!currentSong) {
       await playSong(DEFAULT_SONG)
       return
@@ -223,7 +273,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const seekTo = (time: number) => {
     const el = ensureAudio()
     if (!el) return
-
     const max = Number.isFinite(el.duration) ? el.duration : time
     const clamped = Math.max(0, Math.min(time, max))
     el.currentTime = clamped
@@ -251,7 +300,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {/* audio element is appended to <body> for Safari compatibility */}
+      {/* audio element is appended to <body> */}
     </MusicPlayerContext.Provider>
   )
 }
