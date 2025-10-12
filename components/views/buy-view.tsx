@@ -94,8 +94,7 @@ export function BuyView() {
     }
 
     if (!Number.isFinite(amt) || amt < 5) {
-      setCustomAmountError("Minimum amount is $5"
-      )
+      setCustomAmountError("Minimum amount is $5")
       return
     }
     window.location.href = `/api/checkout?amount=${encodeURIComponent(amt)}&label=${encodeURIComponent(
@@ -103,16 +102,12 @@ export function BuyView() {
     )}`
   }
 
-  // 🔊 Full-song object (force full track by giving a unique id + explicit audioUrl)
-  // ⬇️ REPLACE this with the exact URL you use on /download for the full track:
-  const FULL_TRACK_URL = "/audio/polygamy-full.mp3"
-
+  // 🔊 Use the EXACT same song object as /download
   const fullSong = {
-    id: "polygamy-caliph-full",            // unique id so it doesn't resume preview position
+    id: "polygamy-caliph",
     title: "Polygamy (Prod. By Caliph)",
     artist: "Caliph",
     albumCover: "/polygamy-cover.png",
-    audioUrl: FULL_TRACK_URL,              // <-- forces full song instead of preview lookup
   }
 
   return (
@@ -133,15 +128,14 @@ export function BuyView() {
         <AlbumCover />
       </div>
 
-      {/* Song Info with Play Button (IDENTICAL approach to DownloadView) */}
-      <div className="flex items-center justify-between mb-6 max-w-[640px] mx-auto">
+      {/* Song Info with Play Button (mirrors DownloadView exactly) */}
+      <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
         <div>
-          <h2 className="text-xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h2>
+          <h1 className="text-xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
           <p className="text-xl" style={{ color: "#9f8b79" }}>
             {fullSong.artist.toUpperCase()}
           </p>
         </div>
-        {/* Use PlayButton EXACTLY like /download (now with explicit full audioUrl on the song object) */}
         <PlayButton song={fullSong} />
       </div>
 
