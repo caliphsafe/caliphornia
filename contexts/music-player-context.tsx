@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
+import { createContext, useContext, useState, useRef, type ReactNode } from "react"
 
 interface Song {
   id: string
@@ -38,9 +38,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listenersReadyRef = useRef(false)
 
-  // NEW: suppression & metadata helpers to avoid AbortError loops on Safari/Chrome
-  const suppressPauseUntilRef = useRef<number>(0)
-  const metadataReadyRef = useRef<Promise<void> | null>(null)
+  // Wait for metadata helper (for Safari/Chrome reliability)
   function waitForMetadata(el: HTMLAudioElement, timeoutMs = 1500) {
     if (el.readyState >= 1) return Promise.resolve()
     return new Promise<void>((resolve) => {
@@ -61,17 +59,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  // Paid users unlock full track
-  const isSupporter =
-    typeof document !== "undefined" && document.cookie.includes("supporter=1")
-
-  // Preview window (env-configurable)
-  const PREVIEW_START =
-    Number(process.env.NEXT_PUBLIC_PREVIEW_START_SECONDS ?? "0") || 0
-  const PREVIEW_LEN =
-    Number(process.env.NEXT_PUBLIC_PREVIEW_DURATION_SECONDS ?? "30") || 30
-  const PREVIEW_END = PREVIEW_START + PREVIEW_LEN
-
   // Track source: per-song override, then env var
   const resolveSrc = (song?: Song | null) =>
     song?.audioUrl || process.env.NEXT_PUBLIC_TRACK_URL
@@ -79,7 +66,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   // Default song so toggle works even if no track has been selected yet
   const DEFAULT_SONG: Song = {
     id: "default",
-    title: "Preview",
+    title: "Track",
     artist: "Caliph",
     albumCover: "/placeholder.svg",
   }
@@ -90,7 +77,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (!audioRef.current) {
       const el = document.createElement("audio")
       el.preload = "metadata"
-      // IMPORTANT: do NOT set crossOrigin here; many hosts don't send CORS headers for audio
       el.playsInline = true
       el.controls = false
       el.style.display = "none"
@@ -104,33 +90,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
       const onLoadedMetadata = () => {
         setDuration(Number.isFinite(el.duration) ? el.duration : 0)
-        if (!isSupporter) {
-          try {
-            const start = Math.min(PREVIEW_START, Math.max(0, (el.duration || 0) - 0.5))
-            el.currentTime = start
-            setCurrentTime(start)
-          } catch {}
-        }
       }
 
       const onTimeUpdate = () => {
         setCurrentTime(el.currentTime)
-        if (!isSupporter) {
-          // brief suppression after starting so we don't immediately pause
-          if (Date.now() < suppressPauseUntilRef.current) return
-
-          if (el.currentTime < PREVIEW_START) {
-            el.currentTime = PREVIEW_START
-            return
-          }
-          if (el.currentTime >= PREVIEW_END) {
-            el.pause()
-            el.currentTime = PREVIEW_START
-            setIsPlaying(false)
-            setCurrentTime(PREVIEW_START)
-            return
-          }
-        }
       }
 
       const onEnded = () => {
@@ -165,28 +128,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     return audioRef.current
   }
 
-  // 🔹 NEW: log a supporter "play" once per page session, immediately on start
-  const hasLoggedSupporterPlayRef = useRef(false)
-  function logSupporterPlayOnce() {
-    if (hasLoggedSupporterPlayRef.current) return
-    hasLoggedSupporterPlayRef.current = true
-
-    try {
-      // sendBeacon with a tiny JSON body tends to be more reliable across browsers
-      const blob = new Blob([JSON.stringify({ t: Date.now() })], { type: "application/json" })
-      if (navigator.sendBeacon && navigator.sendBeacon("/api/activity/play", blob)) {
-        console.log("[activity] supporter play logged via beacon")
-        return
-      }
-    } catch {}
-
-    // Fallback if sendBeacon not available
-    try {
-      fetch("/api/activity/play", { method: "POST", keepalive: true }).catch(() => {})
-    } catch {}
-  }
-
-  // ⬇️ UPDATED: robust start flow with metadata wait + retries + immediate supporter log
   const playSong = async (song: Song) => {
     const el = ensureAudio()
     setCurrentSong(song)
@@ -201,11 +142,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // 1) Pause before source swap to avoid aborting an in-flight play()
+    // Pause before swapping source
     try { el.pause() } catch {}
     setIsPlaying(false)
 
-    // 2) Rebuild <source> so the browser re-evaluates MIME/type fresh each time
+    // Rebuild <source> each time
     while (el.firstChild) el.removeChild(el.firstChild)
     const source = document.createElement("source")
     source.src = src
@@ -221,74 +162,26 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       })
     } catch {}
 
-    // 3) Wait for metadata so currentTime sticks (esp. Safari)
-    metadataReadyRef.current = waitForMetadata(el)
-    await metadataReadyRef.current
+    // Wait for metadata so seeking / duration are reliable
+    await waitForMetadata(el)
 
-    // Clamp preview start to valid range
-    const metaDuration = Number.isFinite(el.duration) ? el.duration : 0
-    const start =
-      !isSupporter
-        ? Math.min(Math.max(0, PREVIEW_START), Math.max(0, metaDuration - 0.5))
-        : 0
+    // Always start from the beginning (no preview behavior)
+    el.currentTime = 0
+    setCurrentTime(0)
 
-    // 4) Position for supporter vs preview window
-    el.currentTime = start
-    setCurrentTime(start)
-
-    // 5) Briefly suppress our preview-pause logic after start
-    suppressPauseUntilRef.current = Date.now() + 700
-
-    // Helper to try playing and update state (logs supporter play on success)
-    const tryPlay = async (label: string) => {
-      try {
-        await el.play()
-        console.log(`[audio] play() OK (${label})`)
-        setIsPlaying(true)
-
-        // 🔸 log immediately for supporters (once per session)
-        if (isSupporter) logSupporterPlayOnce()
-
-        return true
-      } catch (e: any) {
-        console.warn(`[audio] play() failed (${label}):`, e?.name || e, {
-          readyState: el.readyState,
-          networkState: el.networkState,
-          currentTime: el.currentTime,
-          currentSrc: el.currentSrc,
-        })
-        setIsPlaying(false)
-        return false
-      }
+    try {
+      await el.play()
+      setIsPlaying(true)
+      console.log("[audio] play() OK")
+    } catch (e: any) {
+      console.warn("[audio] play() failed:", e?.name || e, {
+        readyState: el.readyState,
+        networkState: el.networkState,
+        currentTime: el.currentTime,
+        currentSrc: el.currentSrc,
+      })
+      setIsPlaying(false)
     }
-
-    // 6) First attempt (user gesture path)
-    if (await tryPlay("initial")) return
-
-    // 7) If still paused, wait for 'canplay' and try again
-    await new Promise<void>((resolve) => {
-      let done = false
-      const onCanPlay = async () => {
-        if (done) return
-        done = true
-        el.removeEventListener("canplay", onCanPlay)
-        el.removeEventListener("canplaythrough", onCanPlay)
-        await tryPlay("canplay")
-        resolve()
-      }
-      el.addEventListener("canplay", onCanPlay, { once: true })
-      el.addEventListener("canplaythrough", onCanPlay, { once: true })
-
-      // 8) Final tiny fallback retry after 300ms if events never fire
-      setTimeout(async () => {
-        if (done) return
-        done = true
-        el.removeEventListener("canplay", onCanPlay)
-        el.removeEventListener("canplaythrough", onCanPlay)
-        await tryPlay("timeout-300ms")
-        resolve()
-      }, 300)
-    })
   }
 
   const togglePlayPause = async () => {
@@ -302,28 +195,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }
 
     if (el.paused) {
-      if (!isSupporter && (el.currentTime < PREVIEW_START || el.currentTime >= PREVIEW_END)) {
-        el.currentTime = PREVIEW_START
-        setCurrentTime(PREVIEW_START)
-      }
-      // Suppress preview pause for 500ms on (re)start
-      suppressPauseUntilRef.current = Date.now() + 500
       try {
         await el.play()
         setIsPlaying(true)
       } catch (e: any) {
-        if (e?.name === "AbortError") {
-          console.warn("play() aborted (benign). Retrying once…")
-          try {
-            await el.play()
-            setIsPlaying(true)
-            return
-          } catch (e2) {
-            console.warn("Audio play() still blocked:", e2)
-          }
-        } else {
-          console.warn("Audio play() blocked:", e)
-        }
+        console.warn("Audio play() blocked:", e)
         setIsPlaying(false)
       }
     } else {
@@ -347,13 +223,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const seekTo = (time: number) => {
     const el = ensureAudio()
     if (!el) return
-
-    if (!isSupporter) {
-      const clamped = Math.max(PREVIEW_START, Math.min(time, PREVIEW_END - 0.25))
-      el.currentTime = clamped
-      setCurrentTime(clamped)
-      return
-    }
 
     const max = Number.isFinite(el.duration) ? el.duration : time
     const clamped = Math.max(0, Math.min(time, max))
