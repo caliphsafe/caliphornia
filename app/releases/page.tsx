@@ -6,7 +6,7 @@ import ReleasesHub from "@/components/views/releases-hub"
 export default async function ReleasesPage() {
   const cookieStore = cookies()
 
-  // If they've paid, let them straight in
+  // If they've already paid (cookie exists), let them straight in
   const supporter = cookieStore.get("supporter")?.value === "1"
   if (supporter) {
     return <ReleasesHub supporter={true} />
@@ -37,6 +37,25 @@ export default async function ReleasesPage() {
     redirect("/")
   }
 
-  // Passed all checks → show ReleasesHub
+  // ✅ NEW: Check if this email has made a contribution
+  const { data: contribution } = await supabaseAdmin
+    .from("contributions")
+    .select("id")
+    .eq("email", email)
+    .limit(1)
+    .maybeSingle()
+
+  if (contribution) {
+    // ✅ Re-issue supporter cookie for 1 year
+    cookies().set("supporter", "1", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+      secure: true,
+    })
+    return <ReleasesHub supporter={true} />
+  }
+
+  // Passed all checks but no payment yet → show normal view
   return <ReleasesHub supporter={false} />
 }
