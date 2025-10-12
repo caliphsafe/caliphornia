@@ -9,7 +9,7 @@ export default async function ReleasesPage() {
   // If they've paid, let them straight in
   const supporter = cookieStore.get("supporter")?.value === "1"
   if (supporter) {
-    return <ReleasesHub />
+    return <ReleasesHub supporter={true} />
   }
 
   // Otherwise they must have passed the email gate
@@ -38,5 +38,5 @@ export default async function ReleasesPage() {
   }
 
   // Passed all checks → show ReleasesHub
-  return <ReleasesHub />
+  return <ReleasesHub supporter={false} />
 }
