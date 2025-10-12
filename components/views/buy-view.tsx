@@ -94,7 +94,8 @@ export function BuyView() {
     }
 
     if (!Number.isFinite(amt) || amt < 5) {
-      setCustomAmountError("Minimum amount is $5")
+      setCustomAmountError("Minimum amount is $5"
+      )
       return
     }
     window.location.href = `/api/checkout?amount=${encodeURIComponent(amt)}&label=${encodeURIComponent(
@@ -102,12 +103,16 @@ export function BuyView() {
     )}`
   }
 
-  // 🔊 Full-song object (same shape used on Download page)
+  // 🔊 Full-song object (force full track by giving a unique id + explicit audioUrl)
+  // ⬇️ REPLACE this with the exact URL you use on /download for the full track:
+  const FULL_TRACK_URL = "/audio/polygamy-full.mp3"
+
   const fullSong = {
-    id: "polygamy-caliph",
+    id: "polygamy-caliph-full",            // unique id so it doesn't resume preview position
     title: "Polygamy (Prod. By Caliph)",
     artist: "Caliph",
     albumCover: "/polygamy-cover.png",
+    audioUrl: FULL_TRACK_URL,              // <-- forces full song instead of preview lookup
   }
 
   return (
@@ -136,7 +141,7 @@ export function BuyView() {
             {fullSong.artist.toUpperCase()}
           </p>
         </div>
-        {/* Use PlayButton EXACTLY like /download (no extra props) */}
+        {/* Use PlayButton EXACTLY like /download (now with explicit full audioUrl on the song object) */}
         <PlayButton song={fullSong} />
       </div>
 
