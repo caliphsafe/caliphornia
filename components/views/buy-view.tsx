@@ -10,7 +10,6 @@ import { MusicPlayer } from "@/components/patterns/music-player"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { PlayButton } from "@/components/patterns/play-button"
 
-// ⬇️ Dev unlock amount (set NEXT_PUBLIC_DEV_UNLOCK_AMOUNT in Vercel to enable; leave blank/0 to disable)
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
 
 type Goal = {
@@ -28,9 +27,7 @@ export function BuyView() {
   const [customAmountError, setCustomAmountError] = useState("")
   const { isPlayerVisible, currentSong } = useMusicPlayer()
 
-  // ⬇️ REVERTED: remove $100, cap at $50
   const presetAmounts = [5, 10, 25, 50]
-
   const [goal, setGoal] = useState<Goal | null>(null)
 
   const handleAmountSelect = (amount: number) => {
@@ -85,9 +82,7 @@ export function BuyView() {
   const handleCheckout = () => {
     const amt = getFinalAmount()
 
-    // ⬇️ Dev unlock path — if the custom amount EXACTLY equals the secret amount, skip Stripe
     if (DEV_UNLOCK_AMOUNT > 0 && customAmount && Number(customAmount) === DEV_UNLOCK_AMOUNT) {
-      // Set supporter cookie for 1 year and go to /download
       document.cookie = "supporter=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
       window.location.href = "/download"
       return
@@ -102,7 +97,7 @@ export function BuyView() {
     )}`
   }
 
-  // 🔊 Use the EXACT same song object as /download
+  // ⬇️ EXACTLY the same as DownloadView
   const fullSong = {
     id: "polygamy-caliph",
     title: "Polygamy (Prod. By Caliph)",
@@ -115,20 +110,17 @@ export function BuyView() {
       className={`min-h-screen px-5 md:px-6 py-5 md:py-8 ${containerPaddingBottom}`}
       style={{ backgroundColor: "#f3f2ee" }}
     >
-      {/* Header (centered, no back button) */}
       <div className="flex items-center justify-center mb-0">
         <Header />
       </div>
 
-      {/* Accessible title only */}
       <h1 className="sr-only">POLYGAMY</h1>
 
-      {/* Album Cover (same as Download page) */}
       <div className="mb-4 md:mb-6">
         <AlbumCover />
       </div>
 
-      {/* Song Info with Play Button (mirrors DownloadView exactly) */}
+      {/* ⬇️ EXACT COPY of the DownloadView song/CTA block */}
       <div className="flex items-center justify-between mb-8 max-w-[640px] mx-auto">
         <div>
           <h1 className="text-xl font-bold text-black mb-1">{fullSong.title.toUpperCase()}</h1>
@@ -139,7 +131,6 @@ export function BuyView() {
         <PlayButton song={fullSong} />
       </div>
 
-      {/* "What Do I Get?" button */}
       <div className="max-w-[640px] mx-auto mb-6 md:mb-8 flex justify-center">
         <button
           onClick={handleWhatDoIGetClick}
@@ -149,7 +140,6 @@ export function BuyView() {
         </button>
       </div>
 
-      {/* Price / Progress Display */}
       <div className="text-center mb-5 md:mb-8">
         <div
           className="px-4 py-3 md:p-4 max-w-[640px] mx-auto"
@@ -164,7 +154,6 @@ export function BuyView() {
         </div>
       </div>
 
-      {/* Preset amounts */}
       <div className="grid grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8 max-w-[640px] mx-auto">
         {presetAmounts.map((amount) => (
           <button
@@ -181,12 +170,8 @@ export function BuyView() {
         ))}
       </div>
 
-      {/* Custom Amount */}
       <div className="mb-6 md:mb-8 max-w-[640px] mx-auto">
-        <label
-          className="block text-xs md:text-sm font-medium mb-2 md:mb-3"
-          style={{ color: "#867260" }}
-        >
+        <label className="block text-xs md:text-sm font-medium mb-2 md:mb-3" style={{ color: "#867260" }}>
           CUSTOM AMOUNT
         </label>
         <div className="relative">
@@ -208,12 +193,9 @@ export function BuyView() {
             style={{ color: "#4a3f35" }}
           />
         </div>
-        {customAmountError && (
-          <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>
-        )}
+        {customAmountError && <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>}
       </div>
 
-      {/* Checkout */}
       <div className="max-w-[640px] mx-auto">
         <Button
           variant="primary"
@@ -227,12 +209,10 @@ export function BuyView() {
         </Button>
       </div>
 
-      {/* Activity Feed */}
       <div className="max-w-[640px] mx-auto mt-6 md:mt-10">
         <ActivityFeed />
       </div>
 
-      {/* What Do You Get — panel width limited to ~2/3 on desktop */}
       <Sheet
         isOpen={isSheetOpen}
         onClose={handleCloseSheet}
@@ -240,17 +220,11 @@ export function BuyView() {
       >
         <div className="text-center px-4 md:px-5 pt-3 pb-5 max-h-[80vh] overflow-y-auto">
           <h2 className="text-lg md:text-2xl font-bold text_black mb-4 md:mb-6">What Do You Get?</h2>
-
-          {/* 2×2 menu grid */}
           <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
-            {/* $5 — Supporter */}
             <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text-black">Supporter</h3>
-                <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-                  style={{ backgroundColor: "#4a3f35" }}
-                >
+                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white" style={{ backgroundColor: "#4a3f35" }}>
                   $5
                 </span>
               </div>
@@ -260,14 +234,10 @@ export function BuyView() {
               </p>
             </div>
 
-            {/* $10 — Fan */}
             <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
-                <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white"
-                  style={{ backgroundColor: "#4a3f35" }}
-                >
+                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white" style={{ backgroundColor: "#4a3f35" }}>
                   $10
                 </span>
               </div>
@@ -277,14 +247,10 @@ export function BuyView() {
               </p>
             </div>
 
-            {/* $25 — Superfan */}
             <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text_black">Superfan</h3>
-                <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white"
-                  style={{ backgroundColor: "#4a3f35" }}
-                >
+                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white" style={{ backgroundColor: "#4a3f35" }}>
                   $25
                 </span>
               </div>
@@ -294,14 +260,10 @@ export function BuyView() {
               </p>
             </div>
 
-            {/* $50 — Legend */}
             <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
               <div className="flex items-baseline justify_between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text_black">Legend</h3>
-                <span
-                  className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white"
-                  style={{ backgroundColor: "#4a3f35" }}
-                >
+                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white" style={{ backgroundColor: "#4a3f35" }}>
                   $50
                 </span>
               </div>
@@ -314,7 +276,6 @@ export function BuyView() {
         </div>
       </Sheet>
 
-      {/* Global Music Player (same component used across pages) */}
       <MusicPlayer />
     </div>
   )
