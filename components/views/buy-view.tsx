@@ -83,7 +83,10 @@ export function BuyView() {
     const amt = getFinalAmount()
 
     if (DEV_UNLOCK_AMOUNT > 0 && customAmount && Number(customAmount) === DEV_UNLOCK_AMOUNT) {
+      // ✅ Global supporter cookie (legacy)
       document.cookie = "supporter=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
+      // ✅ Per-song supporter cookie for Polygamy
+      document.cookie = "supporter_polygamy=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
       window.location.href = "/download"
       return
     }
