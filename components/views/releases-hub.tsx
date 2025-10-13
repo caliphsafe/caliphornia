@@ -429,9 +429,9 @@ function AboutCaliph() {
       className="mt-4 md:mt-6 px-4 py-4 relative"
       style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.30), rgba(243,242,238,0.7))" }}
     >
-      <div className="pointer-events-none absolute inset-0 flex items_center justify-center">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
-          className="w_[72vw] max-w-[820px] opacity-25 blur-[34px]"
+          className="w-[72vw] max-w-[820px] opacity-25 blur-[34px]"
           style={{ background: "url('/caliphornia-logo.svg') center/contain no-repeat", aspectRatio: "4/1" }}
         />
       </div>
@@ -440,7 +440,7 @@ function AboutCaliph() {
         <div className={`relative rounded-2xl overflow-hidden ${glass} md:backdrop-blur-[8px]`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
-            <div className="relative min-h_[240px] md:min-h-[340px]">
+            <div className="relative aspect-[4/5] md:min-h-[340px]">
               <div className="absolute inset-0">
                 <Image
                   src="/caliph-profile.png"
