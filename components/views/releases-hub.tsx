@@ -83,10 +83,10 @@ function Grain() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-multiply"
+      className="pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-multiply"
       style={{
         background:
-          "repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 6px)",
+          "repeating-linear-gradient(135deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 4px)",
       }}
     />
   )
