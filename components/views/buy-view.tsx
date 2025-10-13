@@ -203,7 +203,7 @@ export function BuyView({ slug }: { slug: string }) {
         {customAmountError && <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>}
       </div>
 
-      <div className="max-w-[640px] mx_auto">
+      <div className="max-w-[640px] mx-auto">
         <Button
           variant="primary"
           size="large"
