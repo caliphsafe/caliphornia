@@ -9,6 +9,7 @@ import { ActivityFeed } from "@/components/patterns/activity-feed"
 import { MusicPlayer } from "@/components/patterns/music-player"
 import { AlbumCover } from "@/components/patterns/album-cover"
 import { PlayButton } from "@/components/patterns/play-button"
+import { SONGS } from "@/data/songs"
 
 const DEV_UNLOCK_AMOUNT = Number(process.env.NEXT_PUBLIC_DEV_UNLOCK_AMOUNT || "0") || 0
 
@@ -20,7 +21,8 @@ type Goal = {
   percent: number
 }
 
-export function BuyView() {
+export function BuyView({ slug }: { slug: string }) {
+  const songMeta = SONGS[slug] // slug is guaranteed by /buy/[slug]/page.tsx
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState("")
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -85,9 +87,9 @@ export function BuyView() {
     if (DEV_UNLOCK_AMOUNT > 0 && customAmount && Number(customAmount) === DEV_UNLOCK_AMOUNT) {
       // ✅ Global supporter cookie (legacy)
       document.cookie = "supporter=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
-      // ✅ Per-song supporter cookie for Polygamy
-      document.cookie = "supporter_polygamy=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure"
-      window.location.href = "/download"
+      // ✅ Per-song supporter cookie for this slug
+      document.cookie = `supporter_${slug}=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure`
+      window.location.href = `/download/${slug}`
       return
     }
 
@@ -95,17 +97,19 @@ export function BuyView() {
       setCustomAmountError("Minimum amount is $5")
       return
     }
+    // include song slug so success route can set supporter_<slug>
     window.location.href = `/api/checkout?amount=${encodeURIComponent(amt)}&label=${encodeURIComponent(
       "Caliphornia Support"
-    )}`
+    )}&song=${encodeURIComponent(slug)}`
   }
 
-  // ⬇️ EXACTLY the same as DownloadView
+  // ⬇️ EXACTLY the same as DownloadView — but sourced from SONGS[slug]
   const fullSong = {
-    id: "polygamy-caliph",
-    title: "Polygamy (Prod. By Caliph)",
-    artist: "Caliph",
-    albumCover: "/polygamy-cover.png",
+    id: `${songMeta.slug}-caliph`,
+    title: songMeta.title,
+    artist: songMeta.artist,
+    albumCover: songMeta.cover,
+    audioUrl: songMeta.audioUrl, // ensures full track
   }
 
   return (
@@ -117,7 +121,7 @@ export function BuyView() {
         <Header />
       </div>
 
-      <h1 className="sr-only">POLYGAMY</h1>
+      <h1 className="sr-only">{songMeta.title.toUpperCase()}</h1>
 
       <div className="mb-4 md:mb-6">
         <AlbumCover />
@@ -240,7 +244,7 @@ export function BuyView() {
             <div className="rounded-xl border border-[#B8A082]/70 bg-white/60 p-3 md:p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text-black">Fan</h3>
-                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text-white" style={{ backgroundColor: "#4a3f35" }}>
+                <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white" style={{ backgroundColor: "#4a3f35" }}>
                   $10
                 </span>
               </div>
