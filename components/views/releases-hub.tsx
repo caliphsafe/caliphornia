@@ -25,7 +25,7 @@ type PreviousRelease = {
 }
 
 const DROPS: Drop[] = [
-  { slug: "/buy", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
+  { slug: "/buy/polygamy", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
   { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
   { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
   { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
