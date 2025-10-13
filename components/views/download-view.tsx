@@ -7,17 +7,21 @@ import { AlbumCover } from "@/components/patterns/album-cover"
 import { Button } from "@/components/primitives/button"
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline"
 import { PlayButton } from "@/components/patterns/play-button"
+import { SONGS } from "@/data/songs"
 
-export function DownloadView() {
+export function DownloadView({ slug }: { slug: string }) {
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isGameOpen, setIsGameOpen] = useState(false)
   const [ecwidLoadedOnce, setEcwidLoadedOnce] = useState(false)
 
+  const songMeta = SONGS[slug]
+
   const fullSong = {
-    id: "polygamy-caliph",
-    title: "Polygamy (Prod. By Caliph)",
-    artist: "Caliph",
-    albumCover: "/polygamy-cover.png",
+    id: `${songMeta.slug}-caliph`,
+    title: songMeta.title,
+    artist: songMeta.artist,
+    albumCover: songMeta.cover,
+    audioUrl: songMeta.audioUrl, // ensure the full track (no preview logic)
   }
 
   // Render SingleProduct widgets when script is available
@@ -75,17 +79,17 @@ export function DownloadView() {
       </div>
 
       {/* Download Button */}
-<div className="mb-12 max-w-[640px] mx-auto">
-  <Button
-    variant="primary"
-    size="large"
-    className="w-full text-xl font-bold py-6"
-    style={{ backgroundColor: "#4a3f35", color: "white" }}
-    asChild
-  >
-    <a href="/api/download">DOWNLOAD .MP3</a>
-  </Button>
-</div>
+      <div className="mb-12 max-w-[640px] mx-auto">
+        <Button
+          variant="primary"
+          size="large"
+          className="w-full text-xl font-bold py-6"
+          style={{ backgroundColor: "#4a3f35", color: "white" }}
+          asChild
+        >
+          <a href={`/api/download?song=${encodeURIComponent(slug)}`}>DOWNLOAD .MP3</a>
+        </Button>
+      </div>
 
       {/* Bonuses Section */}
       <div className="max-w-[640px] mx-auto">
