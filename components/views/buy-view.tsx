@@ -141,7 +141,7 @@ export function BuyView({ slug }: { slug: string }) {
       <div className="max-w-[640px] mx-auto mb-6 md:mb-8 flex justify-center">
         <button
           onClick={handleWhatDoIGetClick}
-          className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg_white transition-colors whitespace-nowrap cursor-pointer"
+          className="flex w-fit px-5 md:px-6 py-2 md:py-3 bg-white/90 backdrop-blur-sm rounded-full text-black text-xs md:text-sm font-medium hover:bg-white transition-colors whitespace-nowrap cursor-pointer"
         >
           WHAT DO I GET?
         </button>
@@ -268,7 +268,7 @@ export function BuyView({ slug }: { slug: string }) {
             </div>
 
             <div className="rounded-xl border border-[#B8A082]/70 bg_white/60 p-3 md:p-4">
-              <div className="flex items-baseline justify_between gap-3">
+              <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-sm md:text-base font-semibold text_black">Legend</h3>
                 <span className="shrink-0 inline-block rounded-full px-2.5 py-1 text-xs md:text-sm font-bold text_white" style={{ backgroundColor: "#4a3f35" }}>
                   $50
