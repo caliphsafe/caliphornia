@@ -230,16 +230,22 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
   return (
     <div className="fixed inset-0 z-[120]">
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 backdrop-blur-[2px] md:backdrop-blur-sm"
         style={{
           background:
-            "linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5)), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%222%22 stitchTiles=%22stitch%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.03%22/></svg>')",
+            "linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.55))," +
+            "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%222%22 stitchTiles=%22stitch%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.03%22/></svg>')",
           backgroundSize: "cover, 160px 160px",
         }}
         onClick={onClose}
       />
+
       <div className="absolute left-0 right-0 bottom-6 md:bottom-10">
-        <div className={`mx-auto max-w-xl w-[92%] md:w-[72%] ${glass} rounded-3xl overflow-hidden`}>
+        <div
+        className={`mx-auto max-w-xl w-[92%] md:w-[72%] rounded-3xl overflow-hidden ` +
+          `bg-white/90 backdrop-blur-[2px] md:bg-white/60 md:backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.12)]`}
+        >
+
           <Grain />
           <div className="flex items_center justify-end px-3 pt-2 pb-1">
             <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
@@ -281,9 +287,9 @@ function TopNav() {
   return (
     <div
       className={`sticky top-0 z-[200] transition-all ${
-        solid
-          ? "md:backdrop-blur-md bg-white/60 border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)]"
-          : "md:backdrop-blur-[2px] bg-transparent"
+        solid ? 
+        "border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)] bg-white/90 backdrop-blur-[2px] md:bg-white/60 md:backdrop-blur-md" : "backdrop-blur-[2px] bg-transparent"
+
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-center md:justify-between">
