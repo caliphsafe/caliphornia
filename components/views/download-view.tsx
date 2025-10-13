@@ -24,6 +24,19 @@ export function DownloadView({ slug }: { slug: string }) {
     audioUrl: songMeta.audioUrl, // ensure the full track (no preview logic)
   }
 
+  // ⬇️ NEW: log a single "play" per session/tab per song
+  useEffect(() => {
+    const key = `played_${slug}`
+    if (sessionStorage.getItem(key)) return
+    sessionStorage.setItem(key, "1")
+    fetch("/api/activity/play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ song: slug }),
+      keepalive: true,
+    }).catch(() => {})
+  }, [slug])
+
   // Render SingleProduct widgets when script is available
   const renderSingleProducts = useCallback(() => {
     try {
