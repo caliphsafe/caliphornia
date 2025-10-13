@@ -153,7 +153,7 @@ export function BuyView({ slug }: { slug: string }) {
           style={{ background: "rgba(212, 211, 196, 0.70)" }}
         >
           <div className="text-4xl md:text-5xl font-bold text-black mb-2 md:mb-4 leading-none">
-            {goal ? `$${dollars(goal.remaining_cents)}` : "$99"}
+            {goal ? `$${dollars(goal.remaining_cents)}` : "$200"}
           </div>
           <p className="text-xs md:text-sm font-medium" style={{ color: "#867260" }}>
             REMAINING TO UNLOCK ON STREAMING
