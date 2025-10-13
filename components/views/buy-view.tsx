@@ -66,7 +66,7 @@ export function BuyView({ slug }: { slug: string }) {
     let canceled = false
     async function load() {
       try {
-        const res = await fetch("/api/goal", { cache: "no-store" })
+        const res = await fetch(`/api/goal?song=${encodeURIComponent(slug)}`, { cache: "no-store" })
         const data = await res.json()
         if (!canceled && data?.ok) setGoal(data)
       } catch {}
@@ -77,7 +77,7 @@ export function BuyView({ slug }: { slug: string }) {
       canceled = true
       clearInterval(id)
     }
-  }, [])
+  }, [slug])
 
   const dollars = (cents: number) => Math.round(cents / 100).toString()
 
@@ -203,7 +203,7 @@ export function BuyView({ slug }: { slug: string }) {
         {customAmountError && <p className="text-red-500 text-xs md:text-sm mt-2">{customAmountError}</p>}
       </div>
 
-      <div className="max-w-[640px] mx-auto">
+      <div className="max-w-[640px] mx_auto">
         <Button
           variant="primary"
           size="large"
