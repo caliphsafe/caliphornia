@@ -25,21 +25,18 @@ type PreviousRelease = {
 }
 
 const DROPS: Drop[] = [
-  // live hero is handled separately via FeaturedCard’s songSlug; this entry is just a placeholder tile
-  { slug: "/buy/polygamy", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
-
-  // Example unlockables (have slugs) vs. true “coming soon” (no slug / "#")
-  { slug: "/buy/not-today", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Unlock" },
-  { slug: "/buy/simp", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Unlock" },
-  { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 5", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 6", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 7", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 8", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 9", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 10", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 11", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
-  { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Soon" },
+  { slug: "/buy", title: "POLYGAMY", cover: "/polygamy-cover.png", status: "live" },
+  { slug: "#", title: "NOT TODAY FT. DELLY", cover: "/not-today-cover.png", status: "upcoming", dateLabel: "Sep 24" },
+  { slug: "#", title: "SIMP", cover: "/simp-cover.png", status: "upcoming", dateLabel: "Oct 1" },
+  { slug: "#", title: "DROP 4", cover: "/milia-ep-cover.jpg", status: "upcoming", dateLabel: "Oct 8" },
+  { slug: "#", title: "DROP 5", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 15" },
+  { slug: "#", title: "DROP 6", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 22" },
+  { slug: "#", title: "DROP 7", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Oct 29" },
+  { slug: "#", title: "DROP 8", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 5" },
+  { slug: "#", title: "DROP 9", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 12" },
+  { slug: "#", title: "DROP 10", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 19" },
+  { slug: "#", title: "DROP 11", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Nov 26" },
+  { slug: "#", title: "DROP 12", cover: "/cover-placeholder.png", status: "upcoming", dateLabel: "Dec 3" },
 ]
 
 const PREVIOUS_RELEASES: PreviousRelease[] = [
@@ -78,7 +75,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
 
 // ---------- Style tokens ----------
 const glass =
-  // PERF: limit backdrop blur to desktop only
+  // PERF: limit blur to desktop only
   "bg-white/55 md:backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
 
 // PERF: lightweight gradient layer instead of SVG turbulence
@@ -86,7 +83,7 @@ function Grain() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-multiply"
+      className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-multiply"
       style={{
         background:
           "repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 6px)",
@@ -143,7 +140,7 @@ function useMagnetic() {
 function ReleaseTile({ drop }: { drop: Drop }) {
   const isLive = drop.status === "live"
   const hasSlug = drop.slug && drop.slug !== "#"
-  const isUnlockable = !isLive && hasSlug // upcoming but linkable (older-but-locked or backlog you want to push)
+  const isUnlockable = !isLive && hasSlug
 
   // Clickable when live or unlockable; otherwise static card
   const Wrapper: any = (isLive || isUnlockable) ? Link : "div"
@@ -151,8 +148,8 @@ function ReleaseTile({ drop }: { drop: Drop }) {
     ? { href: drop.slug, className: "block group focus:outline-none focus:ring-2 focus:ring-[#B8A082]" }
     : { className: "block" }
 
-  const showLockOverlay = !isLive && !isUnlockable // only true “coming soon” gets the lock overlay
-  const chipText = isLive ? "LIVE" : (isUnlockable ? (drop.dateLabel || "UNLOCK") : (drop.dateLabel || "SOON"))
+  // Lock overlay only for true “coming soon” (no slug)
+  const showLockOverlay = !isLive && !isUnlockable
 
   return (
     <Wrapper {...wrapperProps}>
@@ -165,7 +162,6 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             fill
             sizes="(max-width: 768px) 100vw, 520px"
             loading={isLive ? "eager" : "lazy"}
-            // PERF: blur/scale only for true “coming soon”
             className={`object-cover ${showLockOverlay ? "blur-[6px] md:blur-[16px] opacity-75 scale-110" : ""}`}
             priority={isLive}
           />
@@ -178,7 +174,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             </div>
           )}
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
-            <Chip dark={!isLive}>{chipText}</Chip>
+            <Chip dark={!isLive}>{isLive ? "LIVE" : drop.dateLabel ?? "SOON"}</Chip>
           </div>
         </div>
       </div>
@@ -237,8 +233,8 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5)), repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 6px)",
-          backgroundSize: "cover, auto",
+            "linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5)), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%222%22 stitchTiles=%22stitch%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.03%22/></svg>')",
+          backgroundSize: "cover, 160px 160px",
         }}
         onClick={onClose}
       />
@@ -299,7 +295,7 @@ function TopNav() {
             width={140}
             height={32}
             className="h-auto w-[128px] md:w-[120px]"
-            // PERF: avoid extra priority here
+            priority
           />
         </Link>
         <div className="hidden md:block w-[180px]" />
@@ -308,7 +304,7 @@ function TopNav() {
   )
 }
 
-// ---------- Feature Presentation ----------
+// ---------- Feature Presentation (no parallax, eager hero only) ----------
 function FeaturedCard({
   live,
   supporter = false,
@@ -320,6 +316,7 @@ function FeaturedCard({
 }) {
   const enterRef = useMagnetic()
 
+  // dynamic target + label based on supporter and current song slug
   const targetHref = supporter ? `/download/${songSlug}` : `/buy/${songSlug}`
   const ctaLabel = supporter ? "Full Access" : "Unlock Song"
 
@@ -373,7 +370,10 @@ function FeaturedCard({
 
                 <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
                   A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life
-                  lessons through a family lens…
+                  lessons through a family lens. Across verses he compares three breakups to his grandfather’s three
+                  successful marriages—as told in the third verse—turning hard-won boundaries into wit, rhythm, and
+                  resolve. Produced by Caliph and sampling Monique Séka’s West African classic “Okaman,” the record
+                  keeps it light while guarding the heart—meeting his needs and the women in his world with clarity.
                 </p>
               </div>
 
@@ -382,7 +382,7 @@ function FeaturedCard({
                 <Link
                   ref={enterRef as any}
                   href={targetHref}
-                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition"
+                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform"
                   style={{ backgroundColor: "#4a3f35" }}
                 >
                   {ctaLabel}
@@ -404,21 +404,18 @@ function useReveal() {
     if (!el || typeof window === "undefined") return
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (reduced) return
-    // Defer attaching classes slightly to avoid blocking first paint/scroll
-    const id = window.setTimeout(() => {
-      el.classList.add("opacity-0", "translate-y-3")
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            el.classList.remove("opacity-0", "translate-y-3")
-            el.classList.add("animate-reveal")
-            io.disconnect()
-          }
-        })
-      }, { threshold: 0.12 })
-      io.observe(el)
-    }, 0)
-    return () => window.clearTimeout(id)
+    el.classList.add("opacity-0", "translate-y-3", "will-change-transform")
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          el.classList.remove("opacity-0", "translate-y-3")
+          el.classList.add("animate-reveal")
+          io.disconnect()
+        }
+      })
+    }, { threshold: 0.12 })
+    io.observe(el)
+    return () => io.disconnect()
   }, [])
   return ref
 }
@@ -473,13 +470,16 @@ function AboutCaliph() {
                 <div className={`relative rounded-2xl p-2.5 ${glass} md:backdrop-blur-[8px]`}>
                   <Grain />
                   <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Awards & Accolades</div>
-                  <div className="text-[13px] font-bold text_black mt-0.5">Multi-Grammy Award Winning Artist</div>
+                  <div className="text-[13px] font-bold text-black mt-0.5">Multi-Grammy Award Winning Artist</div>
                 </div>
               </div>
 
               <p className="mt-2 text-[13px] md:text-sm leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
                 Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
-                music into bold, genre-defying storytelling…
+                music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he
+                channels the journey of a Black Muslim immigrant to explore identity, resilience, and healing—from the
+                Grammy-winning <em>American Dreamers</em> to <em>Immigrant Of The Year</em>, crafting independently across
+                writing, production, visuals, and code.
               </p>
             </div>
           </div>
@@ -528,11 +528,11 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
       {/* HERO */}
       {live && <FeaturedCard live={live} supporter={supporter} songSlug={songSlug} />}
 
-      {/* UNLOCK SONGS — renamed and with unlockable link behavior */}
+      {/* UNLOCK SONGS — (renamed from Next Up) */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
           <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Unlock Songs</h3>
-          <div className="text-xs" style={{ color: "#867260" }}>Support to bring these to streaming</div>
+          <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
         </div>
 
         <div className="px-4">
@@ -584,11 +584,13 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
 
       <StreamingSheet open={sheetOpen} onClose={() => setSheetOpen(false)} release={activePrev} />
 
-      {/* global CSS */}
+      {/* global CSS (NOTE: removed content-visibility to avoid Safari scroll hitch) */}
       <style jsx global>{`
         .animate-reveal { animation: revealUp 520ms cubic-bezier(.2,.7,.2,1) forwards; }
         @keyframes revealUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @media (prefers-reduced-motion: reduce) { .animate-reveal { animation: none !important; } }
+
+        /* small iOS polish */
         html, body { overscroll-behavior-y: none; }
       `}</style>
     </div>
