@@ -1,15 +1,16 @@
+// app/releases/[slug]/page.tsx
 import { cookies } from "next/headers"
 import { redirect, notFound } from "next/navigation"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import ReleasesHub from "@/components/views/releases-hub"
+import { SONGS } from "@/data/songs"
 
 export default async function ReleasesSlugPage({ params }: { params: { slug: string } }) {
   const { slug } = params
 
-  // For now we only allow known slugs. Start with "polygamy".
-  // (You can add more later without touching other pages.)
-  const ALLOWED = new Set(["polygamy"])
-  if (!ALLOWED.has(slug)) {
+  // Validate slug against the song registry
+  const song = SONGS[slug]
+  if (!song) {
     return notFound()
   }
 
@@ -22,7 +23,7 @@ export default async function ReleasesSlugPage({ params }: { params: { slug: str
 
   if (supporter) {
     // They have full access for this slug → show hub as supporter
-    return <ReleasesHub supporter={true} />
+    return <ReleasesHub supporter={true} songSlug={slug} />
   }
 
   // Otherwise, they must have passed the gate (per-song first; fallback to legacy)
@@ -56,5 +57,5 @@ export default async function ReleasesSlugPage({ params }: { params: { slug: str
   }
 
   // Passed checks → non-supporter view of hub
-  return <ReleasesHub supporter={false} />
+  return <ReleasesHub supporter={false} songSlug={slug} />
 }
