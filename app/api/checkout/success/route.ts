@@ -4,6 +4,7 @@ export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { SONGS } from '@/data/songs'
 
 function safeDecode(v: string | null): string | null {
   if (!v) return null
@@ -18,9 +19,12 @@ export async function GET(req: Request) {
   const url = new URL(req.url)
   const sessionId = url.searchParams.get('session_id')
 
+  // Prefer song from query; fallback to metadata later; finally default "polygamy"
+  let songSlug = (url.searchParams.get('song') || '').trim().toLowerCase()
+
   if (!sessionId) {
-    // No session → back to buy
-    return NextResponse.redirect(new URL('/buy', url), { status: 302 })
+    const fallback = SONGS[songSlug] ? songSlug : 'polygamy'
+    return NextResponse.redirect(new URL(`/buy/${fallback}`, url), { status: 302 })
   }
 
   try {
@@ -28,9 +32,18 @@ export async function GET(req: Request) {
       expand: ['line_items.data.price.product', 'customer'],
     })
 
+    // If songSlug wasn't in the query, try pulling it from session metadata
+    if (!songSlug) {
+      const metaSlug = (session.metadata?.song_slug || '').trim().toLowerCase()
+      songSlug = metaSlug || 'polygamy'
+    }
+    if (!SONGS[songSlug]) {
+      // unknown/unsupported slug → fall back safely
+      songSlug = 'polygamy'
+    }
+
     if (session.payment_status !== 'paid') {
-      // Not paid → back to buy
-      return NextResponse.redirect(new URL('/buy', url), { status: 302 })
+      return NextResponse.redirect(new URL(`/buy/${songSlug}`, url), { status: 302 })
     }
 
     // Extract details
@@ -42,15 +55,15 @@ export async function GET(req: Request) {
     const currency = session.currency?.toUpperCase() ?? 'USD'
     const priceId = (session as any).line_items?.data?.[0]?.price?.id ?? null
 
-    // Record contribution (best effort)
+    // Record contribution (best effort) — now with song_slug
     if (email) {
       await supabaseAdmin.from('contributions').insert([
-        { email, amount, currency, stripe_session_id: session.id, price_id: priceId },
+        { email, amount, currency, stripe_session_id: session.id, price_id: priceId, song_slug: songSlug },
       ])
       await supabaseAdmin.from('emails').upsert([{ email, source: 'checkout' }], { onConflict: 'email' })
     }
 
-    // 🔹 Also log purchase in activity feed with decoded location (best effort)
+    // 🔹 Also log purchase in activity feed (best effort) — include song_slug
     try {
       const hdr = new Headers(req.headers)
       const rawCity    = hdr.get('x-vercel-ip-city')
@@ -68,14 +81,15 @@ export async function GET(req: Request) {
           city,
           region,
           country,
+          song_slug: songSlug,
         },
       ])
     } catch (err) {
       console.warn('[activity] purchase insert failed (non-fatal):', err)
     }
 
-    // Set unlock cookies (legacy global + per-song) + send to /download
-    const res = NextResponse.redirect(new URL('/download', url), { status: 302 })
+    // Set unlock cookies (legacy global + per-song) + send to /download/<slug>
+    const res = NextResponse.redirect(new URL(`/download/${songSlug}`, url), { status: 302 })
 
     // Legacy global flag (kept for backward compatibility)
     res.cookies.set('supporter', '1', {
@@ -86,8 +100,8 @@ export async function GET(req: Request) {
       secure: true,
     })
 
-    // ✅ Per-song flag for Polygamy (used by /releases/[slug] flow)
-    res.cookies.set('supporter_polygamy', '1', {
+    // ✅ Per-song flag (used by /releases/[slug], /download/[slug], etc.)
+    res.cookies.set(`supporter_${songSlug}`, '1', {
       path: '/',
       maxAge: 60 * 60 * 24 * 365,
       httpOnly: false,
@@ -98,7 +112,8 @@ export async function GET(req: Request) {
     return res
   } catch (e) {
     console.error(e)
-    // Any error → back to buy (no unlock)
-    return NextResponse.redirect(new URL('/buy', req.url), { status: 302 })
+    // Any error → back to per-song buy (no unlock)
+    const fallback = SONGS[(url.searchParams.get('song') || '').trim().toLowerCase()] ? (url.searchParams.get('song') || '').trim().toLowerCase() : 'polygamy'
+    return NextResponse.redirect(new URL(`/buy/${fallback}`, req.url), { status: 302 })
   }
 }
