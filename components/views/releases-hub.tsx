@@ -297,11 +297,19 @@ function TopNav() {
 }
 
 // ---------- Feature Presentation (no parallax, eager hero only) ----------
-function FeaturedCard({ live, supporter = false }: { live: Drop; supporter?: boolean }) {
+function FeaturedCard({
+  live,
+  supporter = false,
+  songSlug = "polygamy",
+}: {
+  live: Drop
+  supporter?: boolean
+  songSlug?: string
+}) {
   const enterRef = useMagnetic()
 
-  // dynamic target + label based on supporter
-  const targetHref = supporter ? "/download" : "/buy"
+  // dynamic target + label based on supporter and current song slug
+  const targetHref = supporter ? `/download/${songSlug}` : `/buy/${songSlug}`
   const ctaLabel = supporter ? "Full Access" : "Unlock Song"
 
   return (
@@ -413,9 +421,9 @@ function AboutCaliph() {
       className="mt-4 md:mt-6 px-4 py-4 relative"
       style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.30), rgba(243,242,238,0.7))" }}
     >
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <div className="pointer-events-none absolute inset-0 flex items_center justify-center">
         <div
-          className="w-[72vw] max-w-[820px] opacity-25 blur-[34px]"
+          className="w_[72vw] max-w-[820px] opacity-25 blur-[34px]"
           style={{ background: "url('/caliphornia-logo.svg') center/contain no-repeat", aspectRatio: "4/1" }}
         />
       </div>
@@ -474,7 +482,7 @@ function AboutCaliph() {
 }
 
 // ---------- Page ----------
-export default function ReleasesHub({ supporter = false }: { supporter?: boolean }) {
+export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }: { supporter?: boolean; songSlug?: string }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [activePrev, setActivePrev] = useState<PreviousRelease | null>(null)
 
@@ -510,7 +518,7 @@ export default function ReleasesHub({ supporter = false }: { supporter?: boolean
       </header>
 
       {/* HERO */}
-      {live && <FeaturedCard live={live} supporter={supporter} />}
+      {live && <FeaturedCard live={live} supporter={supporter} songSlug={songSlug} />}
 
       {/* NEXT UP — single outline, real inner padding, no vignette */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
