@@ -3,6 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =========================
+   Core tokens (existing)
+   ========================= */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -37,6 +40,26 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* =========================
+     Tahoe Liquid Glass tokens (added)
+     ========================= */
+  /* Light theme defaults (you’re currently light by design) */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.75);
+  --glass-shadow: rgba(10, 20, 40, 0.14);
+
+  /* Subtle vibrancy tints for a chroma-in-the-blur feel */
+  --vibrancy-1: rgba(90, 150, 255, 0.12);
+  --vibrancy-2: rgba(180, 110, 255, 0.10);
+
+  /* Radii, blur, motion */
+  --r-lg: 20px;
+  --r-xl: 24px;
+  --blur: 18px;     /* desktop default */
+  --blur-sm: 8px;   /* mobile default */
+  --ease: cubic-bezier(.2,.7,.2,1);
 }
 
 .dark {
@@ -72,6 +95,14 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+
+  /* Dark-mode Tahoe glass overrides */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.22);
+  --glass-highlight: rgba(255, 255, 255, 0.35);
+  --glass-shadow: rgba(5, 10, 25, 0.35);
+  --vibrancy-1: rgba(90, 150, 255, 0.12);
+  --vibrancy-2: rgba(180, 110, 255, 0.10);
 }
 
 @theme inline {
@@ -113,19 +144,97 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* =========================
+   Base (kept your bg color)
+   ========================= */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    background-color: #f3f2ee !important;
+    /* keep your light parchment background */
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(120,140,200,0.08), transparent),
+      radial-gradient(900px 420px at -10% 10%, rgba(120,80,200,0.06), transparent),
+      #f3f2ee !important;
   }
 }
 
+/* =========================
+   Components (existing + new)
+   ========================= */
 @layer components {
   .curved-text {
     transform: perspective(500px) rotateX(15deg);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ---------- Tahoe: core glass panel ---------- */
+  .glass {
+    background:
+      linear-gradient(180deg, var(--glass-bg), rgba(255,255,255,0.04)),
+      radial-gradient(120% 140% at 10% -10%, var(--vibrancy-1), transparent 60%),
+      radial-gradient(120% 140% at 110% 10%, var(--vibrancy-2), transparent 60%);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-xl);
+    box-shadow:
+      0 10px 30px var(--glass-shadow),
+      inset 0 1px 0 var(--glass-highlight);
+  }
+
+  /* Mobile perf/readability: lighter blur, slightly stronger fill */
+  @media (max-width: 640px) {
+    .glass {
+      backdrop-filter: blur(var(--blur-sm));
+      -webkit-backdrop-filter: blur(var(--blur-sm));
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)),
+        radial-gradient(120% 140% at 10% -10%, var(--vibrancy-1), transparent 60%),
+        radial-gradient(120% 140% at 110% 10%, var(--vibrancy-2), transparent 60%);
+    }
+  }
+
+  /* ---------- Tahoe: buttons for translucent contexts ---------- */
+  .btn-glass {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.10));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    box-shadow:
+      0 6px 18px rgba(10,20,40,0.22),
+      inset 0 1px 0 rgba(255,255,255,0.50);
+    color: var(--foreground);
+    transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+  }
+  .btn-glass:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 10px 26px rgba(10,20,40,0.28),
+      inset 0 1px 0 rgba(255,255,255,0.60);
+  }
+  .btn-glass:active { transform: translateY(0); }
+
+  /* ---------- Tahoe: hairline separators ---------- */
+  .hr-glass { border-top: 1px solid rgba(255,255,255,0.18); }
+
+  /* ---------- Tahoe: header chrome ---------- */
+  .header-glass {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  /* ---------- Tahoe: full-screen sheet/overlay ---------- */
+  .sheet-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.55));
   }
 }
