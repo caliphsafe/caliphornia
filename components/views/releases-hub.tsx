@@ -74,9 +74,7 @@ const PREVIOUS_RELEASES: PreviousRelease[] = [
 ]
 
 // ---------- Style tokens ----------
-const glass =
-  // PERF: limit blur to desktop only
-  "bg-white/55 md:backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+const glass = "glass" // use the global glass token
 
 // PERF: lightweight gradient layer instead of SVG turbulence
 function Grain() {
@@ -95,8 +93,9 @@ function Grain() {
 function Chip({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <span
-      className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold shadow-sm"
-      style={{ backgroundColor: dark ? "rgba(0,0,0,0.55)" : "#4a3f35", color: "white" }}
+      className={`rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold shadow-sm ${
+        dark ? "bg-ink text-white" : "bg-chip text-white"
+      }`}
     >
       {children}
     </span>
@@ -145,7 +144,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
   // Clickable when live or unlockable; otherwise static card
   const Wrapper: any = (isLive || isUnlockable) ? Link : "div"
   const wrapperProps = (isLive || isUnlockable)
-    ? { href: drop.slug, className: "block group focus:outline-none focus:ring-2 focus:ring-[#B8A082]" }
+    ? { href: drop.slug, className: "block group focus:outline-none focus:ring-2 focus:ring-ink/40" }
     : { className: "block" }
 
   // Lock overlay only for true “coming soon” (no slug)
@@ -153,7 +152,7 @@ function ReleaseTile({ drop }: { drop: Drop }) {
 
   return (
     <Wrapper {...wrapperProps}>
-      <div className={`relative rounded-2xl overflow-hidden ${glass} md:backdrop-blur-[6px] ${cardLift}`}>
+      <div className={`relative rounded-2xl overflow-hidden ${glass} ${cardLift}`}>
         <Grain />
         <div className="relative w-full aspect-square bg-black">
           <Image
@@ -165,10 +164,10 @@ function ReleaseTile({ drop }: { drop: Drop }) {
             className={`object-cover ${showLockOverlay ? "blur-[6px] md:blur-[16px] opacity-75 scale-110" : ""}`}
             priority={isLive}
           />
-          {showLockOverlay && <div className="absolute inset-0 bg-[rgba(243,242,238,0.35)]" />}
+          {showLockOverlay && <div className="absolute inset-0 bg-surface/35" />}
           {showLockOverlay && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="md:backdrop-blur-sm bg-[rgba(0,0,0,0.35)] border border-[#B8A082] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-md">
+              <div className="md:backdrop-blur-sm bg-ink/40 border border-border rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-md">
                 <LockClosedIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
             </div>
@@ -186,11 +185,11 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
   return (
     <button
       onClick={() => onOpen(item)}
-      className={`block group focus:outline-none focus:ring-2 focus:ring-[#B8A082] rounded-2xl ${cardLift}`}
+      className={`block group focus:outline-none focus:ring-2 focus:ring-ink/40 rounded-2xl ${cardLift}`}
       aria-label={`${item.title} — streaming`}
       title={`${item.title} — streaming`}
     >
-      <div className={`relative rounded-2xl overflow-hidden ${glass} md:backdrop-blur-[6px]`}>
+      <div className={`relative rounded-2xl overflow-hidden ${glass}`}>
         <Grain />
         <div className="relative w-full aspect-square bg-black">
           <Image
@@ -202,7 +201,7 @@ function PreviousTile({ item, onOpen }: { item: PreviousRelease; onOpen: (r: Pre
             className="object-cover"
           />
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
-            <span className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-white bg-[#303030]">
+            <span className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-white bg-ink">
               STREAMING
             </span>
           </div>
@@ -241,25 +240,25 @@ function StreamingSheet({ open, onClose, release }: { open: boolean; onClose: ()
       />
 
       <div className="absolute left-0 right-0 bottom-6 md:bottom-10">
-        <div
-        className={`mx-auto max-w-xl w-[92%] md:w-[72%] rounded-3xl overflow-hidden ` +
-          `bg-white/90 backdrop-blur-[2px] md:bg-white/60 md:backdrop-blur-md border border-[#B8A082]/70 shadow-[0_20px_50px_rgba(0,0,0,0.12)]`}
-        >
-
+        <div className={`mx-auto max-w-xl w-[92%] md:w-[72%] rounded-3xl overflow-hidden ${glass}`}>
           <Grain />
           <div className="flex items_center justify-end px-3 pt-2 pb-1">
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-[#4a3f35]" aria-label="Close">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-ink/5 text-text-primary"
+              aria-label="Close"
+            >
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
 
           <div className="px-4 pb-3 flex items-center gap-3">
-            <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-[#B8A082] shadow">
+            <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-border shadow">
               <Image src={release.cover} alt={`${release.title} cover`} fill className="object-cover" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-black truncate">{release.title}</h3>
-              <p className="text-xs" style={{ color: "#867260" }}>Listen on your favorite platform</p>
+              <h3 className="text-base font-bold text-text-primary truncate">{release.title}</h3>
+              <p className="text-xs text-text-muted">Listen on your favorite platform</p>
             </div>
           </div>
 
@@ -287,9 +286,9 @@ function TopNav() {
   return (
     <div
       className={`sticky top-0 z-[200] transition-all ${
-        solid ? 
-        "border-b border-[#B8A082]/50 shadow-[0_6px_24px_rgba(0,0,0,0.08)] bg-white/90 backdrop-blur-[2px] md:bg-white/60 md:backdrop-blur-md" : "backdrop-blur-[2px] bg-transparent"
-
+        solid
+          ? "border-b border-border shadow-[0_6px_24px_rgba(0,0,0,0.08)] bg-white/90 backdrop-blur-[2px] md:bg-white/60 md:backdrop-blur-md"
+          : "backdrop-blur-[2px] bg-transparent"
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 py-2.5 flex items-center justify-center md:justify-between">
@@ -329,6 +328,7 @@ function FeaturedCard({
   return (
     <section
       className="px-4 pt-4 pb-5 md:py-6 relative"
+      // Keep background flourish (non-color-conflicting); page base color comes from bg-surface on the wrapper
       style={{
         background:
           "radial-gradient(900px 360px at 50% -20%, rgba(184,160,130,0.10), transparent), linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243,242,238,0))",
@@ -342,7 +342,7 @@ function FeaturedCard({
       </div>
 
       <div className="mx-auto max-w-5xl relative">
-        <div className={`relative rounded-3xl overflow-hidden ${glass} md:backdrop-blur-[8px]`}>
+        <div className={`relative rounded-3xl overflow-hidden ${glass}`}>
           <Grain />
 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(0,560px)_1fr] items-stretch">
@@ -367,14 +367,14 @@ function FeaturedCard({
             {/* info */}
             <div className="flex flex-col justify-between px-4 pb-4 pt-0 md:p-6 relative">
               <div>
-                <div className="text-[11px] md:text-xs font-bold tracking-[0.18em] text-[#867260] uppercase">
+                <div className="text-[11px] md:text-xs font-bold tracking-[0.18em] text-text-muted uppercase">
                   THIS WEEK’S DROP
                 </div>
-                <h2 className="mt-1 text-lg md:text-2xl font-extrabold tracking-tight text-black">
+                <h2 className="mt-1 text-lg md:text-2xl font-extrabold tracking-tight text-text-primary">
                   POLYGAMY (PROD. BY CALIPH)
                 </h2>
 
-                <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
+                <p className="mt-2 text-sm md:text-[15px] leading-relaxed text-justify text-text-primary">
                   A playful, self-aware parody on modern love and legacy, “Polygamy” threads Caliph’s single-life
                   lessons through a family lens. Across verses he compares three breakups to his grandfather’s three
                   successful marriages—as told in the third verse—turning hard-won boundaries into wit, rhythm, and
@@ -388,8 +388,7 @@ function FeaturedCard({
                 <Link
                   ref={enterRef as any}
                   href={targetHref}
-                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform"
-                  style={{ backgroundColor: "#4a3f35" }}
+                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform bg-ink"
                 >
                   {ctaLabel}
                 </Link>
@@ -432,8 +431,7 @@ function AboutCaliph() {
   return (
     <section
       ref={ref}
-      className="mt-4 md:mt-6 px-4 py-4 relative"
-      style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.30), rgba(243,242,238,0.7))" }}
+      className="mt-4 md:mt-6 px-4 py-4 relative bg-window"
     >
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
@@ -443,7 +441,7 @@ function AboutCaliph() {
       </div>
 
       <div className="mx-auto max-w-6xl relative">
-        <div className={`relative rounded-2xl overflow-hidden ${glass} md:backdrop-blur-[8px]`}>
+        <div className={`relative rounded-2xl overflow-hidden ${glass}`}>
           <Grain />
           <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
             <div className="relative aspect-[4/5] md:min-h-[340px]">
@@ -460,27 +458,27 @@ function AboutCaliph() {
             </div>
 
             <div className="relative p-3 md:p-4 flex flex-col">
-              <h3 className="text-base md:text-lg font-bold text-black">About Caliph</h3>
+              <h3 className="text-base md:text-lg font-bold text-text-primary">About Caliph</h3>
 
               <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div className={`relative rounded-2xl p-2.5 ${glass} md:backdrop-blur-[8px]`}>
+                <div className={`relative rounded-2xl p-2.5 ${glass}`}>
                   <Grain />
-                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Hometown</div>
-                  <div className="text-[13px] font-bold text-black mt-0.5">Dakar, Senegal / New England</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-text-muted">Hometown</div>
+                  <div className="text-[13px] font-bold text-text-primary mt-0.5">Dakar, Senegal / New England</div>
                 </div>
-                <div className={`relative rounded-2xl p-2.5 ${glass} md:backdrop-blur-[8px]`}>
+                <div className={`relative rounded-2xl p-2.5 ${glass}`}>
                   <Grain />
-                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Genres</div>
-                  <div className="text-[13px] font-bold text-black mt-0.5">Hip-Hop · Afro-Fusion · R&B</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-text-muted">Genres</div>
+                  <div className="text-[13px] font-bold text-text-primary mt-0.5">Hip-Hop · Afro-Fusion · R&B</div>
                 </div>
-                <div className={`relative rounded-2xl p-2.5 ${glass} md:backdrop-blur-[8px]`}>
+                <div className={`relative rounded-2xl p-2.5 ${glass}`}>
                   <Grain />
-                  <div className="text-[10px] font-semibold tracking-wide text-[#867260]">Awards & Accolades</div>
-                  <div className="text-[13px] font-bold text-black mt-0.5">Multi-Grammy Award Winning Artist</div>
+                  <div className="text-[10px] font-semibold tracking-wide text-text-muted">Awards & Accolades</div>
+                  <div className="text-[13px] font-bold text-text-primary mt-0.5">Multi-Grammy Award Winning Artist</div>
                 </div>
               </div>
 
-              <p className="mt-2 text-[13px] md:text-sm leading-relaxed text-justify" style={{ color: "#4a3f35" }}>
+              <p className="mt-2 text-[13px] md:text-sm leading-relaxed text-justify text-text-primary">
                 Caliph (pronounced <em>Cuh-Leaf</em>) is a Grammy-winning artist blending hip-hop, Afro, R&B, and world
                 music into bold, genre-defying storytelling. Born in Dakar, Senegal and raised in New Bedford, MA, he
                 channels the journey of a Black Muslim immigrant to explore identity, resilience, and healing—from the
@@ -508,15 +506,13 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
 
   return (
     <div
-      className="min-h-screen relative overflow-x_hidden"
+      className="min-h-screen relative overflow-x_hidden bg-surface"
       style={{
-        background:
-          "radial-gradient(1200px 520px at 50% -12%, rgba(255,255,255,0.75), rgba(243,242,238,1)), #F3F2EE",
         touchAction: "pan-y",
         WebkitOverflowScrolling: "touch",
       }}
     >
-      {/* global ambient glow */}
+      {/* global ambient glow (kept visual flourish) */}
       <div
         className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[120vw] h-[110px] blur-[50px] opacity-40"
         style={{ background: "radial-gradient(closest-side, rgba(184,160,130,0.35), transparent)" }}
@@ -526,7 +522,7 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
 
       {/* helper copy (mobile) */}
       <header className="px-5 pt-3 pb-3 flex flex-col items-center text-center sm:hidden">
-        <p className="max-w-xl text-sm leading-relaxed text-justify" style={{ color: "#867260" }}>
+        <p className="max-w-xl text-sm leading-relaxed text-justify text-text-muted">
           Tune in weekly and help release Caliph’s music to streaming—your support decides what drops next.
         </p>
       </header>
@@ -537,8 +533,8 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
       {/* UNLOCK SONGS — (renamed from Next Up) */}
       <section ref={nextRef} className="mt-3 md:mt-4 py-4 relative">
         <div className="px-4 flex items-center justify-between mb-2.5">
-          <h3 className="text-[15px] md:text-[17px] font-semibold text-black">Unlock Songs</h3>
-          <div className="text-xs" style={{ color: "#867260" }}>Weekly releases</div>
+          <h3 className="text-[15px] md:text-[17px] font-semibold text-text-primary">Unlock Songs</h3>
+          <div className="text-xs text-text-muted">Weekly releases</div>
         </div>
 
         <div className="px-4">
@@ -547,7 +543,7 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
             <div className="p-3 sm:p-4">
               <div
                 className="overflow-x-auto snap-x snap-mandatory scrollbar-thin"
-                style={{ scrollbarColor: "#9f8b79 transparent", WebkitOverflowScrolling: "touch" }}
+                style={{ scrollbarColor: "rgba(0,0,0,0.25) transparent", WebkitOverflowScrolling: "touch" }}
               >
                 <div className="flex gap-3 sm:gap-4 min-w-max py-2 px-2">
                   {upcoming.slice(0, 6).map((d, idx) => (
@@ -569,10 +565,9 @@ export default function ReleasesHub({ supporter = false, songSlug = "polygamy" }
       {PREVIOUS_RELEASES.length > 0 && (
         <section
           ref={prevRef}
-          className="mt-5 md:mt-6 px-4 pb-14 pt-4 relative"
-          style={{ background: "linear-gradient(180deg, rgba(235,230,220,0.35), rgba(243,242,238,0.8))" }}
+          className="mt-5 md:mt-6 px-4 pb-14 pt-4 relative bg-window"
         >
-          <h3 className="text-[15px] md:text-[17px] font-semibold text-black mb-3">Previously Released</h3>
+          <h3 className="text-[15px] md:text-[17px] font-semibold text-text-primary mb-3">Previously Released</h3>
           <div className="mx-auto max-w-6xl grid grid-cols-3 gap-3 sm:gap-4">
             {PREVIOUS_RELEASES.slice(0, 3).map((item, i) => (
               <PreviousTile
