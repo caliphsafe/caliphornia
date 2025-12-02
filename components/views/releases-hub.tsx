@@ -388,7 +388,7 @@ function FeaturedCard({
                 <Link
                   ref={enterRef as any}
                   href={targetHref}
-                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform bg-ink"
+                  className="inline-flex justify-center w-full md:w-auto rounded-none px-5 py-2.5 font-semibold text-white transition will-change-transform bg-[#4a3f35]"
                 >
                   {ctaLabel}
                 </Link>
